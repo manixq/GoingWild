@@ -1,11 +1,15 @@
 #ifndef _SYSTEM_CLASS_H_
 #define _SYSTEM_CLASS_H_
 
+//=======
+//defined
 #define WIN32_LEAN_AND_MEAN
 
+//========
 //includes
 #include <windows.h>
 
+//===============
 //my own includes
 #include "input_class.h"
 #include "graphics_class.h"

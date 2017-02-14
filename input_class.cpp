@@ -19,22 +19,22 @@ void InputClass::Initialize()
 {
  int i;
  for (i = 0; i < 256; i++)
-  keys[i] = false;
+  keys_[i] = false;
 }
 
 void InputClass::Key_down(unsigned int input)
 {
- keys[input] = true;
+ keys_[input] = true;
 }
 
 void InputClass::Key_up(unsigned int input)
 {
- keys[input] = false;
+ keys_[input] = false;
 }
 
 bool InputClass::Is_key_down(unsigned int key)
 {
- return keys[key];
+ return keys_[key];
 }
 
 

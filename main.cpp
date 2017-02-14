@@ -1,5 +1,4 @@
 #include "system_class.h"
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
  SystemClass* system;
@@ -18,6 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
  {
   system->Run();
  }
+
 
  //Shutdown with release
  system->Shutdown();

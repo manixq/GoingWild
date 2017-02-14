@@ -18,7 +18,7 @@ public:
  bool Is_key_down(unsigned int);
 
 private:
- bool keys[256];
+ bool keys_[256];
 };
 
 #endif
