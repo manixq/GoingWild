@@ -76,7 +76,7 @@ void SystemClass::Run()
 
  //Loop until broken
  done = false;
- while(done)
+ while(!done)
  {
   if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
   {

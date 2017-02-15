@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{acbd0a71-65da-4e97-a7b0-fe92b31441f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Vertex Shader">
+      <UniqueIdentifier>{e24344de-b73d-4745-a0fc-b2728433702c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Pixel Shader">
+      <UniqueIdentifier>{692e5a8b-b4fa-4b63-9da1-e6bce94439db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,6 +39,15 @@
     <ClCompile Include="d3d_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="model_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -44,5 +62,22 @@
     <ClInclude Include="d3d_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="model_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="color.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="color.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -4,10 +4,13 @@
 //========
 //includes
 #include "d3d_class.h"
+#include "camera_class.h"
+#include "model_class.h"
+#include "color_shader_class.h"
 
 //=======
 //globals
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -28,6 +31,9 @@ public:
 private:
  bool Render();
  D3DClass* d3d_;
+ CameraClass* camera_;
+ ModelClass* model_;
+ ColorShaderClass* color_shader_;
 };
 
 #endif
