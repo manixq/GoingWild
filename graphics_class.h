@@ -6,7 +6,7 @@
 #include "d3d_class.h"
 #include "camera_class.h"
 #include "model_class.h"
-#include "color_shader_class.h"
+#include "texture_shader_class.h"
 
 //=======
 //globals
@@ -33,7 +33,7 @@ private:
  D3DClass* d3d_;
  CameraClass* camera_;
  ModelClass* model_;
- ColorShaderClass* color_shader_;
+ TextureShaderClass* texture_shader_;
 };
 
 #endif

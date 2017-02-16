@@ -4,6 +4,7 @@ ModelClass::ModelClass()
 {
  vertex_buffer_ = 0;
  index_buffer_ = 0;
+ texture_ = 0;
 }
 
 ModelClass::ModelClass(const ModelClass&)
@@ -16,7 +17,7 @@ ModelClass::~ModelClass()
  
 }
 
-bool ModelClass::Initialize(ID3D11Device* device)
+bool ModelClass::Initialize(ID3D11Device* device, WCHAR* texture_filename)
 {
  bool result;
 
@@ -24,11 +25,17 @@ bool ModelClass::Initialize(ID3D11Device* device)
  result = Initialize_buffers(device);
  if (!result)
   return false;
+
+ //load the texture
+ result = Load_texture(device, texture_filename);
+ if (!result)
+  return false;
  return true;
 }
 
 void ModelClass::Shutdown()
 {
+ Release_texture();
  Shutdown_buffers();
 }
 
@@ -40,6 +47,11 @@ void ModelClass::Render(ID3D11DeviceContext* device_context)
 int ModelClass::Get_index_count()
 {
  return index_count_;
+}
+
+ID3D11ShaderResourceView* ModelClass::Get_texture()
+{
+ return texture_->Get_texture();
 }
 
 bool ModelClass::Initialize_buffers(ID3D11Device* device)
@@ -63,13 +75,13 @@ bool ModelClass::Initialize_buffers(ID3D11Device* device)
 
  //load the vertex array with data
  vertices[0].position = D3DXVECTOR3(-1.0f, -1.0f, 0.0f); //bottom left
- vertices[0].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+ vertices[0].texture = D3DXVECTOR2(0.0f, 1.0f);
 
  vertices[1].position = D3DXVECTOR3(0.0f, 1.0f, 0.0f);  // Top middle.
- vertices[1].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+ vertices[1].texture = D3DXVECTOR2(0.5f, 0.0f);
 
  vertices[2].position = D3DXVECTOR3(1.0f, -1.0f, 0.0f);  // Bottom right.
- vertices[2].color = D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f);
+ vertices[2].texture = D3DXVECTOR2(1.0f, 1.0f);
 
  // Load the index array with data.
  indices[0] = 0;  // Bottom left.
@@ -100,8 +112,8 @@ bool ModelClass::Initialize_buffers(ID3D11Device* device)
  index_buffer_desc.StructureByteStride = 0;
 
  index_data.pSysMem = indices;
- index_data.SysMemPitch = 0;
- index_data.SysMemSlicePitch = 0;
+ //index_data.SysMemPitch = 0;
+ //index_data.SysMemSlicePitch = 0;
 
  result = device->CreateBuffer(&index_buffer_desc, &index_data, &index_buffer_);
  if (FAILED(result))
@@ -144,6 +156,30 @@ void ModelClass::Render_buffers(ID3D11DeviceContext* device_context)
  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename)
+{
+ bool result;
+
+ //create texture object
+ texture_ = new TextureClass;
+ if (!texture_)
+  return false;
+
+ result = texture_->Initialize(device, filename);
+ if (!result)
+  return false;
+
+ return true;
+}
+
+void ModelClass::Release_texture()
+{
+ if (texture_)
+ {
+  texture_->Shutdown();
+  texture_ = nullptr;
+ }
+}
 
 
 

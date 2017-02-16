@@ -5,7 +5,7 @@ GraphicsClass::GraphicsClass()
  d3d_ = nullptr;
  camera_ = nullptr;
  model_ = nullptr;
- color_shader_ = nullptr;
+ texture_shader_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
 
  //init model
- result = model_->Initialize(d3d_->GetDevice());
+ result = model_->Initialize(d3d_->GetDevice(), L"../Engine/data/floor.dds");
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
@@ -65,14 +65,14 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  }
 
  //create color shader object
- color_shader_ = new ColorShaderClass;
- if (!color_shader_)
+ texture_shader_ = new TextureShaderClass;
+ if (!texture_shader_)
   return false;
 
- result = color_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ result = texture_shader_->Initialize(d3d_->GetDevice(), hwnd);
  if(!result)
  {
-  MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+  MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
   return false;
  }
  return true;
@@ -81,11 +81,11 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
- if(color_shader_)
+ if(texture_shader_)
  {
-  color_shader_->Shutdown();
-  delete color_shader_;
-  color_shader_ = nullptr;
+  texture_shader_->Shutdown();
+  delete texture_shader_;
+  texture_shader_ = nullptr;
  }
 
  if(model_)
@@ -134,7 +134,7 @@ bool GraphicsClass::Render()
 
  model_->Render(d3d_->GetDeviceContext());
 
- result = color_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix);
+ result = texture_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture());
  if (!result)
   return false;
 
