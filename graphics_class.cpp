@@ -5,7 +5,8 @@ GraphicsClass::GraphicsClass()
  d3d_ = nullptr;
  camera_ = nullptr;
  model_ = nullptr;
- texture_shader_ = nullptr;
+ light_shader_ = nullptr;
+ light_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -65,28 +66,42 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  }
 
  //create color shader object
- texture_shader_ = new TextureShaderClass;
- if (!texture_shader_)
+ light_shader_ = new LightShaderClass;
+ if (!light_shader_)
   return false;
 
- result = texture_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ result = light_shader_->Initialize(d3d_->GetDevice(), hwnd);
  if(!result)
  {
-  MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+  MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
   return false;
  }
+
+ light_ = new LightClass;
+ if (!light_)
+  return false;
+
+ light_->Set_diffuse_color(1.0f, 0.0f, 1.0f, 1.0f);
+ light_->Set_direction(0.0f, 0.0f, 1.0f);
  return true;
 }
 
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
- if(texture_shader_)
+ if (light_)
  {
-  texture_shader_->Shutdown();
-  delete texture_shader_;
-  texture_shader_ = nullptr;
+  delete light_;
+  light_ = nullptr;
  }
+
+ if(light_shader_)
+ {
+  light_shader_->Shutdown();
+  delete light_shader_;
+  light_shader_ = nullptr;
+ }
+
 
  if(model_)
  {
@@ -113,15 +128,19 @@ bool GraphicsClass::Frame()
 {
  bool result;
 
- //render func each frame
- result = Render();
+ static float rotation = 0.0f;
+ rotation += static_cast<float>(D3DX_PI * 0.01f);
+ if (rotation > 360.0f)
+  rotation -= 360.0f;
+ result = Render(rotation);
+
  if (!result)
   return false;
 
  return true;
 }
 
-bool GraphicsClass::Render()
+bool GraphicsClass::Render(float rotation)
 {
  D3DXMATRIX view_matrix, projection_matrix, world_matrix;
  bool result;
@@ -132,9 +151,10 @@ bool GraphicsClass::Render()
  d3d_->GetWorldMatrix(world_matrix);
  d3d_->GetProjectionMatrix(projection_matrix);
 
+ D3DXMatrixRotationY(&world_matrix, rotation);
  model_->Render(d3d_->GetDeviceContext());
 
- result = texture_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture());
+ result = light_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_diffuse_color());
  if (!result)
   return false;
 

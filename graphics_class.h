@@ -6,7 +6,8 @@
 #include "d3d_class.h"
 #include "camera_class.h"
 #include "model_class.h"
-#include "texture_shader_class.h"
+#include "light_shader_class.h"
+#include "light_class.h"
 
 //=======
 //globals
@@ -29,11 +30,13 @@ public:
  bool Frame();
 
 private:
- bool Render();
+ bool Render(float);
+
  D3DClass* d3d_;
  CameraClass* camera_;
  ModelClass* model_;
- TextureShaderClass* texture_shader_;
+ LightShaderClass* light_shader_;
+ LightClass* light_;
 };
 
 #endif
