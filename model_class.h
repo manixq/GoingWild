@@ -7,6 +7,9 @@
 #include <d3d11.h>
 #include <D3DX10math.h>
 #include "texture_class.h"
+#include <fstream>
+
+using namespace std;
 
 //==========
 //ModelClass
@@ -17,11 +20,13 @@ public:
  ModelClass(const ModelClass&);
  ~ModelClass();
 
- bool Initialize(ID3D11Device*, WCHAR*);
+ bool Initialize(ID3D11Device*, char*, WCHAR*);
  void Shutdown();
  void Render(ID3D11DeviceContext*);
  int Get_index_count();
  ID3D11ShaderResourceView* Get_texture();
+ bool Load_model(char*);
+ void Release_model();
 
 private:
  struct VERTEX_TYPE
@@ -29,6 +34,13 @@ private:
   D3DXVECTOR3 position;
   D3DXVECTOR2 texture;
   D3DXVECTOR3 normal;
+ };
+
+ struct MODEL_TYPE
+ {
+  float x, y, z;
+  float tu, tv;
+  float nx, ny, nz;
  };
 
  bool Initialize_buffers(ID3D11Device*);
@@ -40,7 +52,8 @@ private:
 
  ID3D11Buffer *vertex_buffer_, *index_buffer_;
  int vertex_count_, index_count_;
-
+ 
  TextureClass* texture_;
+ MODEL_TYPE* model_;
 };
 #endif

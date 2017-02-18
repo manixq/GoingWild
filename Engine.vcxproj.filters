@@ -22,6 +22,12 @@
     <Filter Include="Shaders\Pixel Shader">
       <UniqueIdentifier>{692e5a8b-b4fa-4b63-9da1-e6bce94439db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{c490328e-a619-4fe3-a091-2ddb81df6f03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models\data">
+      <UniqueIdentifier>{e7d11788-a7ab-4b49-959d-f09bb5e873dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -115,5 +121,15 @@
     <None Include="light.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\cube.txt">
+      <Filter>Models\data</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\floor.dds">
+      <Filter>Models\data</Filter>
+    </Image>
   </ItemGroup>
 </Project>

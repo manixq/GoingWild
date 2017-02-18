@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
 
  //init model
- result = model_->Initialize(d3d_->GetDevice(), L"../Engine/data/floor.dds");
+ result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/cube.txt" ,L"../Engine/data/floor.dds");
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
@@ -81,7 +81,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  if (!light_)
   return false;
 
- light_->Set_diffuse_color(1.0f, 0.0f, 1.0f, 1.0f);
+ light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
  light_->Set_direction(0.0f, 0.0f, 1.0f);
  return true;
 }

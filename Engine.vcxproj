@@ -182,6 +182,12 @@
     <None Include="texture.ps" />
     <None Include="texture.vs" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\cube.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\floor.dds" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
