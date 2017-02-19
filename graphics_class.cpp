@@ -83,7 +83,9 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 
  light_->Set_ambient_color(0.15f, 0.15f, 0.15f, 1.0f);
  light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
- light_->Set_direction(1.0f, 0.0f, 0.0f);
+ light_->Set_direction(0.0f, 0.0f, 1.0f);
+ light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
+ light_->Set_specular_power(32.0f);
  return true;
 }
 
@@ -155,7 +157,7 @@ bool GraphicsClass::Render(float rotation)
  D3DXMatrixRotationY(&world_matrix, rotation);
  model_->Render(d3d_->GetDeviceContext());
 
- result = light_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_diffuse_color(), light_->Get_ambient_color());
+ result = light_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
  if (!result)
   return false;
 

@@ -7,6 +7,12 @@ cbuffer matrix_buffer
  matrix projection_matrix;
 };
 
+cbuffer camera_buffer
+{
+float3 camera_position;
+float padding;
+};
+
 //========
 //TypeDefs
 struct VERTEX_INPUT_TYPE
@@ -21,6 +27,7 @@ struct PIXEL_INPUT_TYPE
  float4 position : SV_POSITION;
  float2 tex : TEXCOORD0;
  float3 normal : NORMAL;
+ float3 view_direction : TEXCOORD1;
 };
 
 //============
@@ -28,6 +35,7 @@ struct PIXEL_INPUT_TYPE
 PIXEL_INPUT_TYPE Light_vertex_shader(VERTEX_INPUT_TYPE input)
 {
  PIXEL_INPUT_TYPE output;
+ float4 world_position;
 
  input.position.w = 1.0f;
 
@@ -41,5 +49,14 @@ PIXEL_INPUT_TYPE Light_vertex_shader(VERTEX_INPUT_TYPE input)
 
  //normalize normal vector
  output.normal = normalize(output.normal);
+
+
+ //calc vertex pos in the world
+ world_position = mul(input.position, world_matrix);
+
+ //viewing direction
+ output.view_direction = camera_position.xyz - world_position.xyz;
+
+ output.view_direction = normalize(output.view_direction);
  return output;
 }
