@@ -2,8 +2,12 @@
 
 SystemClass::SystemClass()
 {
- input = nullptr;
- graphics = nullptr;
+ input_ = nullptr;
+ graphics_ = nullptr;
+ fps_ = nullptr;
+ cpu_ = nullptr;
+ timer_ = nullptr;
+ position_ = nullptr;
 }
 
 SystemClass::SystemClass(const SystemClass& other_class)
@@ -25,41 +29,86 @@ bool SystemClass::Initialize()
  Initialize_windows(screen_width, screen_height);
 
  //Keyboard input
- input = new InputClass;
- if (!input) 
+ input_ = new InputClass;
+ if (!input_) 
   return false;
 
  //init
- input->Initialize();
+ input_->Initialize();
  
  //Rendering and graphics
- graphics = new GraphicsClass;
- if (!graphics) 
+ graphics_ = new GraphicsClass;
+ if (!graphics_) 
   return false;
 
  //init graphics
- result = graphics->Initialize(screen_width, screen_height, hwnd);
+ result = graphics_->Initialize(screen_width, screen_height, hwnd);
  if (!result) 
   return false;
 
+ fps_ = new FpsClass;
+ if (!fps_)
+  return false;
+
+ fps_->Initialize();
+
+ cpu_ = new CpuClass;
+ if (!cpu_)
+  return false;
+
+ cpu_->Initialize();
+
+ timer_ = new TimerClass;
+ if (!timer_)
+ {
+  MessageBox(hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
+  return false;
+ }
+
+ position_ = new PositionClass;
+ if (!position_)
+  return false;
  return true;
 }
 
 void SystemClass::Shutdown()
 {
- //Release graphics object
- if(graphics)
+ if(position_)
  {
-  graphics->Shutdown();
-  delete graphics;
-  graphics = nullptr;
+  delete position_;
+  position_ = nullptr;
+ }
+
+ if(timer_)
+ {
+  delete timer_;
+  timer_ = nullptr;
+ }
+
+ if(cpu_)
+ {
+  delete cpu_;
+  cpu_ = nullptr;
+ }
+
+ if(fps_)
+ {
+  delete fps_;
+  fps_ = nullptr;
+ }
+ //Release graphics object
+ if(graphics_)
+ {
+  graphics_->Shutdown();
+  delete graphics_;
+  graphics_ = nullptr;
  }
 
  //Release input
- if(input)
+ if(input_)
  {
-  delete input;
-  input = nullptr;
+  delete input_;
+  input_ = nullptr;
  }
 
  //bye, bye
@@ -101,17 +150,28 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
- bool result;
+ bool key_down, result;
+ float rotation_y;
 
  //escape? no.
- if (input->Is_key_down(VK_ESCAPE)) 
+ if (input_->Is_key_down(VK_ESCAPE)) 
   return false;
 
- //frame processing
- result = graphics->Frame();
+ timer_->Frame();
+
+ position_->Set_frame_time(timer_->Get_time());
+ key_down = input_->Is_key_down(VK_LEFT);
+ position_->Turn_left(key_down);
+ position_->Turn_right(key_down);
+ position_->Get_rotation(rotation_y);
+
+ result = graphics_->Frame(rotation_y);
  if (!result)
   return false;
 
+ result = graphics_->Render();
+ if (!result)
+  return false;
  return true;
 }
 
@@ -123,13 +183,13 @@ LRESULT SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM 
   case WM_KEYDOWN:
   {
    //if pressed - send to input object to record its state
-   input->Key_down(static_cast<unsigned int>(wparam));
+   input_->Key_down(static_cast<unsigned int>(wparam));
    return 0;
   }
   case WM_KEYUP:
   {
    //unset state
-   input->Key_up(static_cast<unsigned int>(wparam));
+   input_->Key_up(static_cast<unsigned int>(wparam));
    return 0;
   }
   default: 

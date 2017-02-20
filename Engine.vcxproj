@@ -150,29 +150,41 @@
   <ItemGroup>
     <ClCompile Include="camera_class.cpp" />
     <ClCompile Include="color_shader_class.cpp" />
+    <ClCompile Include="cpu_class.cpp" />
     <ClCompile Include="d3d_class.cpp" />
+    <ClCompile Include="fps_class.cpp" />
+    <ClCompile Include="frustum_class.cpp" />
     <ClCompile Include="graphics_class.cpp" />
     <ClCompile Include="input_class.cpp" />
     <ClCompile Include="light_class.cpp" />
     <ClCompile Include="light_shader_class.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model_class.cpp" />
+    <ClCompile Include="model_list_class.cpp" />
+    <ClCompile Include="position_class.cpp" />
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
+    <ClCompile Include="timer_class.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera_class.h" />
     <ClInclude Include="color_shader_class.h" />
+    <ClInclude Include="cpu_class.h" />
     <ClInclude Include="d3d_class.h" />
+    <ClInclude Include="fps_class.h" />
+    <ClInclude Include="frustum_class.h" />
     <ClInclude Include="graphics_class.h" />
     <ClInclude Include="input_class.h" />
     <ClInclude Include="light_class.h" />
     <ClInclude Include="light_shader_class.h" />
     <ClInclude Include="model_class.h" />
+    <ClInclude Include="model_list_class.h" />
+    <ClInclude Include="position_class.h" />
     <ClInclude Include="system_class.h" />
     <ClInclude Include="texture_class.h" />
     <ClInclude Include="texture_shader_class.h" />
+    <ClInclude Include="timer_class.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="color.ps" />

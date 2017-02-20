@@ -8,6 +8,9 @@
 #include "model_class.h"
 #include "light_shader_class.h"
 #include "light_class.h"
+#include "model_list_class.h"
+#include "frustum_class.h"
+
 
 //=======
 //globals
@@ -27,16 +30,17 @@ public:
 
  bool Initialize(int, int, HWND);
  void Shutdown();
- bool Frame();
+ bool Frame(float);
+ bool Render();
 
 private:
- bool Render(float);
-
  D3DClass* d3d_;
  CameraClass* camera_;
  ModelClass* model_;
  LightShaderClass* light_shader_;
  LightClass* light_;
+ ModelListClass* model_list_;
+ FrustumClass* frustum_;
 };
 
 #endif

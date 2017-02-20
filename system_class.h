@@ -13,6 +13,10 @@
 //my own includes
 #include "input_class.h"
 #include "graphics_class.h"
+#include "position_class.h"
+#include "fps_class.h"
+#include "cpu_class.h"
+#include "timer_class.h"
 
 //============
 //SystemClass
@@ -41,8 +45,12 @@ private:
  HWND hwnd;
 
  //Engine var
- InputClass* input;
- GraphicsClass* graphics;
+ InputClass* input_;
+ GraphicsClass* graphics_;
+ FpsClass* fps_;
+ CpuClass* cpu_;
+ TimerClass* timer_;
+ PositionClass* position_;
 };
 
 //===========

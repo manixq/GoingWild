@@ -1,0 +1,70 @@
+#include "position_class.h"
+
+PositionClass::PositionClass()
+{
+ frame_time_ = 0.0f;
+ rotation_y_ = 0.0f;
+ left_turn_speed_ = 0.0f;
+ right_turn_speed_ = 0.0f;
+}
+
+PositionClass::PositionClass(const PositionClass&)
+{
+ 
+}
+
+PositionClass::~PositionClass()
+{
+ 
+}
+
+void PositionClass::Set_frame_time(float time)
+{
+ frame_time_ = time;
+}
+
+void PositionClass::Get_rotation(float& y)
+{
+ y = rotation_y_;
+}
+
+void PositionClass::Turn_left(bool keydown)
+{
+ if(keydown)
+ {
+  left_turn_speed_ += frame_time_ * 0.01f;
+  if (left_turn_speed_ > (frame_time_ * 0.15f))
+   left_turn_speed_ = frame_time_ * 0.15f;
+ }
+ else
+ {
+  left_turn_speed_ -= frame_time_ * 0.005f;
+  if (left_turn_speed_ < 0.0f)
+   left_turn_speed_ = 0.0f;
+ }
+
+ rotation_y_ -= left_turn_speed_;
+ if (rotation_y_ < 0.0f)
+  rotation_y_ += 360.0f;
+}
+
+void PositionClass::Turn_right(bool keydown)
+{
+ if (keydown)
+ {
+  right_turn_speed_ += frame_time_ * 0.01f;
+  if (right_turn_speed_ >(frame_time_ * 0.15f))
+   right_turn_speed_ = frame_time_ * 0.15f;
+ }
+ else
+ {
+  right_turn_speed_ -= frame_time_ * 0.005f;
+  if (right_turn_speed_ < 0.0f)
+   right_turn_speed_ = 0.0f;
+ }
+
+ rotation_y_ += right_turn_speed_;
+ if (rotation_y_ > 360.0f)
+  rotation_y_ -= 360.0f;
+}
+
