@@ -161,6 +161,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model_class.cpp" />
     <ClCompile Include="model_list_class.cpp" />
+    <ClCompile Include="multitexture_shader_class.cpp" />
     <ClCompile Include="position_class.cpp" />
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="light_shader_class.h" />
     <ClInclude Include="model_class.h" />
     <ClInclude Include="model_list_class.h" />
+    <ClInclude Include="multitexture_shader_class.h" />
     <ClInclude Include="position_class.h" />
     <ClInclude Include="system_class.h" />
     <ClInclude Include="texture_class.h" />
@@ -191,6 +193,7 @@
     <None Include="color.vs" />
     <None Include="light.ps" />
     <None Include="light.vs" />
+    <None Include="shaders\pixel\multitexture.ps" />
     <None Include="texture.ps" />
     <None Include="texture.vs" />
   </ItemGroup>

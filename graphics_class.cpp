@@ -5,7 +5,7 @@ GraphicsClass::GraphicsClass()
  d3d_ = nullptr;
  camera_ = nullptr;
  model_ = nullptr;
- light_shader_ = nullptr;
+ multitexture_shader_ = nullptr;
  light_ = nullptr;
  model_list_ = nullptr;
  frustum_ = nullptr;
@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
 
  //init model
- result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds");
+ result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_mix.dds");
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
@@ -68,11 +68,11 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  }
 
  //create color shader object
- light_shader_ = new LightShaderClass;
- if (!light_shader_)
+ multitexture_shader_ = new MultitextureShaderClass;
+ if (!multitexture_shader_)
   return false;
 
- result = light_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ result = multitexture_shader_->Initialize(d3d_->GetDevice(), hwnd);
  if(!result)
  {
   MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
@@ -89,7 +89,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
  }
 
- result = model_list_->Initialize(25);
+ result = model_list_->Initialize(50);
  if(!result)
  {
   MessageBox(hwnd, L"Could not initialize the model list object", L"Error", MB_OK);
@@ -131,11 +131,11 @@ void GraphicsClass::Shutdown()
   light_ = nullptr;
  }
 
- if(light_shader_)
+ if(multitexture_shader_)
  {
-  light_shader_->Shutdown();
-  delete light_shader_;
-  light_shader_ = nullptr;
+  multitexture_shader_->Shutdown();
+  delete multitexture_shader_;
+  multitexture_shader_ = nullptr;
  }
 
 
@@ -164,7 +164,7 @@ bool GraphicsClass::Frame(float rotation_y)
 {
 // bool result;
 
- camera_->Set_position(0.0f, 0.0f, -10.0f);
+ camera_->Set_position(0.0f, 0.0f, -5.0f);
  camera_->Set_rotation(0.0f, rotation_y, 0.0f);
  /*static float rotation = 0.0f;
  rotation += static_cast<float>(D3DX_PI * 0.005f);
@@ -206,7 +206,7 @@ bool GraphicsClass::Render()
   {
    D3DXMatrixTranslation(&world_matrix, position_x, position_y, position_z);
    model_->Render(d3d_->GetDeviceContext());
-   result = light_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+   result = multitexture_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
    if (!result)
     return false;
 

@@ -84,6 +84,9 @@
     <ClCompile Include="timer_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="multitexture_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -137,6 +140,9 @@
     <ClInclude Include="timer_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="multitexture_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="color.vs">
@@ -155,6 +161,9 @@
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
     <None Include="light.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\multitexture.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

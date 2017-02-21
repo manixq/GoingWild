@@ -8,7 +8,7 @@ ModelClass::ModelClass()
  model_ = nullptr;
 }
 
-ModelClass::ModelClass(const ModelClass&)
+ModelClass::ModelClass(const ModelClass& other)
 {
  
 }
@@ -18,7 +18,7 @@ ModelClass::~ModelClass()
  
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* texture_filename)
+bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* texture_filename_1, WCHAR* texture_filename_2)
 {
  bool result;
 
@@ -33,7 +33,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* t
   return false;
 
  //load the texture
- result = Load_texture(device, texture_filename);
+ result = Load_texture(device, texture_filename_1, texture_filename_2);
  if (!result)
   return false;
  return true;
@@ -56,7 +56,7 @@ int ModelClass::Get_index_count()
  return index_count_;
 }
 
-ID3D11ShaderResourceView* ModelClass::Get_texture()
+ID3D11ShaderResourceView** ModelClass::Get_texture()
 {
  return texture_->Get_texture();
 }
@@ -155,7 +155,7 @@ void ModelClass::Render_buffers(ID3D11DeviceContext* device_context)
  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename)
+bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2)
 {
  bool result;
 
@@ -164,7 +164,7 @@ bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename)
  if (!texture_)
   return false;
 
- result = texture_->Initialize(device, filename);
+ result = texture_->Initialize(device, filename_1, filename_2);
  if (!result)
   return false;
 
