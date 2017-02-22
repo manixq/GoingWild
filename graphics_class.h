@@ -6,7 +6,7 @@
 #include "d3d_class.h"
 #include "camera_class.h"
 #include "model_class.h"
-#include "multitexture_shader_class.h"
+#include "normal_shader_class.h"
 #include "light_class.h"
 #include "model_list_class.h"
 #include "frustum_class.h"
@@ -37,7 +37,7 @@ private:
  D3DClass* d3d_;
  CameraClass* camera_;
  ModelClass* model_;
- MultitextureShaderClass* multitexture_shader_;
+ NormalShaderClass* normal_shader_;
  LightClass* light_;
  ModelListClass* model_list_;
  FrustumClass* frustum_;

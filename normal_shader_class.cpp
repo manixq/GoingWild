@@ -1,6 +1,6 @@
-#include "multitexture_shader_class.h"
+#include "normal_shader_class.h"
 
-MultitextureShaderClass::MultitextureShaderClass()
+NormalShaderClass::NormalShaderClass()
 {
  vertex_shader_ = nullptr;
  pixel_shader_ = nullptr;
@@ -11,32 +11,32 @@ MultitextureShaderClass::MultitextureShaderClass()
  light_buffer_ = nullptr;
 }
 
-MultitextureShaderClass::MultitextureShaderClass(const MultitextureShaderClass& other)
+NormalShaderClass::NormalShaderClass(const NormalShaderClass& other)
 {
 
 }
 
-MultitextureShaderClass::~MultitextureShaderClass()
+NormalShaderClass::~NormalShaderClass()
 {
 
 }
 
-bool MultitextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool NormalShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
  bool result;
 
- result = Initialize_shader(device, hwnd, L"../Engine/shaders/vertex/light.vs", L"../Engine/shaders/pixel/multitexture.ps");
+ result = Initialize_shader(device, hwnd, L"../Engine/shaders/vertex/normal_map.vs", L"../Engine/shaders/pixel/normal_map.ps");
  if (!result)
   return false;
  return true;
 }
 
-void MultitextureShaderClass::Shutdown()
+void NormalShaderClass::Shutdown()
 {
  Shutdown_shader();
 }
 
-bool MultitextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool NormalShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
 {
  bool result;
 
@@ -48,14 +48,14 @@ bool MultitextureShaderClass::Render(ID3D11DeviceContext* device_context, int in
  return true;
 }
 
-bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR* vs_filename, WCHAR* ps_filename)
+bool NormalShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR* vs_filename, WCHAR* ps_filename)
 {
  HRESULT result;
  ID3D10Blob* error_message;
  ID3D10Blob* vertex_shader_buffer;
  ID3D10Blob* pixel_shader_buffer;
 
- D3D11_INPUT_ELEMENT_DESC polygon_layout[3];
+ D3D11_INPUT_ELEMENT_DESC polygon_layout[5];
  unsigned int num_elements;
  D3D11_SAMPLER_DESC sampler_desc;
  D3D11_BUFFER_DESC matrix_buffer_desc;
@@ -66,7 +66,7 @@ bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd,
  vertex_shader_buffer = nullptr;
  pixel_shader_buffer = nullptr;
 
- result = D3DX11CompileFromFile(vs_filename, nullptr, nullptr, "Light_vertex_shader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &vertex_shader_buffer, &error_message, nullptr);
+ result = D3DX11CompileFromFile(vs_filename, nullptr, nullptr, "Normal_vertex_shader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &vertex_shader_buffer, &error_message, nullptr);
  if (FAILED(result))
  {
   if (error_message)
@@ -76,7 +76,7 @@ bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd,
   return false;
  }
 
- result = D3DX11CompileFromFile(ps_filename, nullptr, nullptr, "Multitexture_shader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &pixel_shader_buffer, &error_message, nullptr);
+ result = D3DX11CompileFromFile(ps_filename, nullptr, nullptr, "Normal_pixel_shader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &pixel_shader_buffer, &error_message, nullptr);
  if (FAILED(result))
  {
   if (error_message)
@@ -93,6 +93,7 @@ bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd,
  if (FAILED(result))
   return false;
 
+ //setup to match vertextype struct in modelclass and in shader
  polygon_layout[0].SemanticName = "POSITION";
  polygon_layout[0].SemanticIndex = 0;
  polygon_layout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -116,6 +117,23 @@ bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd,
  polygon_layout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
  polygon_layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
  polygon_layout[2].InstanceDataStepRate = 0;
+
+ //tangent and binormal elements
+ polygon_layout[3].SemanticName = "TANGENT";
+ polygon_layout[3].SemanticIndex = 0;
+ polygon_layout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+ polygon_layout[3].InputSlot = 0;
+ polygon_layout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+ polygon_layout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+ polygon_layout[3].InstanceDataStepRate = 0;
+
+ polygon_layout[4].SemanticName = "BINORMAL";
+ polygon_layout[4].SemanticIndex = 0;
+ polygon_layout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+ polygon_layout[4].InputSlot = 0;
+ polygon_layout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+ polygon_layout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+ polygon_layout[4].InstanceDataStepRate = 0;
 
  num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
 
@@ -183,7 +201,7 @@ bool MultitextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd,
  return true;
 }
 
-void MultitextureShaderClass::Shutdown_shader()
+void NormalShaderClass::Shutdown_shader()
 {
  if (light_buffer_)
  {
@@ -228,7 +246,7 @@ void MultitextureShaderClass::Shutdown_shader()
  }
 }
 
-void MultitextureShaderClass::Output_shader_error_message(ID3D10Blob* error_message, HWND hwnd, WCHAR* shader_filename)
+void NormalShaderClass::Output_shader_error_message(ID3D10Blob* error_message, HWND hwnd, WCHAR* shader_filename)
 {
  char* compile_error;
  unsigned long buffer_size, i;
@@ -247,7 +265,7 @@ void MultitextureShaderClass::Output_shader_error_message(ID3D10Blob* error_mess
  MessageBox(hwnd, L"Error compiling shader", shader_filename, MB_OK);
 }
 
-bool MultitextureShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture_array, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture_array, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
 {
  HRESULT result;
  D3D11_MAPPED_SUBRESOURCE mapped_resource;
@@ -308,7 +326,7 @@ bool MultitextureShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_
  return true;
 }
 
-void MultitextureShaderClass::Render_shader(ID3D11DeviceContext* device_context, int index_count)
+void NormalShaderClass::Render_shader(ID3D11DeviceContext* device_context, int index_count)
 {
  device_context->IASetInputLayout(layout_);
 

@@ -1,5 +1,5 @@
-#ifndef  _MULTITEXTURE_SHADER_CLASS_H_
-#define  _MULTITEXTURE_SHADER_CLASS_H_
+#ifndef  _NORMAL_SHADER_CLASS_H_
+#define  _NORMAL_SHADER_CLASS_H_
 
 //========
 //Includes
@@ -11,13 +11,13 @@
 using namespace std;
 
 //================
-//MultitextureShaderClass
-class MultitextureShaderClass
+//NormalShaderClass
+class NormalShaderClass
 {
 public:
- MultitextureShaderClass();
- MultitextureShaderClass(const MultitextureShaderClass&);
- ~MultitextureShaderClass();
+ NormalShaderClass();
+ NormalShaderClass(const NormalShaderClass&);
+ ~NormalShaderClass();
 
  bool Initialize(ID3D11Device*, HWND);
  void Shutdown();

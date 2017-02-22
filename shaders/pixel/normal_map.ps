@@ -1,0 +1,72 @@
+//=======
+//Globals
+Texture2D shader_texture[2];
+SamplerState sample_type;
+
+cbuffer light_buffer
+{
+ float4 ambient_color;
+ float4 diffuse_color;
+ float3 light_direction;
+ float specular_power;
+ float4 specular_color;
+};
+
+//========
+//TypeDefs
+struct PIXEL_INPUT_TYPE
+{
+ float4 position : SV_POSITION;
+ float2 tex : TEXCOORD0;
+ float3 normal : NORMAL;
+ float3 tangent : TANGENT;
+ float3 binormal : BINORMAL;
+ float3 view_direction : TEXCOORD1;
+};
+
+//===========
+//PixelShader
+float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
+{
+ float light_intensity;
+ float3 light_dir;
+ float3 normal;
+ float3 reflection;
+ float4 texture_color;
+ float4 normal_map;
+ float4 color;
+ float4 specular;
+ float4 blend_color;
+ 
+ //sample pixel color from the texture using the sampler at this texture coord loc
+ texture_color = shader_texture[0].Sample(sample_type, input.tex);
+ normal_map = shader_texture[1].Sample(sample_type, input.tex);
+
+ normal_map = (normal_map * 2.0) - 1.0f;
+ normal = (normal_map.x * input.tangent) + (normal_map.y * input.binormal) + (normal_map.z * input.normal);
+ 
+ normal = normalize(normal);
+
+ color = ambient_color;
+
+ specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+ //invert light direction for calculations
+ light_dir = -light_direction;
+
+ //calc the amount of light
+ light_intensity = saturate(dot(normal, light_dir));
+
+ //determine the final amount of diffuse color based on diffuse color combined with light intensity
+ if(light_intensity > 0.0f)
+  {
+   color += diffuse_color * light_intensity;   
+   color = saturate(color);
+   reflection = normalize(2 * light_intensity * normal - light_dir);
+   specular = pow(saturate(dot(reflection, input.view_direction)), specular_power);
+  }
+ //texture pix * final diffuse color to get final pixel color result
+ color = color * texture_color;
+ color = saturate(color + specular);
+ return color;
+}

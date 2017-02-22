@@ -5,7 +5,7 @@ GraphicsClass::GraphicsClass()
  d3d_ = nullptr;
  camera_ = nullptr;
  model_ = nullptr;
- multitexture_shader_ = nullptr;
+ normal_shader_ = nullptr;
  light_ = nullptr;
  model_list_ = nullptr;
  frustum_ = nullptr;
@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
 
  //init model
- result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_mix.dds");
+ result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds");
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
@@ -68,11 +68,11 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  }
 
  //create color shader object
- multitexture_shader_ = new MultitextureShaderClass;
- if (!multitexture_shader_)
+ normal_shader_ = new NormalShaderClass;
+ if (!normal_shader_)
   return false;
 
- result = multitexture_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ result = normal_shader_->Initialize(d3d_->GetDevice(), hwnd);
  if(!result)
  {
   MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
@@ -131,11 +131,11 @@ void GraphicsClass::Shutdown()
   light_ = nullptr;
  }
 
- if(multitexture_shader_)
+ if(normal_shader_)
  {
-  multitexture_shader_->Shutdown();
-  delete multitexture_shader_;
-  multitexture_shader_ = nullptr;
+  normal_shader_->Shutdown();
+  delete normal_shader_;
+  normal_shader_ = nullptr;
  }
 
 
@@ -163,6 +163,8 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame(float rotation_y)
 {
 // bool result;
+
+
 
  camera_->Set_position(0.0f, 0.0f, -5.0f);
  camera_->Set_rotation(0.0f, rotation_y, 0.0f);
@@ -192,7 +194,7 @@ bool GraphicsClass::Render()
  camera_->Get_view_matrix(view_matrix);
  d3d_->GetProjectionMatrix(projection_matrix);
  d3d_->GetOrthoMatrix(ortho_matrix);
-
+ static float rotation = 0.0f;
  frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
  model_count = model_list_->Get_model_count();
  render_count = 0;
@@ -203,10 +205,18 @@ bool GraphicsClass::Render()
   radius = 1.0f;
   render_model = frustum_->Check_sphere(position_x, position_y, position_z, radius);
   if(render_model)
-  {
+  {     
    D3DXMatrixTranslation(&world_matrix, position_x, position_y, position_z);
+
+   //rot - start remove
+   rotation += (float)D3DX_PI * 0.0002f;
+   if (rotation > 360.0f)
+    rotation -= 360.0f;
+   D3DXMatrixRotationY(&world_matrix, rotation);
+   //rot - end remove
+
    model_->Render(d3d_->GetDeviceContext());
-   result = multitexture_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+   result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
    if (!result)
     return false;
 
