@@ -4,6 +4,7 @@
 //========
 //Includes
 #include <math.h>
+#include <D3DX10math.h>
 
 //=============
 //PositionClass
@@ -16,13 +17,22 @@ public:
 
  void Set_frame_time(float);
  void Get_rotation(float&);
+ void Get_xpos(float&);
+ void Get_zpos(float&);
 
  void Turn_left(bool);
  void Turn_right(bool);
 
+ void Go_up(bool);
+ void Go_down(bool);
+ void Go_left(bool);
+ void Go_right(bool);
 private:
+ void slow_down(float&, float);
  float frame_time_;
  float rotation_y_;
  float left_turn_speed_, right_turn_speed_;
+ float up_speed_, down_speed_, left_speed_, right_speed_;
+ float pos_x_, pos_z_;
 };
 #endif

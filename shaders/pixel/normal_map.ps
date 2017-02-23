@@ -43,7 +43,7 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  texture_color = shader_texture[0].Sample(sample_type, input.tex);
  normal_map = shader_texture[1].Sample(sample_type, input.tex);
 
- normal_map = (normal_map * 5.0) - 1.0f;
+ normal_map = (normal_map * 2.0f) - 1.0f;
  normal = (normal_map.x * input.tangent) + (normal_map.y * input.binormal) + (normal_map.z * input.normal);
  
  normal = normalize(normal);
@@ -64,7 +64,7 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
    specular_intensity = shader_texture[2].Sample(sample_type, input.tex);
    color += diffuse_color * pow(light_intensity, 5);   
    color = saturate(color);
-   reflection = normalize(2 * light_intensity * normal - light_dir);
+   reflection = normalize(5 * light_intensity * normal - light_dir);
    specular = pow(saturate(dot(reflection, input.view_direction)), specular_power);
    specular = specular * specular_intensity;
    color = saturate(color + specular);

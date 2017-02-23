@@ -160,9 +160,9 @@ void GraphicsClass::Shutdown()
  }
 }
 
-bool GraphicsClass::Frame(float rotation)
+bool GraphicsClass::Frame(float rotation, float x_pos, float z_pos)
 { 
- camera_->Set_position(0.0f, 0.0f, 0.0f);
+ camera_->Set_position(x_pos, 0.0f, z_pos);
  camera_->Set_rotation(0.0f, rotation, 0.0f);
  return true;
 }

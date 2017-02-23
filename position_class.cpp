@@ -6,6 +6,13 @@ PositionClass::PositionClass()
  rotation_y_ = 0.0f;
  left_turn_speed_ = 0.0f;
  right_turn_speed_ = 0.0f;
+ up_speed_ = 0.0f;
+ down_speed_ = 0.0f;
+ left_speed_ = 0.0f;
+ right_speed_ = 0.0f;
+ pos_x_ = 0.0f;
+ pos_z_ = 0.0f;
+
 }
 
 PositionClass::PositionClass(const PositionClass&)
@@ -28,17 +35,27 @@ void PositionClass::Get_rotation(float& y)
  y = rotation_y_;
 }
 
+void PositionClass::Get_zpos(float& z)
+{
+ z = pos_z_;
+}
+
+void PositionClass::Get_xpos(float& x)
+{
+ x = pos_x_;
+}
+
 void PositionClass::Turn_left(bool keydown)
 {
  if(keydown)
  {
   left_turn_speed_ +=  0.05f;
-  if (left_turn_speed_ > ( 0.5f))
-   left_turn_speed_ = 0.5f;
+  if (left_turn_speed_ > ( 1.0f))
+   left_turn_speed_ = 1.0f;
  }
  else
  {
-  left_turn_speed_ = 0.0f;
+  slow_down(left_turn_speed_, 0.05f);
  }
 
  rotation_y_ -= left_turn_speed_;
@@ -50,13 +67,13 @@ void PositionClass::Turn_right(bool keydown)
 {
  if (keydown)
  {
-  right_turn_speed_ +=0.05f;
-  if (right_turn_speed_ >( 0.5f))
-   right_turn_speed_ = 0.5f;
+  right_turn_speed_ += 0.05f;
+  if (right_turn_speed_ > ( 1.0f))
+   right_turn_speed_ = 1.0f;
  }
  else
  {
-  right_turn_speed_ = 0.0f;
+  slow_down(right_turn_speed_, 0.05f);
  }
 
  rotation_y_ += right_turn_speed_;
@@ -64,3 +81,78 @@ void PositionClass::Turn_right(bool keydown)
   rotation_y_ -= 360.0f;
 }
 
+void PositionClass::Go_up(bool keydown)
+{
+ if (keydown)
+ {
+  up_speed_ += 0.01f;
+  if (up_speed_ >(0.05f))
+   up_speed_ = 0.05f;
+ }
+ else
+ {
+  slow_down(up_speed_, 0.01f);
+ }
+
+ pos_x_ += up_speed_ * sin(rotation_y_ * D3DX_PI / 180);
+ pos_z_ += up_speed_ * cos(rotation_y_ * D3DX_PI / 180);
+}
+
+void PositionClass::Go_down(bool keydown)
+{
+ if (keydown)
+ {
+  down_speed_ += 0.01f;
+  if (down_speed_ >(0.05f))
+   down_speed_ = 0.05f;
+ }
+ else
+ {
+  slow_down(down_speed_, 0.01f);
+ }
+
+ pos_x_ -= down_speed_ * sin(rotation_y_ * D3DX_PI / 180);
+ pos_z_ -= down_speed_ * cos(rotation_y_ * D3DX_PI / 180);
+}
+
+void PositionClass::Go_left(bool keydown)
+{
+ if (keydown)
+ {
+  left_speed_ += 0.01f;
+  if (left_speed_ >(0.05f))
+   left_speed_ = 0.05f;
+ }
+ else
+ {
+  slow_down(left_speed_, 0.01f);
+ }
+
+ pos_x_ -= left_speed_ * sin((rotation_y_ + 90) * D3DX_PI / 180);
+ pos_z_ -= left_speed_ * cos((rotation_y_ + 90) * D3DX_PI / 180);
+}
+
+void PositionClass::Go_right(bool keydown)
+{
+ if (keydown)
+ {
+  right_speed_ += 0.01f;
+  if (right_speed_ >(0.05f))
+   right_speed_ = 0.05f;
+ }
+ else
+ {
+  slow_down(right_speed_, 0.01f);
+ }
+
+ pos_x_ += right_speed_ * sin((rotation_y_ + 90) * D3DX_PI / 180);
+ pos_z_ += right_speed_ * cos((rotation_y_ + 90) * D3DX_PI / 180);
+}
+
+void PositionClass::slow_down(float& speed, float slow_down)
+{
+ if (speed > 0.0f)
+  speed -= slow_down;
+ else
+  speed = 0.0f;
+}

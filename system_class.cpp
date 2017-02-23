@@ -151,7 +151,7 @@ void SystemClass::Run()
 bool SystemClass::Frame()
 {
  bool key_down, result;
- float rotation_y;
+ float rotation_y, x_pos, z_pos;
 
  //escape? no.
  if (input_->Is_key_down(VK_ESCAPE)) 
@@ -162,9 +162,15 @@ bool SystemClass::Frame()
  position_->Set_frame_time(timer_->Get_time());
  position_->Turn_left(input_->Is_key_down(VK_LEFT));
  position_->Turn_right(input_->Is_key_down(VK_RIGHT));
+ position_->Go_up(input_->Is_key_down('W'));
+ position_->Go_down(input_->Is_key_down('S'));
+ position_->Go_left(input_->Is_key_down('A'));
+ position_->Go_right(input_->Is_key_down('D'));
  position_->Get_rotation(rotation_y);
+ position_->Get_xpos(x_pos);
+ position_->Get_zpos(z_pos);
 
- result = graphics_->Frame(rotation_y);
+ result = graphics_->Frame(rotation_y, x_pos, z_pos);
  if (!result)
   return false;
 

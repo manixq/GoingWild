@@ -38,7 +38,7 @@ bool ModelListClass::Initialize(int num_models)
 
   model_info_list_[i].position_x = ((static_cast<float>(rand()) - static_cast<float>(rand()))/ RAND_MAX) * 10.0f;
   model_info_list_[i].position_y = ((static_cast<float>(rand()) - static_cast<float>(rand())) / RAND_MAX) * 10.0f;
-  model_info_list_[i].position_z = (((static_cast<float>(rand()) - static_cast<float>(rand())) / RAND_MAX) * 10.0f) + 5.0f;
+  model_info_list_[i].position_z = (((static_cast<float>(rand()) - static_cast<float>(rand())) / RAND_MAX) * 10.0f);
  }
  return true;
 }
