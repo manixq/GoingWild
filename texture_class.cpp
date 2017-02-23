@@ -4,6 +4,7 @@ TextureClass::TextureClass()
 {
  texture_[0] = nullptr;
  texture_[1] = nullptr;
+ texture_[2] = nullptr;
 }
 
 
@@ -19,7 +20,7 @@ TextureClass::~TextureClass()
 }
 
 
-bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2)
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2, WCHAR* filename_3)
 {
  HRESULT result;
 
@@ -27,6 +28,9 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename_1, WCHAR* fi
  if (FAILED(result))
   return false;
  result = D3DX11CreateShaderResourceViewFromFile(device, filename_2, nullptr, nullptr, &texture_[1], nullptr);
+ if (FAILED(result))
+  return false;
+ result = D3DX11CreateShaderResourceViewFromFile(device, filename_3, nullptr, nullptr, &texture_[2], nullptr);
  if (FAILED(result))
   return false;
  return true;

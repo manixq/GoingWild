@@ -18,7 +18,7 @@ ModelClass::~ModelClass()
  
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* texture_filename_1, WCHAR* texture_filename_2)
+bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* texture_filename_1, WCHAR* texture_filename_2, WCHAR* texture_filename_3)
 {
  bool result;
 
@@ -33,7 +33,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* t
   return false;
 
  //load the texture
- result = Load_texture(device, texture_filename_1, texture_filename_2);
+ result = Load_texture(device, texture_filename_1, texture_filename_2, texture_filename_3);
  if (!result)
   return false;
 
@@ -301,7 +301,7 @@ void ModelClass::Render_buffers(ID3D11DeviceContext* device_context)
  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2)
+bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2, WCHAR* texture_filename_3)
 {
  bool result;
 
@@ -310,7 +310,7 @@ bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* fi
  if (!texture_)
   return false;
 
- result = texture_->Initialize(device, filename_1, filename_2);
+ result = texture_->Initialize(device, filename_1, filename_2, texture_filename_3);
  if (!result)
   return false;
 

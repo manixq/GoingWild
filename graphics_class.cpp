@@ -60,7 +60,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
 
  //init model
- result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds");
+ result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds", L"../Engine/data/floor_spec.dds");
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);

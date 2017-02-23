@@ -305,7 +305,7 @@ bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
  buffer_number = 1;
  device_context->VSSetConstantBuffers(buffer_number, 1, &camera_buffer_);
 
- device_context->PSSetShaderResources(0, 2, texture_array);
+ device_context->PSSetShaderResources(0, 3, texture_array);
 
  result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
  if (FAILED(result))
