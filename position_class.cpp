@@ -32,15 +32,13 @@ void PositionClass::Turn_left(bool keydown)
 {
  if(keydown)
  {
-  left_turn_speed_ += frame_time_ * 0.01f;
-  if (left_turn_speed_ > (frame_time_ * 0.15f))
-   left_turn_speed_ = frame_time_ * 0.15f;
+  left_turn_speed_ +=  0.05f;
+  if (left_turn_speed_ > ( 0.5f))
+   left_turn_speed_ = 0.5f;
  }
  else
  {
-  left_turn_speed_ -= frame_time_ * 0.005f;
-  if (left_turn_speed_ < 0.0f)
-   left_turn_speed_ = 0.0f;
+  left_turn_speed_ = 0.0f;
  }
 
  rotation_y_ -= left_turn_speed_;
@@ -52,15 +50,13 @@ void PositionClass::Turn_right(bool keydown)
 {
  if (keydown)
  {
-  right_turn_speed_ += frame_time_ * 0.01f;
-  if (right_turn_speed_ >(frame_time_ * 0.15f))
-   right_turn_speed_ = frame_time_ * 0.15f;
+  right_turn_speed_ +=0.05f;
+  if (right_turn_speed_ >( 0.5f))
+   right_turn_speed_ = 0.5f;
  }
  else
  {
-  right_turn_speed_ -= frame_time_ * 0.005f;
-  if (right_turn_speed_ < 0.0f)
-   right_turn_speed_ = 0.0f;
+  right_turn_speed_ = 0.0f;
  }
 
  rotation_y_ += right_turn_speed_;

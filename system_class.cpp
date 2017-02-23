@@ -158,11 +158,10 @@ bool SystemClass::Frame()
   return false;
 
  timer_->Frame();
-
+ 
  position_->Set_frame_time(timer_->Get_time());
- key_down = input_->Is_key_down(VK_LEFT);
- position_->Turn_left(key_down);
- position_->Turn_right(key_down);
+ position_->Turn_left(input_->Is_key_down(VK_LEFT));
+ position_->Turn_right(input_->Is_key_down(VK_RIGHT));
  position_->Get_rotation(rotation_y);
 
  result = graphics_->Frame(rotation_y);

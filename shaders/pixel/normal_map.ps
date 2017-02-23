@@ -42,7 +42,7 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  texture_color = shader_texture[0].Sample(sample_type, input.tex);
  normal_map = shader_texture[1].Sample(sample_type, input.tex);
 
- normal_map = (normal_map * 2.0) - 1.0f;
+ normal_map = (normal_map * 5.0) - 1.0f;
  normal = (normal_map.x * input.tangent) + (normal_map.y * input.binormal) + (normal_map.z * input.normal);
  
  normal = normalize(normal);

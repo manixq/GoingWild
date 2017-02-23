@@ -160,23 +160,10 @@ void GraphicsClass::Shutdown()
  }
 }
 
-bool GraphicsClass::Frame(float rotation_y)
-{
-// bool result;
-
-
-
- camera_->Set_position(0.0f, 0.0f, -5.0f);
- camera_->Set_rotation(0.0f, rotation_y, 0.0f);
- /*static float rotation = 0.0f;
- rotation += static_cast<float>(D3DX_PI * 0.005f);
- if (rotation > 360.0f)
-  rotation -= 360.0f;
- result = Render(rotation);*/
-
-// if (!result)
- // return false;
-
+bool GraphicsClass::Frame(float rotation)
+{ 
+ camera_->Set_position(0.0f, 0.0f, 0.0f);
+ camera_->Set_rotation(0.0f, rotation, 0.0f);
  return true;
 }
 
@@ -194,7 +181,6 @@ bool GraphicsClass::Render()
  camera_->Get_view_matrix(view_matrix);
  d3d_->GetProjectionMatrix(projection_matrix);
  d3d_->GetOrthoMatrix(ortho_matrix);
- static float rotation = 0.0f;
  frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
  model_count = model_list_->Get_model_count();
  render_count = 0;
@@ -205,21 +191,12 @@ bool GraphicsClass::Render()
   radius = 1.0f;
   render_model = frustum_->Check_sphere(position_x, position_y, position_z, radius);
   if(render_model)
-  {     
+  {
    D3DXMatrixTranslation(&world_matrix, position_x, position_y, position_z);
-
-   //rot - start remove
-   rotation += (float)D3DX_PI * 0.0002f;
-   if (rotation > 360.0f)
-    rotation -= 360.0f;
-   D3DXMatrixRotationY(&world_matrix, rotation);
-   //rot - end remove
-
    model_->Render(d3d_->GetDeviceContext());
    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
    if (!result)
     return false;
-
    d3d_->GetWorldMatrix(world_matrix);
    render_count++;
   }
