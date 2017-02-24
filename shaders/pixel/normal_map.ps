@@ -12,6 +12,11 @@ cbuffer light_buffer
  float4 specular_color;
 };
 
+cbuffer clip_plane_buffer
+{
+ float4 clip_plane;
+};
+
 //========
 //TypeDefs
 struct PIXEL_INPUT_TYPE
@@ -22,6 +27,7 @@ struct PIXEL_INPUT_TYPE
  float3 tangent : TANGENT;
  float3 binormal : BINORMAL;
  float3 view_direction : TEXCOORD1;
+ float clip : SV_ClipDistance0;
 };
 
 //===========
@@ -72,5 +78,6 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  //texture pix * final diffuse color to get final pixel color result
  color = color * texture_color;
  color = saturate(color + specular);
+
  return color;
 }

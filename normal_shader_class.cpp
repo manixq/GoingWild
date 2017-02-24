@@ -9,6 +9,7 @@ NormalShaderClass::NormalShaderClass()
  matrix_buffer_ = nullptr;
  camera_buffer_ = nullptr;
  light_buffer_ = nullptr;
+ clip_plane_buffer_ = nullptr;
 }
 
 NormalShaderClass::NormalShaderClass(const NormalShaderClass& other)
@@ -36,11 +37,11 @@ void NormalShaderClass::Shutdown()
  Shutdown_shader();
 }
 
-bool NormalShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool NormalShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power, D3DXVECTOR4 clip_plane)
 {
  bool result;
 
- result = Set_shader_parameters(device_context, world, view, projection, texture, light_direction, ambient_color, diffuse_color, camera_position, specular_color, specular_power);
+ result = Set_shader_parameters(device_context, world, view, projection, texture, light_direction, ambient_color, diffuse_color, camera_position, specular_color, specular_power, clip_plane);
  if (!result)
   return false;
 
@@ -61,6 +62,7 @@ bool NormalShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR
  D3D11_BUFFER_DESC matrix_buffer_desc;
  D3D11_BUFFER_DESC camera_buffer_desc;
  D3D11_BUFFER_DESC light_buffer_desc;
+ D3D11_BUFFER_DESC clip_plane_buffer_desc;
 
  error_message = nullptr;
  vertex_shader_buffer = nullptr;
@@ -198,11 +200,28 @@ bool NormalShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR
  if (FAILED(result))
   return false;
 
+ clip_plane_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+ clip_plane_buffer_desc.ByteWidth = sizeof(CLIP_PLANE_BUFFER_TYPE);
+ clip_plane_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+ clip_plane_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+ clip_plane_buffer_desc.MiscFlags = 0;
+ clip_plane_buffer_desc.StructureByteStride = 0;
+
+ result = device->CreateBuffer(&clip_plane_buffer_desc, nullptr, &clip_plane_buffer_);
+ if (FAILED(result))
+  return false;
+
  return true;
 }
 
 void NormalShaderClass::Shutdown_shader()
 {
+ if(clip_plane_buffer_)
+ {
+  clip_plane_buffer_->Release();
+  clip_plane_buffer_ = nullptr;
+ }
+
  if (light_buffer_)
  {
   light_buffer_->Release();
@@ -265,7 +284,7 @@ void NormalShaderClass::Output_shader_error_message(ID3D10Blob* error_message, H
  MessageBox(hwnd, L"Error compiling shader", shader_filename, MB_OK);
 }
 
-bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture_array, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView** texture_array, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power, D3DXVECTOR4 clip_plane)
 {
  HRESULT result;
  D3D11_MAPPED_SUBRESOURCE mapped_resource;
@@ -273,6 +292,7 @@ bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
  MATRIX_BUFFER_TYPE* data_ptr;
  LIGHT_BUFFER_TYPE* data_ptr2;
  CAMERA_BUFFER_TYPE* data_ptr3;
+ CLIP_PLANE_BUFFER_TYPE* data_ptr4;
 
  D3DXMatrixTranspose(&world, &world);
  D3DXMatrixTranspose(&view, &view);
@@ -323,6 +343,14 @@ bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
 
  device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
+ result = device_context->Map(clip_plane_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+ if (FAILED(result))
+  return false;
+ data_ptr4 = static_cast<CLIP_PLANE_BUFFER_TYPE*>(mapped_resource.pData);
+ data_ptr4->clip_plane = clip_plane;
+ device_context->Unmap(clip_plane_buffer_, 0);
+ buffer_number = 2;
+ device_context->VSSetConstantBuffers(buffer_number, 1, &clip_plane_buffer_);
  return true;
 }
 

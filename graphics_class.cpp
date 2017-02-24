@@ -174,7 +174,9 @@ bool GraphicsClass::Render()
  float position_x, position_y, position_z, radius;
  D3DXVECTOR4 color;
  bool render_model, result;
+ D3DXVECTOR4 clip_plane;
 
+ clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
  d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
  camera_->Render();
  d3d_->GetWorldMatrix(world_matrix);
@@ -194,7 +196,7 @@ bool GraphicsClass::Render()
   {
    D3DXMatrixTranslation(&world_matrix, position_x, position_y, position_z);
    model_->Render(d3d_->GetDeviceContext());
-   result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+   result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power(), clip_plane);
    if (!result)
     return false;
    d3d_->GetWorldMatrix(world_matrix);

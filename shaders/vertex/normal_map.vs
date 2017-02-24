@@ -13,6 +13,11 @@ float3 camera_position;
 float padding;
 };
 
+cbuffer clip_plane_bufffer
+{
+ float4 clip_plane;
+};
+
 //========
 //TypeDefs
 struct VERTEX_INPUT_TYPE
@@ -32,6 +37,7 @@ struct PIXEL_INPUT_TYPE
  float3 tangent : TANGENT;
  float3 binormal : BINORMAL;
  float3 view_direction : TEXCOORD1;
+ float clip : SV_ClipDistance0;
 };
 
 //============
@@ -67,6 +73,8 @@ PIXEL_INPUT_TYPE Normal_vertex_shader(VERTEX_INPUT_TYPE input)
 
  output.binormal = mul(input.binormal, (float3x3)world_matrix);
  output.binormal = normalize(output.binormal);
+
+ output.clip = dot(mul(input.position, world_matrix), clip_plane);
 
  return output;
 }
