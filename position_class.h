@@ -16,12 +16,14 @@ public:
  ~PositionClass();
 
  void Set_frame_time(float);
- void Get_rotation(float&);
+ void Get_rotation(float&, float&);
  void Get_xpos(float&);
  void Get_zpos(float&);
 
  void Turn_left(bool);
  void Turn_right(bool);
+ void Turn_up(bool);
+ void Turn_down(bool);
 
  void Go_up(bool);
  void Go_down(bool);
@@ -30,8 +32,8 @@ public:
 private:
  void slow_down(float&, float);
  float frame_time_;
- float rotation_y_;
- float left_turn_speed_, right_turn_speed_;
+ float rotation_y_, rotation_x_;
+ float left_turn_speed_, right_turn_speed_, up_turn_speed_, down_turn_speed_;
  float up_speed_, down_speed_, left_speed_, right_speed_;
  float pos_x_, pos_z_;
 };

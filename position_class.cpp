@@ -4,8 +4,11 @@ PositionClass::PositionClass()
 {
  frame_time_ = 0.0f;
  rotation_y_ = 0.0f;
+ rotation_x_ = 0.0f;
  left_turn_speed_ = 0.0f;
  right_turn_speed_ = 0.0f;
+ up_turn_speed_ = 0.0f;
+ down_turn_speed_ = 0.0f;
  up_speed_ = 0.0f;
  down_speed_ = 0.0f;
  left_speed_ = 0.0f;
@@ -30,8 +33,9 @@ void PositionClass::Set_frame_time(float time)
  frame_time_ = time;
 }
 
-void PositionClass::Get_rotation(float& y)
+void PositionClass::Get_rotation(float& x, float& y)
 {
+ x = rotation_x_; 
  y = rotation_y_;
 }
 
@@ -79,6 +83,42 @@ void PositionClass::Turn_right(bool keydown)
  rotation_y_ += right_turn_speed_;
  if (rotation_y_ > 360.0f)
   rotation_y_ -= 360.0f;
+}
+
+void PositionClass::Turn_up(bool keydown)
+{
+ if (keydown)
+ {
+  up_turn_speed_ += 0.05f;
+  if (up_turn_speed_ > (1.0f))
+   up_turn_speed_ = 1.0f;
+ }
+ else
+ {
+  slow_down(up_turn_speed_, 0.05f);
+ }
+
+ rotation_x_ -= up_turn_speed_;
+ if (rotation_x_ < 0.0f)
+  rotation_x_ += 360.0f;
+}
+
+void PositionClass::Turn_down(bool keydown)
+{
+ if (keydown)
+ {
+  down_turn_speed_ += 0.05f;
+  if (down_turn_speed_ > (1.0f))
+   down_turn_speed_ = 1.0f;
+ }
+ else
+ {
+  slow_down(down_turn_speed_, 0.05f);
+ }
+
+ rotation_x_ += down_turn_speed_;
+ if (rotation_x_ > 360.0f)
+  rotation_x_ -= 360.0f;
 }
 
 void PositionClass::Go_up(bool keydown)
