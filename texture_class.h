@@ -16,11 +16,14 @@ public:
  ~TextureClass();
 
  bool Initialize(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
+ bool Initialize(ID3D11Device*, WCHAR*);
  void Shutdown();
- ID3D11ShaderResourceView** Get_texture();
+ ID3D11ShaderResourceView** Get_textures();
+ ID3D11ShaderResourceView* Get_texture();
 
 private:
- ID3D11ShaderResourceView* texture_[3];
+ ID3D11ShaderResourceView* textures_[3];
+ ID3D11ShaderResourceView* texture_;
 };
 
 #endif

@@ -18,6 +18,11 @@ cbuffer clip_plane_bufffer
  float4 clip_plane;
 };
 
+cbuffer reflection_buffer
+{
+ matrix reflection_matrix;
+};
+
 //========
 //TypeDefs
 struct VERTEX_INPUT_TYPE
@@ -37,6 +42,7 @@ struct PIXEL_INPUT_TYPE
  float3 tangent : TANGENT;
  float3 binormal : BINORMAL;
  float3 view_direction : TEXCOORD1;
+ float4 reflection_position : TEXCOORD2;
  float clip : SV_ClipDistance0;
 };
 
@@ -45,6 +51,7 @@ struct PIXEL_INPUT_TYPE
 PIXEL_INPUT_TYPE Normal_vertex_shader(VERTEX_INPUT_TYPE input)
 {
  PIXEL_INPUT_TYPE output;
+ matrix reflect_project_world;
  float4 world_position;
 
  input.position.w = 1.0f;
@@ -56,6 +63,11 @@ PIXEL_INPUT_TYPE Normal_vertex_shader(VERTEX_INPUT_TYPE input)
 
  //calc the normal vec against world
  output.normal = mul(input.normal, (float3x3)world_matrix);
+
+ reflect_project_world = mul(reflection_matrix, projection_matrix);
+ reflect_project_world = mul(world_matrix, reflect_project_world);
+
+ output.reflection_position = mul(input.position, reflect_project_world);
 
  //normalize normal vector
  output.normal = normalize(output.normal);

@@ -1,8 +1,9 @@
 //=======
 //Globals
 Texture2D shader_texture[3];
-SamplerState sample_type;
+Texture2D reflection_texture;
 
+SamplerState sample_type;
 cbuffer light_buffer
 {
  float4 ambient_color;
@@ -27,6 +28,7 @@ struct PIXEL_INPUT_TYPE
  float3 tangent : TANGENT;
  float3 binormal : BINORMAL;
  float3 view_direction : TEXCOORD1;
+ float4 reflection_position : TEXCOORD2;
  float clip : SV_ClipDistance0;
 };
 
@@ -44,7 +46,14 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  float4 specular;
  float4 blend_color;
  float4 specular_intensity;
+
+ float4 reflect_tex_coord;
+ float4 reflection_color;
  
+ reflect_tex_coord.x = input.reflection_position.x / input.reflection_position.w / 2.0f + 0.5f;
+ reflect_tex_coord.y = input.reflection_position.y / input.reflection_position.w / 2.0f + 0.5f;
+ reflection_color = reflection_texture.Sample(sample_type, reflect_tex_coord);
+
  //sample pixel color from the texture using the sampler at this texture coord loc
  texture_color = shader_texture[0].Sample(sample_type, input.tex);
  normal_map = shader_texture[1].Sample(sample_type, input.tex);
@@ -78,6 +87,8 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  //texture pix * final diffuse color to get final pixel color result
  color = color * texture_color;
  color = saturate(color + specular);
+
+ color = lerp(color, reflection_color, 0.15f);
 
  return color;
 }

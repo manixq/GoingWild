@@ -9,6 +9,7 @@ GraphicsClass::GraphicsClass()
  light_ = nullptr;
  model_list_ = nullptr;
  frustum_ = nullptr;
+ floor_model_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -96,6 +97,15 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
  }
 
+ floor_model_ = new ModelClass;
+ if (!floor_model_)
+  return false;
+ result = floor_model_->Initialize(d3d_->GetDevice(), "../Engine/data/floor.txt", L"../Engine/data/blue01.dds");
+ if(!result)
+ {
+  MessageBox(hwnd, L"could not initialize the floor model obj", L"Error", MB_OK);
+  return false;
+ }
  frustum_ = new FrustumClass;
  if (!frustum_)
   return false;
@@ -112,6 +122,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+ if(floor_model_)
+ {
+  floor_model_->Shutdown();
+  delete floor_model_;
+  floor_model_ = nullptr;
+ }
+
  if(frustum_)
  {
   delete frustum_;
@@ -169,7 +186,7 @@ bool GraphicsClass::Frame(float rotation_x, float rotation_y, float x_pos, float
 
 bool GraphicsClass::Render()
 {
- D3DXMATRIX view_matrix, projection_matrix, world_matrix, ortho_matrix;
+ D3DXMATRIX view_matrix, projection_matrix, world_matrix, ortho_matrix, reflection_matrix;
  int model_count, render_count, index;
  float position_x, position_y, position_z, radius;
  D3DXVECTOR4 color;
@@ -186,7 +203,7 @@ bool GraphicsClass::Render()
  frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
  model_count = model_list_->Get_model_count();
  render_count = 0;
-
+ reflection_matrix = camera_->Get_reflection_view_matrix();
  for (index = 0; index < model_count; index++)
  {
   model_list_->Get_data(index, position_x, position_y, position_z, color);
@@ -196,7 +213,7 @@ bool GraphicsClass::Render()
   {
    D3DXMatrixTranslation(&world_matrix, position_x, position_y, position_z);
    model_->Render(d3d_->GetDeviceContext());
-   result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power(), clip_plane);
+   result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), *floor_model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power(), clip_plane, reflection_matrix);
    if (!result)
     return false;
    d3d_->GetWorldMatrix(world_matrix);

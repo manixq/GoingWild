@@ -41,6 +41,29 @@ bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* t
  return true;
 }
 
+bool ModelClass::Initialize(ID3D11Device* device, char* model_filename, WCHAR* texture_filename_1)
+{
+ bool result;
+
+ //load model data
+ result = Load_model(model_filename);
+ if (!result)
+  return false;
+
+ //initialize the vertex and index buffer that hold the geometry for the triangle
+ result = Initialize_buffers(device);
+ if (!result)
+  return false;
+
+ //load the texture
+ result = Load_texture(device, texture_filename_1);
+ if (!result)
+  return false;
+
+ Calculate_model_vectors();
+ return true;
+}
+
 void ModelClass::Shutdown()
 {
  Release_texture();
@@ -60,7 +83,7 @@ int ModelClass::Get_index_count()
 
 ID3D11ShaderResourceView** ModelClass::Get_texture()
 {
- return texture_->Get_texture();
+ return texture_->Get_textures();
 }
 
 bool ModelClass::Initialize_buffers(ID3D11Device* device)
@@ -311,6 +334,22 @@ bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* fi
   return false;
 
  result = texture_->Initialize(device, filename_1, filename_2, texture_filename_3);
+ if (!result)
+  return false;
+
+ return true;
+}
+
+bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1)
+{
+ bool result;
+
+ //create texture object
+ texture_ = new TextureClass;
+ if (!texture_)
+  return false;
+
+ result = texture_->Initialize(device, filename_1);
  if (!result)
   return false;
 

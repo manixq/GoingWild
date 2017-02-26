@@ -90,3 +90,31 @@ void CameraClass::Get_view_matrix(D3DXMATRIX& view_matrix)
 {
  view_matrix = view_matrix_;
 }
+
+void CameraClass::Render_reflection(float height)
+{
+ D3DXVECTOR3 up, position, lookAt;
+ float radians;
+
+ up.x = 0.0f;
+ up.y = 1.0f;
+ up.z = 0.0f;
+
+ position.x = position_x_;
+ position.y = -position_y_ + (height * 2.0f);
+ position.z = position_z_;
+
+ radians = rotation_y_ * 0.0174532925f;
+
+ lookAt.x = sinf(radians) + position_x_;
+ lookAt.y = position_y_;
+ lookAt.z = cosf(radians) + position_z_;
+
+ D3DXMatrixLookAtLH(&reflection_view_matrix_, &position, &lookAt, &up);
+}
+
+D3DXMATRIX CameraClass::Get_reflection_view_matrix()
+{
+ return reflection_view_matrix_;
+}
+

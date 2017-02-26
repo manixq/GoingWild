@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bitmap_class.cpp" />
     <ClCompile Include="camera_class.cpp" />
     <ClCompile Include="color_shader_class.cpp" />
     <ClCompile Include="cpu_class.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="timer_class.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bitmap_class.h" />
     <ClInclude Include="camera_class.h" />
     <ClInclude Include="color_shader_class.h" />
     <ClInclude Include="cpu_class.h" />
