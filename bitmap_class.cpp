@@ -142,6 +142,102 @@ void BitmapClass::Shutdown_buffers()
   vertex_buffer_->Release();
   vertex_buffer_ = nullptr;
  }
-
-
 }
+
+bool BitmapClass::Update_buffers(ID3D11DeviceContext* device_context, int position_x, int position_y)
+{
+ float left, right, top, bottom;
+ VERTEX_TYPE* vertices;
+ D3D11_MAPPED_SUBRESOURCE mapped_resource;
+ VERTEX_TYPE* vertices_ptr;
+ HRESULT result;
+
+ if ((position_x == previous_posx_) && (position_y == previous_posy_))
+  return true;
+
+ previous_posx_ = position_x;
+ previous_posy_ = position_y;
+
+ left = (float)((screen_width_ / 2) * -1) + (float)position_x;
+ right = left + (float)bitmap_width_;
+ top = (float)(screen_height_ / 2) - (float)position_y;
+ bottom = top - (float)bitmap_height_;
+
+ vertices = new VERTEX_TYPE[vertex_count_];
+ if (!vertices)
+  return false;
+
+ // Load the vertex array with data.
+ // First triangle.
+ vertices[0].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
+ vertices[0].texture = D3DXVECTOR2(0.0f, 0.0f);
+
+ vertices[1].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
+ vertices[1].texture = D3DXVECTOR2(1.0f, 1.0f);
+
+ vertices[2].position = D3DXVECTOR3(left, bottom, 0.0f);  // Bottom left.
+ vertices[2].texture = D3DXVECTOR2(0.0f, 1.0f);
+
+ // Second triangle.
+ vertices[3].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
+ vertices[3].texture = D3DXVECTOR2(0.0f, 0.0f);
+
+ vertices[4].position = D3DXVECTOR3(right, top, 0.0f);  // Top right.
+ vertices[4].texture = D3DXVECTOR2(1.0f, 0.0f);
+
+ vertices[5].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
+ vertices[5].texture = D3DXVECTOR2(1.0f, 1.0f);
+
+ result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+ if (FAILED(result))
+  return false;
+
+ vertices_ptr = (VERTEX_TYPE*)mapped_resource.pData;
+ memcpy(vertices_ptr, (void*)vertices, (sizeof(VERTEX_TYPE)*vertex_count_));
+ device_context->Unmap(vertex_buffer_, 0);
+
+ delete[] vertices;
+ vertices = nullptr;
+
+ return true;
+}
+
+void BitmapClass::Render_buffers(ID3D11DeviceContext* device_context)
+{
+ unsigned int stride;
+ unsigned int offset;
+
+ stride = sizeof(VERTEX_TYPE);
+ offset = 0;
+ //set vertex buffer to active in the inpu assembler
+ device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+ //set index buffer to active in input assembler
+ device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+ device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+bool BitmapClass::Load_texture(ID3D11Device* device, WCHAR* filename)
+{
+ bool result;
+
+ texture_ = new TextureClass;
+ if (!texture_)
+  return false;
+
+ result = texture_->Initialize(device, filename);
+ if (!result)
+  return false;
+
+ return true;
+}
+
+void BitmapClass::Release_texture()
+{
+ if(texture_)
+ {
+  texture_->Shutdown();
+  delete texture_;
+  texture_ = nullptr;
+ }
+}
+

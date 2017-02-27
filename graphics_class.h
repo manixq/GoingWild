@@ -10,7 +10,7 @@
 #include "light_class.h"
 #include "model_list_class.h"
 #include "frustum_class.h"
-
+#include "bitmap_class.h"
 
 //=======
 //globals
@@ -42,6 +42,7 @@ private:
  ModelListClass* model_list_;
  FrustumClass* frustum_;
  ModelClass* floor_model_;
+ BitmapClass* bitmap_;
 };
 
 #endif

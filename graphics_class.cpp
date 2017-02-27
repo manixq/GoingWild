@@ -10,6 +10,7 @@ GraphicsClass::GraphicsClass()
  model_list_ = nullptr;
  frustum_ = nullptr;
  floor_model_ = nullptr;
+ bitmap_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -116,12 +117,29 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
  light_->Set_specular_power(32.0f);
 
+ bitmap_ = new BitmapClass;
+ if (!bitmap_)
+  return false;
+
+ result = bitmap_->Initialize(d3d_->GetDevice(), screen_width, screen_height, L"../Engine/data/seafloor.dds", 256, 266);
+ if(!result)
+ {
+  MessageBox(hwnd, L"Could not init the bitmap object", L"Error", MB_OK);
+ }
+
  return true;
 }
 
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+ if(bitmap_)
+ {
+  bitmap_->Shutdown();
+  delete bitmap_;
+  bitmap_ = nullptr;
+ }
+
  if(floor_model_)
  {
   floor_model_->Shutdown();
