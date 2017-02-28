@@ -62,8 +62,8 @@ void TextureClass::Shutdown()
 
  if (textures_[2])
  {
-  textures_[1]->Release();
-  textures_[1] = nullptr;
+  textures_[2]->Release();
+  textures_[2] = nullptr;
  }
 
  if (texture_)

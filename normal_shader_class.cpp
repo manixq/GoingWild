@@ -364,7 +364,7 @@ bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
 
  device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
 
- result = device_context->Map(clip_plane_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+ /*result = device_context->Map(clip_plane_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
  if (FAILED(result))
   return false;
  data_ptr4 = static_cast<CLIP_PLANE_BUFFER_TYPE*>(mapped_resource.pData);
@@ -372,7 +372,7 @@ bool NormalShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
  device_context->Unmap(clip_plane_buffer_, 0);
  buffer_number = 2;
  device_context->VSSetConstantBuffers(buffer_number, 1, &clip_plane_buffer_);
-
+ */
  result = device_context->Map(reflection_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
  data_ptr5 = static_cast<REFLECTION_BUFFER_TYPE*>(mapped_resource.pData);
  data_ptr5->reflection_matrix = reflection_matrix;
