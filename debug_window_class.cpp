@@ -1,23 +1,22 @@
-#include "bitmap_class.h"
+#include "debug_window_class.h"
 
-BitmapClass::BitmapClass()
+DebugWindowClass::DebugWindowClass()
 {
  vertex_buffer_ = nullptr;
  index_buffer_ = nullptr;
- texture_ = nullptr;
 }
 
-BitmapClass::BitmapClass(const BitmapClass&)
+DebugWindowClass::DebugWindowClass(const DebugWindowClass&)
 {
  
 }
 
-BitmapClass::~BitmapClass()
+DebugWindowClass::~DebugWindowClass()
 {
  
 }
 
-bool BitmapClass::Initialize(ID3D11Device* device, int screen_width, int screen_height, WCHAR* texture_filename, int bitmap_width, int bitmap_height)
+bool DebugWindowClass::Initialize(ID3D11Device* device, int screen_width, int screen_height, int bitmap_width, int bitmap_height)
 {
  bool result;
 
@@ -34,20 +33,15 @@ bool BitmapClass::Initialize(ID3D11Device* device, int screen_width, int screen_
  if (!result)
   return false;
 
- result = Load_texture(device, texture_filename);
- if (!result)
-  return false;
-
  return true;
 }
 
-void BitmapClass::Shutdown()
+void DebugWindowClass::Shutdown()
 {
- Release_texture();
  Shutdown_buffers();
 }
 
-bool BitmapClass::Render(ID3D11DeviceContext* device_context, int position_x, int position_y)
+bool DebugWindowClass::Render(ID3D11DeviceContext* device_context, int position_x, int position_y)
 {
  bool result;
 
@@ -58,17 +52,12 @@ bool BitmapClass::Render(ID3D11DeviceContext* device_context, int position_x, in
  Render_buffers(device_context);
 }
 
-int BitmapClass::Get_index_count()
+int DebugWindowClass::Get_index_count()
 {
  return index_count_;
 }
 
-ID3D11ShaderResourceView* BitmapClass::Get_texture()
-{
- return texture_->Get_texture();
-}
-
-bool BitmapClass::Initialize_buffers(ID3D11Device* device)
+bool DebugWindowClass::Initialize_buffers(ID3D11Device* device)
 {
  VERTEX_TYPE* vertices;
  unsigned long* indices;
@@ -129,7 +118,7 @@ bool BitmapClass::Initialize_buffers(ID3D11Device* device)
  return true;
 }
 
-void BitmapClass::Shutdown_buffers()
+void DebugWindowClass::Shutdown_buffers()
 {
  if(index_buffer_)
  {
@@ -144,7 +133,7 @@ void BitmapClass::Shutdown_buffers()
  }
 }
 
-bool BitmapClass::Update_buffers(ID3D11DeviceContext* device_context, int position_x, int position_y)
+bool DebugWindowClass::Update_buffers(ID3D11DeviceContext* device_context, int position_x, int position_y)
 {
  float left, right, top, bottom;
  VERTEX_TYPE* vertices;
@@ -202,7 +191,7 @@ bool BitmapClass::Update_buffers(ID3D11DeviceContext* device_context, int positi
  return true;
 }
 
-void BitmapClass::Render_buffers(ID3D11DeviceContext* device_context)
+void DebugWindowClass::Render_buffers(ID3D11DeviceContext* device_context)
 {
  unsigned int stride;
  unsigned int offset;
@@ -214,30 +203,5 @@ void BitmapClass::Render_buffers(ID3D11DeviceContext* device_context)
  //set index buffer to active in input assembler
  device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
  device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-bool BitmapClass::Load_texture(ID3D11Device* device, WCHAR* filename)
-{
- bool result;
-
- texture_ = new TextureClass;
- if (!texture_)
-  return false;
-
- result = texture_->Initialize(device, filename);
- if (!result)
-  return false;
-
- return true;
-}
-
-void BitmapClass::Release_texture()
-{
- if(texture_)
- {
-  texture_->Shutdown();
-  delete texture_;
-  texture_ = nullptr;
- }
 }
 

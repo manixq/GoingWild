@@ -87,7 +87,10 @@
     <ClCompile Include="normal_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bitmap_class.cpp">
+    <ClCompile Include="render_texture_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_window_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,7 +149,10 @@
     <ClInclude Include="normal_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bitmap_class.h">
+    <ClInclude Include="render_texture_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_window_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

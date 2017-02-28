@@ -10,7 +10,8 @@ GraphicsClass::GraphicsClass()
  model_list_ = nullptr;
  frustum_ = nullptr;
  floor_model_ = nullptr;
- bitmap_ = nullptr;
+ debug_window_ = nullptr;
+ render_texture_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -117,14 +118,22 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
  light_->Set_specular_power(32.0f);
 
- bitmap_ = new BitmapClass;
- if (!bitmap_)
+ render_texture_ = new RenderTextureClass;
+ if (!render_texture_)
   return false;
 
- result = bitmap_->Initialize(d3d_->GetDevice(), screen_width, screen_height, L"../Engine/data/seafloor.dds", 256, 266);
+ result = render_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
+ if (!result)
+  return false;
+
+ debug_window_ = new DebugWindowClass;
+ if (!debug_window_)
+  return false;
+
+ result = debug_window_->Initialize(d3d_->GetDevice(), screen_width, screen_height, 100, 100);
  if(!result)
  {
-  MessageBox(hwnd, L"Could not init the bitmap object", L"Error", MB_OK);
+  MessageBox(hwnd, L"Could not init the debug window object", L"Error", MB_OK);
  }
 
  return true;
@@ -133,11 +142,18 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
- if(bitmap_)
+ if(debug_window_)
  {
-  bitmap_->Shutdown();
-  delete bitmap_;
-  bitmap_ = nullptr;
+  debug_window_->Shutdown();
+  delete debug_window_;
+  debug_window_ = nullptr;
+ }
+
+ if(render_texture_)
+ {
+  render_texture_->Shutdown();
+  delete render_texture_;
+  render_texture_ = nullptr;
  }
 
  if(floor_model_)
@@ -211,6 +227,11 @@ bool GraphicsClass::Render()
  bool render_model, result;
  D3DXVECTOR4 clip_plane;
 
+ result = Render_to_texture();
+ if (!result)
+  return false;
+ d3d_->Turn_zbuffer_off();
+
  clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
  d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
  camera_->Render();
@@ -222,6 +243,11 @@ bool GraphicsClass::Render()
  model_count = model_list_->Get_model_count();
  render_count = 0;
  reflection_matrix = camera_->Get_reflection_view_matrix();
+
+ result = debug_window_->Render(d3d_->GetDeviceContext(), 50, 50);
+ if (!result)
+  return false;
+
  for (index = 0; index < model_count; index++)
  {
   model_list_->Get_data(index, position_x, position_y, position_z, color);
@@ -238,8 +264,49 @@ bool GraphicsClass::Render()
    render_count++;
   }
  }
+ d3d_->Turn_zbuffer_on();
  //present on screen
  d3d_->End_scene();
+ return true;
+}
+
+bool GraphicsClass::Render_to_texture()
+{
+ bool result;
+
+ render_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
+
+ render_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 1.0f, 1.0f);
+ result = Render_scene();
+ if (!result)
+  return false;
+ d3d_->Set_back_buffer_render_target();
+ return true;
+}
+
+bool GraphicsClass::Render_scene()
+{
+ D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix;
+ D3DXVECTOR4 clip_plane;
+ bool result;
+ static float rotation = 0.0f;
+
+ clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
+ camera_->Render();
+
+ d3d_->GetWorldMatrix(world_matrix);
+ camera_->Get_view_matrix(view_matrix);
+ d3d_->GetProjectionMatrix(projection_matrix);
+ reflection_matrix = camera_->Get_reflection_view_matrix();
+ rotation += (float)D3DX_PI * 0.005f;
+ if (rotation > 360.0f)
+ {
+  rotation -= 360.0f;
+ }
+ D3DXMatrixRotationY(&world_matrix, rotation);
+ model_->Render(d3d_->GetDeviceContext());
+
+ result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), *floor_model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power(), clip_plane, reflection_matrix);
  return true;
 }
 

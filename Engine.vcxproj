@@ -148,7 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bitmap_class.cpp" />
+    <ClCompile Include="debug_window_class.cpp" />
     <ClCompile Include="camera_class.cpp" />
     <ClCompile Include="color_shader_class.cpp" />
     <ClCompile Include="cpu_class.cpp" />
@@ -164,13 +164,14 @@
     <ClCompile Include="model_list_class.cpp" />
     <ClCompile Include="normal_shader_class.cpp" />
     <ClCompile Include="position_class.cpp" />
+    <ClCompile Include="render_texture_class.cpp" />
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
     <ClCompile Include="timer_class.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bitmap_class.h" />
+    <ClInclude Include="debug_window_class.h" />
     <ClInclude Include="camera_class.h" />
     <ClInclude Include="color_shader_class.h" />
     <ClInclude Include="cpu_class.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="model_list_class.h" />
     <ClInclude Include="normal_shader_class.h" />
     <ClInclude Include="position_class.h" />
+    <ClInclude Include="render_texture_class.h" />
     <ClInclude Include="system_class.h" />
     <ClInclude Include="texture_class.h" />
     <ClInclude Include="texture_shader_class.h" />

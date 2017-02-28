@@ -42,6 +42,9 @@ public:
  void Turn_zbuffer_on();
  void Turn_zbuffer_off();
 
+ ID3D11DepthStencilView* Get_depth_stencil_view();
+ void Set_back_buffer_render_target();
+
 private:
  bool vsync_enabled_;
  int video_card_memory_;
@@ -54,10 +57,14 @@ private:
  ID3D11DepthStencilState* depth_stencil_state_;
  ID3D11DepthStencilView* depth_stencil_view_;
  ID3D11RasterizerState* raster_state_;
+ 
  D3DXMATRIX projection_matrix_;
  D3DXMATRIX world_matrix_;
  D3DXMATRIX ortho_matrix_;
+
  ID3D11DepthStencilState* depth_disabled_stencil_state;
+ ID3D11BlendState* alpha_enable_blending_state_;
+ ID3D11BlendState* alpha_disable_blending_state_;
 };
 
 #endif

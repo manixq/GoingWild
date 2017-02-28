@@ -43,7 +43,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  D3D11_VIEWPORT view_port;
  float field_of_view, screen_aspect;
 
- D3D11_DEPTH_STENCIL_DESC depth_disabled_stencil_disc;
+ D3D11_DEPTH_STENCIL_DESC depth_disabled_stencil_desc;
 
  //vsync settings
  vsync_enabled_ = vsync;
@@ -312,23 +312,24 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  //create ortho projection matrix for 2d rend
  D3DXMatrixOrthoLH(&ortho_matrix_, static_cast<float>(screen_width), static_cast<float>(screen_height), screen_near, screen_depth);
  
- ZeroMemory(&depth_disabled_stencil_disc, sizeof(depth_disabled_stencil_disc));
+ ZeroMemory(&depth_disabled_stencil_desc, sizeof(depth_disabled_stencil_desc));
 
- depth_disabled_stencil_disc.DepthEnable = false;
- depth_disabled_stencil_disc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
- depth_disabled_stencil_disc.DepthFunc = D3D11_COMPARISON_LESS;
- depth_disabled_stencil_disc.StencilEnable = true;
- depth_disabled_stencil_disc.StencilReadMask = 0xFF;
- depth_disabled_stencil_disc.StencilWriteMask = 0xFF;
- depth_disabled_stencil_disc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
- depth_disabled_stencil_disc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
- depth_disabled_stencil_disc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
- depth_disabled_stencil_disc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
- depth_disabled_stencil_disc.BackFace.StencilFailOp = D3D11_STENCIL_OP_DECR;
- depth_disabled_stencil_disc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
- depth_disabled_stencil_disc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+ depth_disabled_stencil_desc.DepthEnable = false;
+ depth_disabled_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+ depth_disabled_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
+ depth_disabled_stencil_desc.StencilEnable = true;
+ depth_disabled_stencil_desc.StencilReadMask = 0xFF;
+ depth_disabled_stencil_desc.StencilWriteMask = 0xFF;
+ depth_disabled_stencil_desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+ depth_disabled_stencil_desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+ depth_disabled_stencil_desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+ depth_disabled_stencil_desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+ depth_disabled_stencil_desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+ depth_disabled_stencil_desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+ depth_disabled_stencil_desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+ depth_disabled_stencil_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
- result = device_->CreateDepthStencilState(&depth_disabled_stencil_disc, &depth_disabled_stencil_state);
+ result = device_->CreateDepthStencilState(&depth_disabled_stencil_desc, &depth_disabled_stencil_state);
  if (FAILED(result))
   return false;
 
@@ -460,3 +461,12 @@ void D3DClass::Turn_zbuffer_off()
  device_context_->OMSetDepthStencilState(depth_disabled_stencil_state, 1);
 }
 
+ID3D11DepthStencilView* D3DClass::Get_depth_stencil_view()
+{
+ return depth_stencil_view_;
+}
+
+void D3DClass::Set_back_buffer_render_target()
+{
+ device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+}

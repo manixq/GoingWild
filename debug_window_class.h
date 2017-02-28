@@ -1,28 +1,25 @@
-#ifndef  _BITMAP_CLASS_H_
-#define  _BITMAP_CLASS_H_
+#ifndef  _DEBUG_WINDOW_CLASS_H_
+#define  _DEBUG_WINDOW_CLASS_H_
 
 //========
 //Includes
 #include <d3d11.h>
 #include <D3DX10math.h>
 
-#include "texture_class.h"
-
 //===========
-//BitmapClass
-class BitmapClass
+//DebugWindowClass
+class DebugWindowClass
 {
 public: 
 
- BitmapClass();
- BitmapClass(const BitmapClass&);
- ~BitmapClass();
+ DebugWindowClass();
+ DebugWindowClass(const DebugWindowClass&);
+ ~DebugWindowClass();
 
- bool Initialize(ID3D11Device*, int, int, WCHAR*, int, int);
+ bool Initialize(ID3D11Device*, int, int, int, int);
  void Shutdown();
  bool Render(ID3D11DeviceContext*, int, int);
  int Get_index_count();
- ID3D11ShaderResourceView* Get_texture();
 
 private:
 
@@ -36,13 +33,8 @@ private:
  bool Update_buffers(ID3D11DeviceContext*, int, int);
  void Render_buffers(ID3D11DeviceContext*);
 
- bool Load_texture(ID3D11Device*, WCHAR*);
- void Release_texture();
-
  ID3D11Buffer *vertex_buffer_, *index_buffer_;
- int vertex_count_, index_count_;
- TextureClass* texture_;
- 
+ int vertex_count_, index_count_; 
  int screen_width_, screen_height_;
  int bitmap_width_, bitmap_height_;
  int previous_posx_, previous_posy_;

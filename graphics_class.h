@@ -10,7 +10,8 @@
 #include "light_class.h"
 #include "model_list_class.h"
 #include "frustum_class.h"
-#include "bitmap_class.h"
+#include "debug_window_class.h"
+#include "render_texture_class.h"
 
 //=======
 //globals
@@ -42,7 +43,11 @@ private:
  ModelListClass* model_list_;
  FrustumClass* frustum_;
  ModelClass* floor_model_;
- BitmapClass* bitmap_;
+ DebugWindowClass* debug_window_;
+ RenderTextureClass* render_texture_;
+
+ bool Render_scene();
+ bool Render_to_texture();
 };
 
 #endif
