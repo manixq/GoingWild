@@ -81,9 +81,13 @@ int ModelClass::Get_index_count()
  return index_count_;
 }
 
-ID3D11ShaderResourceView** ModelClass::Get_texture()
+ID3D11ShaderResourceView** ModelClass::Get_textures()
 {
  return texture_->Get_textures();
+}
+ID3D11ShaderResourceView* ModelClass::Get_texture()
+{
+ return texture_->Get_texture();
 }
 
 bool ModelClass::Initialize_buffers(ID3D11Device* device)

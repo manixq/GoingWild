@@ -11,6 +11,8 @@ D3DClass::D3DClass()
  depth_stencil_view_ = 0;
  raster_state_ = 0;
  depth_disabled_stencil_state = 0;
+ alpha_disable_blending_state_ = 0;
+ alpha_enable_blending_state_ = 0;
 }
 
 D3DClass::D3DClass(const D3DClass& other)
@@ -29,10 +31,8 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  IDXGIFactory* factory;
  IDXGIAdapter* adapter;
  IDXGIOutput* adapter_output;
- unsigned int num_modes, i, numerator, denominator, stringLength;
+ unsigned int num_modes, i, numerator, denominator;
  DXGI_MODE_DESC* display_mode_list;
- DXGI_ADAPTER_DESC adapter_desc;
- int error;
  DXGI_SWAP_CHAIN_DESC swap_chain_desc;
  D3D_FEATURE_LEVEL feature_level;
  ID3D11Texture2D* back_buffer_ptr;
@@ -42,7 +42,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  D3D11_RASTERIZER_DESC raster_desc;
  D3D11_VIEWPORT view_port;
  float field_of_view, screen_aspect;
-
+ D3D11_BLEND_DESC blend_state_desc;
  D3D11_DEPTH_STENCIL_DESC depth_disabled_stencil_desc;
 
  //vsync settings
@@ -87,16 +87,6 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
   }
  }
 
- result = adapter->GetDesc(&adapter_desc);
- if (FAILED(result))
-  return false;
-
- //store dedicated memory in MB
- video_card_memory_ = static_cast<int>(adapter_desc.DedicatedVideoMemory / 1024 / 1024);
- error = wcstombs_s(&stringLength, video_card_description_, 128, adapter_desc.Description, 128);
- if (error != 0)
-  return false;
-
  //release what is not needed
  delete [] display_mode_list;
  display_mode_list = nullptr;
@@ -131,7 +121,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  else
  {
   swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
-  swap_chain_desc.BufferDesc.RefreshRate.Denominator = 0;
+  swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
  }
 
  //set usage of back buffer
@@ -333,12 +323,41 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  if (FAILED(result))
   return false;
 
+ ZeroMemory(&blend_state_desc, sizeof(D3D11_BLEND_DESC));
+ blend_state_desc.RenderTarget[0].BlendEnable = true;
+ blend_state_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+ blend_state_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+ blend_state_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+ blend_state_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+ blend_state_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+ blend_state_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+ blend_state_desc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+ result = device_->CreateBlendState(&blend_state_desc, &alpha_enable_blending_state_);
+ if (FAILED(result))
+  return false;
+
+ blend_state_desc.RenderTarget[0].BlendEnable = FALSE;
+ result = device_->CreateBlendState(&blend_state_desc, &alpha_disable_blending_state_);
+ if (FAILED(result))
+  return false;
+
  return true;
 }
 
-
 void D3DClass::Shutdown()
 {
+ if(alpha_enable_blending_state_)
+ {
+  alpha_enable_blending_state_->Release();
+  alpha_enable_blending_state_ = nullptr;
+ }
+
+ if(alpha_disable_blending_state_)
+ {
+  alpha_disable_blending_state_->Release();
+  alpha_disable_blending_state_ = nullptr;
+ }
+
  if(depth_disabled_stencil_state)
  {
   depth_disabled_stencil_state->Release();
@@ -445,12 +464,6 @@ void D3DClass::GetOrthoMatrix(D3DXMATRIX& ortho_matrix)
  ortho_matrix = ortho_matrix_;
 }
 
-void D3DClass::GetVideoCardInfo(char* card_name, int& memory)
-{
- strcpy_s(card_name, 128, video_card_description_);
- memory = video_card_memory_;
-}
-
 void D3DClass::Turn_zbuffer_on()
 {
  device_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
@@ -469,4 +482,28 @@ ID3D11DepthStencilView* D3DClass::Get_depth_stencil_view()
 void D3DClass::Set_back_buffer_render_target()
 {
  device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+}
+
+void D3DClass::TurnOffAlphaBlending()
+{
+ float blend_factor[4];
+
+ blend_factor[0] = 0.0f;
+ blend_factor[1] = 0.0f;
+ blend_factor[2] = 0.0f;
+ blend_factor[3] = 0.0f;
+
+ device_context_->OMSetBlendState(alpha_enable_blending_state_, blend_factor, 0xffffffff);
+}
+
+void D3DClass::TurnOnAlphaBlending()
+{
+ float blend_factor[4];
+
+ blend_factor[0] = 0.0f;
+ blend_factor[1] = 0.0f;
+ blend_factor[2] = 0.0f;
+ blend_factor[3] = 0.0f;
+
+ device_context_->OMSetBlendState(alpha_disable_blending_state_, blend_factor, 0xffffffff);
 }

@@ -164,6 +164,7 @@
     <ClCompile Include="model_list_class.cpp" />
     <ClCompile Include="normal_shader_class.cpp" />
     <ClCompile Include="position_class.cpp" />
+    <ClCompile Include="reflection_shader_class.cpp" />
     <ClCompile Include="render_texture_class.cpp" />
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="model_list_class.h" />
     <ClInclude Include="normal_shader_class.h" />
     <ClInclude Include="position_class.h" />
+    <ClInclude Include="reflection_shader_class.h" />
     <ClInclude Include="render_texture_class.h" />
     <ClInclude Include="system_class.h" />
     <ClInclude Include="texture_class.h" />
@@ -194,7 +196,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\pixel\normal_map.ps" />
+    <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\vertex\normal_map.vs" />
+    <None Include="shaders\vertex\reflection.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\cube.txt" />

@@ -25,7 +25,8 @@ public:
  void Shutdown();
  void Render(ID3D11DeviceContext*);
  int Get_index_count();
- ID3D11ShaderResourceView** Get_texture();
+ ID3D11ShaderResourceView** Get_textures();
+ ID3D11ShaderResourceView* Get_texture();
  bool Load_model(char*);
  void Release_model();
 

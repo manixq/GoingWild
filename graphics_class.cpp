@@ -12,6 +12,7 @@ GraphicsClass::GraphicsClass()
  floor_model_ = nullptr;
  debug_window_ = nullptr;
  render_texture_ = nullptr;
+ reflection_shader_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -99,6 +100,14 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
  }
 
+ render_texture_ = new RenderTextureClass;
+ if (!render_texture_)
+  return false;
+ 
+ result = render_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
+ if (!result)
+  return false;
+
  floor_model_ = new ModelClass;
  if (!floor_model_)
   return false;
@@ -108,6 +117,18 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   MessageBox(hwnd, L"could not initialize the floor model obj", L"Error", MB_OK);
   return false;
  }
+
+ reflection_shader_ = new ReflectionShaderClass;
+ if (!reflection_shader_)
+  return false;
+
+ result = reflection_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ if(!result)
+ {
+  MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
+  return false;
+ }
+
  frustum_ = new FrustumClass;
  if (!frustum_)
   return false;
@@ -117,14 +138,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  light_->Set_direction(0.0f, 0.0f, 1.0f);
  light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
  light_->Set_specular_power(32.0f);
-
- render_texture_ = new RenderTextureClass;
- if (!render_texture_)
-  return false;
-
- result = render_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
- if (!result)
-  return false;
 
  debug_window_ = new DebugWindowClass;
  if (!debug_window_)
@@ -142,6 +155,12 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+ if(reflection_shader_)
+ {
+  reflection_shader_->Shutdown();
+  reflection_shader_ = nullptr;
+ }
+
  if(debug_window_)
  {
   debug_window_->Shutdown();
@@ -230,9 +249,11 @@ bool GraphicsClass::Render()
  result = Render_to_texture();
  if (!result)
   return false;
- d3d_->Turn_zbuffer_off();
 
- clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
+ result = Render_scene();
+ if (!result)
+  return false;
+ /*clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
  d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
  camera_->Render();
  d3d_->GetWorldMatrix(world_matrix);
@@ -266,20 +287,37 @@ bool GraphicsClass::Render()
  }
  d3d_->Turn_zbuffer_on();
  //present on screen
- d3d_->End_scene();
+ d3d_->End_scene();*/
  return true;
 }
 
 bool GraphicsClass::Render_to_texture()
 {
+ D3DXMATRIX world_matrix, reflection_view_matrix, projection_matrix;
+ static float rotation = 0.0f;
  bool result;
 
  render_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
 
- render_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 1.0f, 1.0f);
- result = Render_scene();
- if (!result)
-  return false;
+ render_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+ camera_->Render_reflection(-15.5f);
+ reflection_view_matrix = camera_->Get_reflection_view_matrix();
+
+ d3d_->GetWorldMatrix(world_matrix);
+ d3d_->GetProjectionMatrix(projection_matrix);
+
+ rotation += (float)D3DX_PI * 0.005f;
+ if (rotation > 360.0f)
+ {
+  rotation -= 360.0f;
+ }
+ D3DXMatrixRotationY(&world_matrix, rotation);
+
+ model_->Render(d3d_->GetDeviceContext());
+
+ normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+ 
  d3d_->Set_back_buffer_render_target();
  return true;
 }
@@ -287,26 +325,37 @@ bool GraphicsClass::Render_to_texture()
 bool GraphicsClass::Render_scene()
 {
  D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix;
- D3DXVECTOR4 clip_plane;
  bool result;
  static float rotation = 0.0f;
 
- clip_plane = D3DXVECTOR4(1.0f, -1.0f, 0.0f, 0.0f);
+ d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
+
  camera_->Render();
 
  d3d_->GetWorldMatrix(world_matrix);
  camera_->Get_view_matrix(view_matrix);
  d3d_->GetProjectionMatrix(projection_matrix);
- reflection_matrix = camera_->Get_reflection_view_matrix();
+
+
  rotation += (float)D3DX_PI * 0.005f;
  if (rotation > 360.0f)
  {
   rotation -= 360.0f;
  }
  D3DXMatrixRotationY(&world_matrix, rotation);
- model_->Render(d3d_->GetDeviceContext());
 
- result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture(), *floor_model_->Get_texture(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power(), clip_plane, reflection_matrix);
+ model_->Render(d3d_->GetDeviceContext());
+ result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+ if (!result)
+  return false;
+
+ d3d_->GetWorldMatrix(world_matrix);
+ D3DXMatrixTranslation(&world_matrix, 0.0f, -5.0f, 0.0f);
+ reflection_matrix = camera_->Get_reflection_view_matrix();
+ floor_model_->Render(d3d_->GetDeviceContext());
+ result = reflection_shader_->Render(d3d_->GetDeviceContext(), floor_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, floor_model_->Get_texture(), render_texture_->Get_shader_resource_view(), reflection_matrix);
+
+ d3d_->End_scene();
  return true;
 }
 

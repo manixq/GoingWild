@@ -12,6 +12,7 @@
 #include "frustum_class.h"
 #include "debug_window_class.h"
 #include "render_texture_class.h"
+#include "reflection_shader_class.h"
 
 //=======
 //globals
@@ -45,6 +46,7 @@ private:
  ModelClass* floor_model_;
  DebugWindowClass* debug_window_;
  RenderTextureClass* render_texture_;
+ ReflectionShaderClass* reflection_shader_;
 
  bool Render_scene();
  bool Render_to_texture();

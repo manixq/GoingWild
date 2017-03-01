@@ -93,6 +93,9 @@
     <ClCompile Include="debug_window_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="reflection_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -155,12 +158,21 @@
     <ClInclude Include="debug_window_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="reflection_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
     <None Include="shaders\pixel\normal_map.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\reflection.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\reflection.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

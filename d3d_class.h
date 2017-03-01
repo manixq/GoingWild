@@ -37,18 +37,17 @@ public:
  void GetWorldMatrix(D3DMATRIX&);
  void GetOrthoMatrix(D3DXMATRIX&);
 
- void GetVideoCardInfo(char*, int&);
-
  void Turn_zbuffer_on();
  void Turn_zbuffer_off();
+
+ void TurnOnAlphaBlending();
+ void TurnOffAlphaBlending();
 
  ID3D11DepthStencilView* Get_depth_stencil_view();
  void Set_back_buffer_render_target();
 
 private:
  bool vsync_enabled_;
- int video_card_memory_;
- char video_card_description_[128];
  IDXGISwapChain* swap_chain_;
  ID3D11Device* device_;
  ID3D11DeviceContext* device_context_;
