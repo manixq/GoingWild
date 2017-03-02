@@ -170,6 +170,7 @@
     <ClCompile Include="texture_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
     <ClCompile Include="timer_class.cpp" />
+    <ClCompile Include="water_shader_class.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug_window_class.h" />
@@ -193,12 +194,15 @@
     <ClInclude Include="texture_class.h" />
     <ClInclude Include="texture_shader_class.h" />
     <ClInclude Include="timer_class.h" />
+    <ClInclude Include="water_shader_class.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\pixel\normal_map.ps" />
     <None Include="shaders\pixel\reflection.ps" />
+    <None Include="shaders\pixel\water.ps" />
     <None Include="shaders\vertex\normal_map.vs" />
     <None Include="shaders\vertex\reflection.vs" />
+    <None Include="shaders\vertex\water.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\cube.txt" />
