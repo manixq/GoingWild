@@ -46,10 +46,10 @@ float4 Water_pixel_shader(PixelInputType input) : SV_TARGET
     refractTexCoord = refractTexCoord + (normal.xy * reflectRefractScale);
     
     reflectionColor = reflectionTexture.Sample(SampleType, reflectTexCoord) ;
-    reflectionColor = refractionTexture.Sample(SampleType, refractTexCoord) ;
+    refractionColor = refractionTexture.Sample(SampleType, refractTexCoord) ;
 
 
-    color = lerp(reflectionColor, refractionColor, 0.6f);
+    color = lerp(reflectionColor, refractionColor, 0.35f);
 
     return color;
 }

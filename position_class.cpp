@@ -14,7 +14,7 @@ PositionClass::PositionClass()
  left_speed_ = 0.0f;
  right_speed_ = 0.0f;
  pos_x_ = 0.0f;
- pos_z_ = 0.0f;
+ pos_z_ = -10.0f;
 
 }
 

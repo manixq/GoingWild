@@ -99,6 +99,9 @@
     <ClCompile Include="water_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="refraction_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -167,6 +170,9 @@
     <ClInclude Include="water_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="refraction_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -186,6 +192,12 @@
     </None>
     <None Include="shaders\vertex\water.vs">
       <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\refraction.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\refraction.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

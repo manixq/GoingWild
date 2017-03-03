@@ -13,6 +13,8 @@
 #include "debug_window_class.h"
 #include "render_texture_class.h"
 #include "reflection_shader_class.h"
+#include "refraction_shader_class.h"
+#include "water_shader_class.h"
 
 //=======
 //globals
@@ -39,17 +41,25 @@ private:
  D3DClass* d3d_;
  CameraClass* camera_;
  ModelClass* model_;
+ ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
  NormalShaderClass* normal_shader_;
  LightClass* light_;
  ModelListClass* model_list_;
  FrustumClass* frustum_;
  ModelClass* floor_model_;
  DebugWindowClass* debug_window_;
- RenderTextureClass* render_texture_;
+ RenderTextureClass *reflection_texture_, *refraction_texture_;
+
  ReflectionShaderClass* reflection_shader_;
+ RefractionShaderClass* refraction_shader_;
+ WaterShaderClass* water_shader_;
 
  bool Render_scene();
  bool Render_to_texture();
+ bool Render_refraction_to_texture();
+ bool Render_reflection_to_texture();
+
+ float water_height_, water_translation_;
 };
 
 #endif

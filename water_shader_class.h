@@ -53,8 +53,8 @@ private:
  ID3D11PixelShader* pixel_shader_;
  ID3D11InputLayout* layout_;
  ID3D11SamplerState* sampler_state_;
- ID3D11Buffer* matrix_buffer_;
 
+ ID3D11Buffer* matrix_buffer_;
  ID3D11Buffer* reflectiion_buffer_;
  ID3D11Buffer* water_buffer_;
 };

@@ -34,6 +34,8 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename_1, WCHAR* fi
  result = D3DX11CreateShaderResourceViewFromFile(device, filename_3, nullptr, nullptr, &textures_[2], nullptr);
  if (FAILED(result))
   return false;
+
+ texture_ = textures_[0];
  return true;
 }
 
@@ -53,6 +55,7 @@ void TextureClass::Shutdown()
  {
   textures_[0]->Release();
   textures_[0] = nullptr;
+  texture_ = nullptr;
  }
  if (textures_[1])
  {
