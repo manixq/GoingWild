@@ -199,6 +199,12 @@
     <None Include="shaders\pixel\refraction.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
+    <None Include="shaders\vertex\fire.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\fire.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\cube.txt">

@@ -199,10 +199,12 @@
     <ClInclude Include="water_shader_class.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\pixel\fire.ps" />
     <None Include="shaders\pixel\normal_map.ps" />
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
     <None Include="shaders\pixel\water.ps" />
+    <None Include="shaders\vertex\fire.vs" />
     <None Include="shaders\vertex\normal_map.vs" />
     <None Include="shaders\vertex\reflection.vs" />
     <None Include="shaders\vertex\refraction.vs" />

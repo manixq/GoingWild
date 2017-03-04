@@ -1,0 +1,69 @@
+//=======
+//Globals
+Texture2D fire_texture : register(t0);
+Texture2D noise_texture : register(t1);
+Texture2D alpha_texture : register(t2);
+
+SamplerState Sample_type;
+SamplerState Sample_type2;
+
+cbuffer DistortionBuffer
+{
+ float2 distortion1;
+ float2 distortion2;
+ float2 distortion3;
+ float distortion_scale;
+ float distortion_bias;
+};
+
+//========
+//Typedefs
+struct PIXEL_INPUT_TYPE
+{
+ float4 position : SV_POSITION;
+ float2 tex : TECCOORD0;
+ float2 tex_coord1 : TEXCOORD1;
+ float2 tex_coord2 : TEXCOORD2;
+ float2 tex_coord3 : TEXCOORD3;
+};
+
+
+//===========
+//Pixelshader
+float4 Fire_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
+{
+ float4 noise1;
+ float4 noise2;
+ float4 noise3;
+ float4 final_noise;
+ float perturb;
+ float2 noise_coord;
+ float4 fire_color;
+ float4 alpha_color
+
+ noise1 = noise_texture.Sample(Sample_type, input.tex_coord1);
+ noise2 = noise_texture.Sample(Sample_type, input.tex_coord2);
+ noise3 = noise_texture.Sample(Sample_type, input.tex_coord3);
+
+ noise1 = (noise1 - 0.5f) * 2.0f;
+ noise2 = (noise2 - 0.5f) * 2.0f;
+ noise3 = (noise3 - 0.5f) * 2.0f;
+
+ noise1.xy = noise1.xy * distortion1.xy;
+ noise2.xy = noise2.xy * distortion2.xy;
+ noise3.xy = noise2.xy * distortion3.xy;
+
+ final_noise = noise1 + noise2 + noise3;
+
+ perturb = ((1.0f - input.tex.y) * distortion_scale) + input.tex.xy;
+
+ noise_coord.xy = (final_noise.xy * perturb) + input.tex.xy;
+
+ fire_color = fire_texture.Sample(Sample_type2, noise_coord.xy);
+ alpha_color = alpha_texture.Sample(Sample_type2, noise_coord.xy);
+
+ fire_color.a = alpha_color;
+ return fire_color;
+
+ return input.color;
+}

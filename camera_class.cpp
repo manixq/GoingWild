@@ -112,12 +112,6 @@ void CameraClass::Render_reflection(float height)
  look_at.x = - position_x_;
  look_at.y = position_y_ * 2;
  look_at.z = - position_z_;
- //D3DXMatrixRotationYawPitchRoll(&rotation_matrix, yaw, pitch, roll);
- //D3DXVec3TransformCoord(&look_at, &look_at, &rotation_matrix);
- //D3DXVec3TransformCoord(&up, &up, &rotation_matrix);
-
-
- //look_at = position + look_at;
 
  D3DXMatrixLookAtLH(&reflection_view_matrix_, &position, &look_at, &up);
 }
