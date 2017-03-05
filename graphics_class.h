@@ -15,6 +15,7 @@
 #include "reflection_shader_class.h"
 #include "refraction_shader_class.h"
 #include "water_shader_class.h"
+#include "fire_shader_class.h"
 
 //=======
 //globals
@@ -43,10 +44,12 @@ private:
  ModelClass* model_;
  ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
  NormalShaderClass* normal_shader_;
+ FireShaderClass* fire_shader_;
  LightClass* light_;
  ModelListClass* model_list_;
  FrustumClass* frustum_;
  ModelClass* floor_model_;
+ ModelClass* fire_model_;
  DebugWindowClass* debug_window_;
  RenderTextureClass *reflection_texture_, *refraction_texture_;
 

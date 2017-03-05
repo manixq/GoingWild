@@ -16,6 +16,7 @@ GraphicsClass::GraphicsClass()
  wall_model_ = nullptr;
  bath_model_ = nullptr;
  water_model_ = nullptr;
+ fire_model_ = nullptr;
 
  reflection_texture_ = nullptr;
  refraction_texture_ = nullptr;
@@ -23,6 +24,7 @@ GraphicsClass::GraphicsClass()
  reflection_shader_ = nullptr;
  refraction_shader_ = nullptr;
  water_shader_ = nullptr;
+ fire_shader_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -103,6 +105,17 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
   return false;
  }
 
+ fire_model_ = new ModelClass;
+ if (!fire_model_)
+  return false;
+
+ result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/firer01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
+ if (!result)
+ {
+  MessageBox(hwnd, L"could not initialize fire model", L"Error", MB_OK);
+  return false;
+ }
+
  //create camera object
  camera_ = new CameraClass;
  if (!camera_)
@@ -118,6 +131,17 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  if (!result)
  {
   MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
+  return false;
+ }
+
+ fire_shader_ = new FireShaderClass;
+ if (!fire_shader_)
+  return false;
+
+ result = fire_shader_->Initialize(d3d_->GetDevice(), hwnd);
+ if(!result)
+ {
+  MessageBox(hwnd, L"Could not initialize fire shader obj", L"Error", MB_OK);
   return false;
  }
 
@@ -231,6 +255,12 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+ if(fire_shader_)
+ {
+  fire_shader_->Shutdown();
+  fire_shader_ = nullptr;
+ }
+
  if(refraction_shader_)
  {
   refraction_shader_->Shutdown();
@@ -267,6 +297,12 @@ void GraphicsClass::Shutdown()
   reflection_texture_->Shutdown();
   delete reflection_texture_;
   reflection_texture_ = nullptr;
+ }
+
+ if(fire_model_)
+ {
+  fire_model_->Shutdown();
+  fire_model_ = nullptr;
  }
 
  if(floor_model_)
@@ -517,7 +553,24 @@ bool GraphicsClass::Render_scene()
 {
  D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix;
  bool result;
- static float rotation = 0.0f;
+ D3DXVECTOR3 scroll_speed, scale;
+ D3DXVECTOR2 distortion1, distortion2, distortion3;
+ float distortion_scale, distortion_bias;
+ static float frame_time = 0.0f;
+
+ //three scrolling speeds for three different noise txtrs
+ scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
+ //three scales for three different noise octave txtrs
+ scale = D3DXVECTOR3(1.0f, 2.0f, 3.0f);
+
+ //three different x and y distortion factors for noise txtrs
+ distortion1 = D3DXVECTOR2(0.1f, 0.2f);
+ distortion1 = D3DXVECTOR2(0.1f, 0.3f);
+ distortion1 = D3DXVECTOR2(0.1f, 0.1f);
+
+ distortion_scale = 0.8f;
+ distortion_bias = 0.5f;
+
 
  d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -565,6 +618,14 @@ bool GraphicsClass::Render_scene()
  result = water_shader_->Render(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
  if (!result)
   return false;
+
+ d3d_->TurnOnAlphaBlending();
+ fire_model_->Render(d3d_->GetDeviceContext());
+ result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+ if (!result)
+  return false;
+ d3d_->TurnOffAlphaBlending();
+
  d3d_->End_scene();
  return true;
 }

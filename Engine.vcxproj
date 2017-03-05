@@ -153,6 +153,7 @@
     <ClCompile Include="color_shader_class.cpp" />
     <ClCompile Include="cpu_class.cpp" />
     <ClCompile Include="d3d_class.cpp" />
+    <ClCompile Include="fire_shader_class.cpp" />
     <ClCompile Include="fps_class.cpp" />
     <ClCompile Include="frustum_class.cpp" />
     <ClCompile Include="graphics_class.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="color_shader_class.h" />
     <ClInclude Include="cpu_class.h" />
     <ClInclude Include="d3d_class.h" />
+    <ClInclude Include="fire_shader_class.h" />
     <ClInclude Include="fps_class.h" />
     <ClInclude Include="frustum_class.h" />
     <ClInclude Include="graphics_class.h" />
