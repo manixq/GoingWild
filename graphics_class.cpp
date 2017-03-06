@@ -519,6 +519,27 @@ bool GraphicsClass::Render_reflection_to_texture()
 {
  D3DXMATRIX world_matrix, reflection_view_matrix, projection_matrix;
  bool result;
+ D3DXVECTOR3 scroll_speed, scale;
+ D3DXVECTOR2 distortion1, distortion2, distortion3;
+ float distortion_scale, distortion_bias;
+
+ static float frame_time = 0.0f;
+ frame_time += 0.001f;
+ if (frame_time > 1000.0f)
+  frame_time = 0.0f;
+
+ //three scrolling speeds for three different noise txtrs
+ scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
+ //three scales for three different noise octave txtrs
+ scale = D3DXVECTOR3(1.0f, 2.0f, 3.0f);
+
+ //three different x and y distortion factors for noise txtrs
+ distortion1 = D3DXVECTOR2(0.1f, 0.2f);
+ distortion2 = D3DXVECTOR2(0.1f, 0.3f);
+ distortion3 = D3DXVECTOR2(0.1f, 0.1f);
+
+ distortion_scale = 0.8f;
+ distortion_bias = 0.5f;
 
  reflection_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
 
@@ -543,7 +564,16 @@ bool GraphicsClass::Render_reflection_to_texture()
  D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
  model_->Render(d3d_->GetDeviceContext());
  normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+ d3d_->GetWorldMatrix(world_matrix);
 
+ D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 7.0f); ;
+
+ d3d_->TurnOnAlphaBlending();
+ fire_model_->Render(d3d_->GetDeviceContext());
+ result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+ if (!result)
+  return false;
+ d3d_->TurnOffAlphaBlending();
  d3d_->Set_back_buffer_render_target();
  return true;
 }
@@ -558,7 +588,7 @@ bool GraphicsClass::Render_scene()
  float distortion_scale, distortion_bias;
 
  static float frame_time = 0.0f;
- frame_time += 0.01f;
+ frame_time += 0.001f;
  if (frame_time > 1000.0f)
   frame_time = 0.0f;
 
@@ -624,7 +654,8 @@ bool GraphicsClass::Render_scene()
   return false;
  d3d_->GetWorldMatrix(world_matrix);
 
- D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_ + 5.0f, 7.0f);
+ D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 7.0f);  ;
+
  d3d_->TurnOnAlphaBlending();
  fire_model_->Render(d3d_->GetDeviceContext());
  result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
