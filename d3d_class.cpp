@@ -306,7 +306,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
 
  depth_disabled_stencil_desc.DepthEnable = false;
  depth_disabled_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
- depth_disabled_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
+ depth_disabled_stencil_desc.DepthFunc = D3D11_COMPARISON_ALWAYS;
  depth_disabled_stencil_desc.StencilEnable = true;
  depth_disabled_stencil_desc.StencilReadMask = 0xFF;
  depth_disabled_stencil_desc.StencilWriteMask = 0xFF;
@@ -504,6 +504,6 @@ void D3DClass::TurnOnAlphaBlending()
  blend_factor[1] = 0.0f;
  blend_factor[2] = 0.0f;
  blend_factor[3] = 0.0f;
-
+ 
  device_context_->OMSetBlendState(alpha_enable_blending_state_, blend_factor, 0xffffffff);
 }

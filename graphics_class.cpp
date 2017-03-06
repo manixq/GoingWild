@@ -581,8 +581,13 @@ bool GraphicsClass::Render_reflection_to_texture()
 
 bool GraphicsClass::Render_scene()
 {
- D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix;
+ D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix, translate_matrix;
  bool result;
+
+ D3DXVECTOR3 camera_position, model_position;
+ double angle;
+ float rotation;
+
  D3DXVECTOR3 scroll_speed, scale;
  D3DXVECTOR2 distortion1, distortion2, distortion3;
  float distortion_scale, distortion_bias;
@@ -612,9 +617,9 @@ bool GraphicsClass::Render_scene()
 
  d3d_->GetWorldMatrix(world_matrix);
  camera_->Get_view_matrix(view_matrix);
- d3d_->GetProjectionMatrix(projection_matrix);
+ d3d_->GetProjectionMatrix(projection_matrix); 
 
-
+ //ground
  D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
  ground_model_->Render(d3d_->GetDeviceContext());
  result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
@@ -622,6 +627,7 @@ bool GraphicsClass::Render_scene()
   return false;
  d3d_->GetWorldMatrix(world_matrix);
 
+ //wall
  D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
  wall_model_->Render(d3d_->GetDeviceContext());
  result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
@@ -629,6 +635,28 @@ bool GraphicsClass::Render_scene()
   return false;
  d3d_->GetWorldMatrix(world_matrix);
 
+ //fire
+ d3d_->Turn_zbuffer_off();
+ d3d_->TurnOnAlphaBlending();
+ camera_position = camera_->Get_position();
+ model_position.x = 0.0f;
+ model_position.y = water_height_;
+ model_position.z = 7.0f;
+ angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
+ rotation = static_cast<float>(angle) * 0.0174532925f;
+
+ D3DXMatrixRotationY(&world_matrix, rotation);
+ D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
+ D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
+
+ fire_model_->Render(d3d_->GetDeviceContext());
+ result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+ if (!result)
+  return false;
+ d3d_->TurnOffAlphaBlending();
+ d3d_->Turn_zbuffer_on(); 
+
+ //bath
  D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
  bath_model_->Render(d3d_->GetDeviceContext());
  result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
@@ -636,10 +664,9 @@ bool GraphicsClass::Render_scene()
   return false;
  d3d_->GetWorldMatrix(world_matrix);
 
-
-
  reflection_matrix = camera_->Get_reflection_view_matrix();
 
+ //polandball
  D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
  model_->Render(d3d_->GetDeviceContext());
  result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
@@ -647,21 +674,13 @@ bool GraphicsClass::Render_scene()
   return false;
  d3d_->GetWorldMatrix(world_matrix);
 
+ //water
  D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_ , 0.0f);
  water_model_->Render(d3d_->GetDeviceContext());
  result = water_shader_->Render(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
  if (!result)
   return false;
  d3d_->GetWorldMatrix(world_matrix);
-
- D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 7.0f);  ;
-
- d3d_->TurnOnAlphaBlending();
- fire_model_->Render(d3d_->GetDeviceContext());
- result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
- if (!result)
-  return false;
- d3d_->TurnOffAlphaBlending();
 
  d3d_->End_scene();
  return true;

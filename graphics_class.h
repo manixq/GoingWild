@@ -63,6 +63,7 @@ private:
  bool Render_reflection_to_texture();
 
  float water_height_, water_translation_;
+
 };
 
 #endif
