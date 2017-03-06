@@ -300,6 +300,7 @@ bool FireShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context,
  result = device_context->Map(noise_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
  if (FAILED(result))
   return false;
+
  data_ptr2 = (NOISE_BUFFER_TYPE*)mapped_resource.pData;
  data_ptr2->frame_time = frame_time;
  data_ptr2->scroll_speed = scroll_speed;
@@ -345,7 +346,7 @@ void FireShaderClass::Render_shader(ID3D11DeviceContext* device_context, int ind
 
  //set sampler state in ps
  device_context->PSSetSamplers(0, 1, &sample_state_);
- device_context->PSSetSamplers(0, 1, &sample_state2_);
+ device_context->PSSetSamplers(1, 1, &sample_state2_);
 
  //render
  device_context->DrawIndexed(index_count, 0, 0);

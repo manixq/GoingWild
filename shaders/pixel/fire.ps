@@ -39,7 +39,7 @@ float4 Fire_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
  float perturb;
  float2 noise_coord;
  float4 fire_color;
- float4 alpha_color
+ float4 alpha_color;
 
  noise1 = noise_texture.Sample(Sample_type, input.tex_coord1);
  noise2 = noise_texture.Sample(Sample_type, input.tex_coord2);
@@ -55,7 +55,7 @@ float4 Fire_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 
  final_noise = noise1 + noise2 + noise3;
 
- perturb = ((1.0f - input.tex.y) * distortion_scale) + input.tex.xy;
+ perturb = ((1.0f - input.tex.y) * distortion_scale) + distortion_bias;
 
  noise_coord.xy = (final_noise.xy * perturb) + input.tex.xy;
 
@@ -64,6 +64,4 @@ float4 Fire_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 
  fire_color.a = alpha_color;
  return fire_color;
-
- return input.color;
 }

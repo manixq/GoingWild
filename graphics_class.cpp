@@ -109,7 +109,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
  if (!fire_model_)
   return false;
 
- result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/firer01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
+ result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/fire01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
  if (!result)
  {
   MessageBox(hwnd, L"could not initialize fire model", L"Error", MB_OK);
@@ -556,7 +556,11 @@ bool GraphicsClass::Render_scene()
  D3DXVECTOR3 scroll_speed, scale;
  D3DXVECTOR2 distortion1, distortion2, distortion3;
  float distortion_scale, distortion_bias;
+
  static float frame_time = 0.0f;
+ frame_time += 0.01f;
+ if (frame_time > 1000.0f)
+  frame_time = 0.0f;
 
  //three scrolling speeds for three different noise txtrs
  scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
@@ -565,8 +569,8 @@ bool GraphicsClass::Render_scene()
 
  //three different x and y distortion factors for noise txtrs
  distortion1 = D3DXVECTOR2(0.1f, 0.2f);
- distortion1 = D3DXVECTOR2(0.1f, 0.3f);
- distortion1 = D3DXVECTOR2(0.1f, 0.1f);
+ distortion2 = D3DXVECTOR2(0.1f, 0.3f);
+ distortion3 = D3DXVECTOR2(0.1f, 0.1f);
 
  distortion_scale = 0.8f;
  distortion_bias = 0.5f;
@@ -618,7 +622,9 @@ bool GraphicsClass::Render_scene()
  result = water_shader_->Render(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
  if (!result)
   return false;
+ d3d_->GetWorldMatrix(world_matrix);
 
+ D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_ + 5.0f, 7.0f);
  d3d_->TurnOnAlphaBlending();
  fire_model_->Render(d3d_->GetDeviceContext());
  result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
