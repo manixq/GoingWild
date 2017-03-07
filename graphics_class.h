@@ -16,6 +16,7 @@
 #include "refraction_shader_class.h"
 #include "water_shader_class.h"
 #include "fire_shader_class.h"
+#include "depth_shader_class.h"
 
 //=======
 //globals
@@ -56,6 +57,7 @@ private:
  ReflectionShaderClass* reflection_shader_;
  RefractionShaderClass* refraction_shader_;
  WaterShaderClass* water_shader_;
+ DepthShaderClass* depth_shader_;
 
  bool Render_scene();
  bool Render_to_texture();

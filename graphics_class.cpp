@@ -25,6 +25,7 @@ GraphicsClass::GraphicsClass()
  refraction_shader_ = nullptr;
  water_shader_ = nullptr;
  fire_shader_ = nullptr;
+ depth_shader_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -39,348 +40,373 @@ GraphicsClass::~GraphicsClass()
 
 bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 {
- bool result;
+	 bool result;
 
- //create d3d object
- d3d_ = new D3DClass;
- if (!d3d_)
-  return false;
+	 //create d3d object
+	 d3d_ = new D3DClass;
+	 if (!d3d_)
+	  return false;
 
- //init d3d object
- result = d3d_->Initialize(
-  screen_width, 
-  screen_height, 
-  VSYNC_ENABLED, 
-  hwnd, 
-  FULL_SCREEN, 
-  SCREEN_DEPTH, 
-  SCREEN_NEAR);
+	 //init d3d object
+	 result = d3d_->Initialize(
+	  screen_width, 
+	  screen_height, 
+	  VSYNC_ENABLED, 
+	  hwnd, 
+	  FULL_SCREEN, 
+	  SCREEN_DEPTH, 
+	  SCREEN_NEAR);
 
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
-  return false;
- }
- ground_model_ = new ModelClass;
- if (!ground_model_)
-  return false;
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
+	  return false;
+	 }
+	 ground_model_ = new ModelClass;
+	 if (!ground_model_)
+	  return false;
 
- result = ground_model_->Initialize(d3d_->GetDevice(), "../Engine/data/ground.txt", L"../Engine/data/ground01.dds", L"../Engine/data/ground01_normal.dds", L"../Engine/data/ground01_spec.dds");
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the fround model", L"Error", MB_OK);
-  return false;
- }
+	 result = ground_model_->Initialize(d3d_->GetDevice(), "../Engine/data/ground.txt", L"../Engine/data/ground01.dds", L"../Engine/data/ground01_normal.dds", L"../Engine/data/ground01_spec.dds");
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the fround model", L"Error", MB_OK);
+	  return false;
+	 }
 
- wall_model_ = new ModelClass;
- if (!wall_model_)
-  return false;
+	 wall_model_ = new ModelClass;
+	 if (!wall_model_)
+	  return false;
 
- result = wall_model_->Initialize(d3d_->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall01.dds", L"../Engine/data/wall01_normal.dds", L"../Engine/data/wall01_spec.dds");
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the wall model object", L"error", MB_OK);
-  return false;
- }
+	 result = wall_model_->Initialize(d3d_->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall01.dds", L"../Engine/data/wall01_normal.dds", L"../Engine/data/wall01_spec.dds");
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the wall model object", L"error", MB_OK);
+	  return false;
+	 }
 
- bath_model_ = new ModelClass;
- if (!bath_model_)
-  return false;
+	 bath_model_ = new ModelClass;
+	 if (!bath_model_)
+	  return false;
 
- result = bath_model_->Initialize(d3d_->GetDevice(), "../Engine/data/bath.txt", L"../Engine/data/marble01.dds", L"../Engine/data/marble01_normal.dds", L"../Engine/data/marble01_spec.dds");
- if(!result)
- {
-  MessageBox(hwnd, L"could not initialize the bath model", L"Error", MB_OK);
-  return false;
- }
+	 result = bath_model_->Initialize(d3d_->GetDevice(), "../Engine/data/bath.txt", L"../Engine/data/marble01.dds", L"../Engine/data/marble01_normal.dds", L"../Engine/data/marble01_spec.dds");
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"could not initialize the bath model", L"Error", MB_OK);
+	  return false;
+	 }
 
- water_model_ = new ModelClass;
- if (!water_model_)
-  return false;
+	 water_model_ = new ModelClass;
+	 if (!water_model_)
+	  return false;
 
- result = water_model_->Initialize(d3d_->GetDevice(), "../Engine/data/water.txt", L"../Engine/data/water01.dds");
- if(!result)
- {
-  MessageBox(hwnd, L"could not initialize water model", L"Error", MB_OK);
-  return false;
- }
+	 result = water_model_->Initialize(d3d_->GetDevice(), "../Engine/data/water.txt", L"../Engine/data/water01.dds");
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"could not initialize water model", L"Error", MB_OK);
+	  return false;
+	 }
 
- fire_model_ = new ModelClass;
- if (!fire_model_)
-  return false;
+	 fire_model_ = new ModelClass;
+	 if (!fire_model_)
+	  return false;
 
- result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/fire01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
- if (!result)
- {
-  MessageBox(hwnd, L"could not initialize fire model", L"Error", MB_OK);
-  return false;
- }
+	 result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/fire01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
+	 if (!result)
+	 {
+	  MessageBox(hwnd, L"could not initialize fire model", L"Error", MB_OK);
+	  return false;
+	 }
 
- //create camera object
- camera_ = new CameraClass;
- if (!camera_)
-  return false;
+	 //create camera object
+	 camera_ = new CameraClass;
+	 if (!camera_)
+	  return false;
  
- //create model object
- model_ = new ModelClass;
- if (!model_)
-  return false;
+	 //create model object
+	 model_ = new ModelClass;
+	 if (!model_)
+	  return false;
 
- //init model
- result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds", L"../Engine/data/floor_spec.dds");
- if (!result)
- {
-  MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
-  return false;
- }
+	 //init model
+	 result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt" ,L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds", L"../Engine/data/floor_spec.dds");
+	 if (!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
+	  return false;
+	 }
 
- fire_shader_ = new FireShaderClass;
- if (!fire_shader_)
-  return false;
+	 depth_shader_ = new DepthShaderClass;
+	 if (!depth_shader_)
+		 return false;
 
- result = fire_shader_->Initialize(d3d_->GetDevice(), hwnd);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize fire shader obj", L"Error", MB_OK);
-  return false;
- }
+	 result = depth_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if (!result)
+		 return false;
 
- //create color shader object
- normal_shader_ = new NormalShaderClass;
- if (!normal_shader_)
-  return false;
+	 fire_shader_ = new FireShaderClass;
+	 if (!fire_shader_)
+	  return false;
 
- result = normal_shader_->Initialize(d3d_->GetDevice(), hwnd);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
-  return false;
- }
+	 result = fire_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize fire shader obj", L"Error", MB_OK);
+	  return false;
+	 }
 
- light_ = new LightClass;
- if (!light_)
-  return false;
+	 //create color shader object
+	 normal_shader_ = new NormalShaderClass;
+	 if (!normal_shader_)
+	  return false;
 
- model_list_ = new ModelListClass;
- if(!model_list_)
- {
-  return false;
- }
+	 result = normal_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
+	  return false;
+	 }
 
- result = model_list_->Initialize(50);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the model list object", L"Error", MB_OK);
-  return false;
- }
+	 light_ = new LightClass;
+	 if (!light_)
+	  return false;
 
- refraction_texture_ = new RenderTextureClass;
- if (!refraction_texture_)
-  return false;
+	 model_list_ = new ModelListClass;
+	 if(!model_list_)
+	 {
+	  return false;
+	 }
 
- refraction_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
- if(!result)
- {
-  MessageBox(hwnd, L"could not init refraction render texture", L"Error", MB_OK);
-  return false;
- }
+	 result = model_list_->Initialize(50);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the model list object", L"Error", MB_OK);
+	  return false;
+	 }
 
- reflection_texture_ = new RenderTextureClass;
- if (!reflection_texture_)
-  return false;
+	 refraction_texture_ = new RenderTextureClass;
+	 if (!refraction_texture_)
+	  return false;
+
+	 refraction_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"could not init refraction render texture", L"Error", MB_OK);
+	  return false;
+	 }
+
+	 reflection_texture_ = new RenderTextureClass;
+	 if (!reflection_texture_)
+	  return false;
  
- result = reflection_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
- if (!result)
-  return false;
+	 result = reflection_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
+	 if (!result)
+	  return false;
 
- refraction_shader_ = new RefractionShaderClass;
- if (!refraction_shader_)
-  return false;
+	 refraction_shader_ = new RefractionShaderClass;
+	 if (!refraction_shader_)
+	  return false;
 
- refraction_shader_->Initialize(d3d_->GetDevice(), hwnd);
- if (!result)
- {
-  MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK);
-  return false;
- }
+	 refraction_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if (!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK);
+	  return false;
+	 }
 
- reflection_shader_ = new ReflectionShaderClass;
- if (!reflection_shader_)
-  return false;
+	 reflection_shader_ = new ReflectionShaderClass;
+	 if (!reflection_shader_)
+	  return false;
 
- result = reflection_shader_->Initialize(d3d_->GetDevice(), hwnd);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
-  return false;
- }
+	 result = reflection_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
+	  return false;
+	 }
 
- water_shader_ = new WaterShaderClass;
- if (!water_shader_)
-  return false;
+	 water_shader_ = new WaterShaderClass;
+	 if (!water_shader_)
+	  return false;
 
- result =  water_shader_->Initialize(d3d_->GetDevice(), hwnd);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK);
-  return false;
- }
+	 result =  water_shader_->Initialize(d3d_->GetDevice(), hwnd);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK);
+	  return false;
+	 }
 
- water_height_ = 2.75f;
- water_translation_ = 0.0f;
+	 water_height_ = 2.75f;
+	 water_translation_ = 0.0f;
 
- frustum_ = new FrustumClass;
- if (!frustum_)
-  return false;
+	 frustum_ = new FrustumClass;
+	 if (!frustum_)
+	  return false;
 
- light_->Set_ambient_color(0.35f, 0.35f, 0.35f, 1.0f);
- light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
- light_->Set_direction(0.0f, -1.0f, 0.5f);
- light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
- light_->Set_specular_power(32.0f);
+	 light_->Set_ambient_color(0.35f, 0.35f, 0.35f, 1.0f);
+	 light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
+	 light_->Set_direction(0.0f, -1.0f, 0.5f);
+	 light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
+	 light_->Set_specular_power(32.0f);
 
- debug_window_ = new DebugWindowClass;
- if (!debug_window_)
-  return false;
+	 debug_window_ = new DebugWindowClass;
+	 if (!debug_window_)
+	  return false;
 
- result = debug_window_->Initialize(d3d_->GetDevice(), screen_width, screen_height, 100, 100);
- if(!result)
- {
-  MessageBox(hwnd, L"Could not init the debug window object", L"Error", MB_OK);
- }
+	 result = debug_window_->Initialize(d3d_->GetDevice(), screen_width, screen_height, 100, 100);
+	 if(!result)
+	 {
+	  MessageBox(hwnd, L"Could not init the debug window object", L"Error", MB_OK);
+	 }
 
- return true;
+	 return true;
 }
 
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
- if(fire_shader_)
- {
-  fire_shader_->Shutdown();
-  fire_shader_ = nullptr;
- }
+	if(depth_shader_)
+	{
+		depth_shader_->Shutdown();
+		delete depth_shader_;
+		depth_shader_ = nullptr;
+	}
 
- if(refraction_shader_)
- {
-  refraction_shader_->Shutdown();
-  refraction_shader_ = nullptr;
- }
+	 if(fire_shader_)
+	 {
+		  fire_shader_->Shutdown();
+		  delete fire_shader_;
+		  fire_shader_ = nullptr;
+	 }
 
- if(water_shader_)
- {
-  water_shader_->Shutdown();
-  water_shader_ = nullptr;
- }
+	 if(refraction_shader_)
+	 {
+		  refraction_shader_->Shutdown();
+		  delete refraction_shader_;
+		  refraction_shader_ = nullptr;
+	 }
 
- if(refraction_texture_)
- {
-  refraction_texture_->Shutdown();
-  refraction_texture_ = nullptr;
- }
+	 if(water_shader_)
+	 {
+		  water_shader_->Shutdown();
+		  delete water_shader_;
+		  water_shader_ = nullptr;
+	 }
 
- if(reflection_shader_)
- {
-  reflection_shader_->Shutdown();
-  reflection_shader_ = nullptr;
- }
+	 if(refraction_texture_)
+	 {
+		  refraction_texture_->Shutdown();
+		  delete refraction_texture_;
+		  refraction_texture_ = nullptr;
+	 }
 
- if(debug_window_)
- {
-  debug_window_->Shutdown();
-  delete debug_window_;
-  debug_window_ = nullptr;
- }
+	 if(reflection_shader_)
+	 {
+		  reflection_shader_->Shutdown();
+		  delete reflection_shader_;
+		  reflection_shader_ = nullptr;
+	 }
 
- if(reflection_texture_)
- {
-  reflection_texture_->Shutdown();
-  delete reflection_texture_;
-  reflection_texture_ = nullptr;
- }
+	 if(debug_window_)
+	 {
+		 debug_window_->Shutdown();
+		  delete debug_window_;
+		  debug_window_ = nullptr;
+	 }
 
- if(fire_model_)
- {
-  fire_model_->Shutdown();
-  fire_model_ = nullptr;
- }
+	 if(reflection_texture_)
+	 {
+		  reflection_texture_->Shutdown();
+		  delete reflection_texture_;
+		  reflection_texture_ = nullptr;
+	 }
 
- if(floor_model_)
- {
-  floor_model_->Shutdown();
-  delete floor_model_;
-  floor_model_ = nullptr;
- }
+	 if(fire_model_)
+	 {
+		  fire_model_->Shutdown();
+		  delete fire_model_;
+		  fire_model_ = nullptr;
+	 }
 
- if(water_model_)
- {
-  water_model_->Shutdown();
-  water_model_ = nullptr;
- }
+	 if(floor_model_)
+	 {
+		  floor_model_->Shutdown();
+		  delete floor_model_;
+		  floor_model_ = nullptr;
+	 }
 
- if(bath_model_)
- {
-  bath_model_->Shutdown();
-  bath_model_ = nullptr;
- }
+	 if(water_model_)
+	 {
+		  water_model_->Shutdown();
+		  delete water_model_;
+		  water_model_ = nullptr;
+	 }
 
- if(wall_model_)
- {
-  wall_model_->Shutdown();
-  wall_model_ = nullptr;
- }
+	 if(bath_model_)
+	 {
+		  bath_model_->Shutdown();
+		  delete bath_model_;
+		  bath_model_ = nullptr;
+	 }
 
- if(ground_model_)
- {
-  ground_model_->Shutdown();
-  ground_model_ = nullptr;
- }
+	 if(wall_model_)
+	 {
+		  wall_model_->Shutdown();
+		  delete wall_model_;
+		  wall_model_ = nullptr;
+	 }
 
- if(frustum_)
- {
-  delete frustum_;
-  frustum_ = nullptr;
- }
+	 if(ground_model_)
+	 {
+		  ground_model_->Shutdown();
+		  delete ground_model_;
+		  ground_model_ = nullptr;
+	 }
 
- if(model_list_)
- {
-  model_list_->Shutdown();
-  delete model_list_;
-  model_list_ = nullptr;
- }
+	 if(frustum_)
+	 {
+		  delete frustum_;
+		  frustum_ = nullptr;
+	 }
 
- if (light_)
- {
-  delete light_;
-  light_ = nullptr;
- }
+	 if(model_list_)
+	 {
+		  model_list_->Shutdown();
+		  delete model_list_;
+		  model_list_ = nullptr;
+	 }
 
- if(normal_shader_)
- {
-  normal_shader_->Shutdown();
-  delete normal_shader_;
-  normal_shader_ = nullptr;
- }
+	 if (light_)
+	 {
+		  delete light_;
+		  light_ = nullptr;
+	 }
 
- if(model_)
- {
-  model_->Shutdown();
-  delete model_;
-  model_ = nullptr;
- }
+	 if(normal_shader_)
+	 {
+		  normal_shader_->Shutdown();
+		  delete normal_shader_;
+		  normal_shader_ = nullptr;
+	 }
 
- if(camera_)
- {
-  delete camera_;
-  camera_ = nullptr;
- }
+	 if(model_)
+	 {
+		  model_->Shutdown();
+		  delete model_;
+		  model_ = nullptr;
+	 }
 
- if(d3d_)
- {
-  d3d_->Shutdown();
-  delete d3d_;
-  d3d_ = nullptr;
- }
+	 if(camera_)
+	 {
+		  delete camera_;
+		  camera_ = nullptr;
+	 }
+
+	 if(d3d_)
+	 {
+		  d3d_->Shutdown();
+		  delete d3d_;
+		  d3d_ = nullptr;
+	 }
 }
 
 bool GraphicsClass::Frame(float rotation_x, float rotation_y, float x_pos, float z_pos)
@@ -622,7 +648,7 @@ bool GraphicsClass::Render_scene()
  //ground
  D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
  ground_model_->Render(d3d_->GetDeviceContext());
- result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+ result = depth_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix);
  if (!result)
   return false;
  d3d_->GetWorldMatrix(world_matrix);
@@ -681,6 +707,7 @@ bool GraphicsClass::Render_scene()
  if (!result)
   return false;
  d3d_->GetWorldMatrix(world_matrix);
+ 
 
  d3d_->End_scene();
  return true;

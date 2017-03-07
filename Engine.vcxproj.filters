@@ -105,6 +105,9 @@
     <ClCompile Include="fire_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="depth_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -179,6 +182,9 @@
     <ClInclude Include="fire_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="depth_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -209,6 +215,12 @@
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
     <None Include="shaders\pixel\fire.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\depth.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\depth.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

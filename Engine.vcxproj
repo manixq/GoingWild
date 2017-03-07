@@ -153,6 +153,7 @@
     <ClCompile Include="color_shader_class.cpp" />
     <ClCompile Include="cpu_class.cpp" />
     <ClCompile Include="d3d_class.cpp" />
+    <ClCompile Include="depth_shader_class.cpp" />
     <ClCompile Include="fire_shader_class.cpp" />
     <ClCompile Include="fps_class.cpp" />
     <ClCompile Include="frustum_class.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="color_shader_class.h" />
     <ClInclude Include="cpu_class.h" />
     <ClInclude Include="d3d_class.h" />
+    <ClInclude Include="depth_shader_class.h" />
     <ClInclude Include="fire_shader_class.h" />
     <ClInclude Include="fps_class.h" />
     <ClInclude Include="frustum_class.h" />
@@ -201,11 +203,13 @@
     <ClInclude Include="water_shader_class.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\pixel\depth.ps" />
     <None Include="shaders\pixel\fire.ps" />
     <None Include="shaders\pixel\normal_map.ps" />
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
     <None Include="shaders\pixel\water.ps" />
+    <None Include="shaders\vertex\depth.vs" />
     <None Include="shaders\vertex\fire.vs" />
     <None Include="shaders\vertex\normal_map.vs" />
     <None Include="shaders\vertex\reflection.vs" />
