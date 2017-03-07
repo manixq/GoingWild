@@ -648,7 +648,7 @@ bool GraphicsClass::Render_scene()
  //ground
  D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
  ground_model_->Render(d3d_->GetDeviceContext());
- result = depth_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix);
+ result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
  if (!result)
   return false;
  d3d_->GetWorldMatrix(world_matrix);

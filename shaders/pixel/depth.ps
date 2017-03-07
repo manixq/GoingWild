@@ -13,7 +13,7 @@ float4 Depth_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 	float4 color;
 	float depth_value;
 	
-	depth_value = input.depth_position.z / 20.0f;
+	depth_value = input.depth_position.z / 10.0f;
 	
 	color = float4(depth_value, depth_value, depth_value, 1.0f);
 	//sample pixel color from texture
