@@ -1,0 +1,62 @@
+//=======
+//Globals
+Texture2D shader_texture;
+SamplerState sample_type;
+
+//========
+//TypeDefs
+struct PIXEL_INPUT_TYPE
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    
+	float2 tex_coord1 : TEXCOORD1;
+	float2 tex_coord2 : TEXCOORD2;
+	float2 tex_coord3 : TEXCOORD3;
+	float2 tex_coord4 : TEXCOORD4;
+	float2 tex_coord5 : TEXCOORD5;
+	float2 tex_coord6 : TEXCOORD6;
+	float2 tex_coord7 : TEXCOORD7;
+	float2 tex_coord8 : TEXCOORD8;
+	float2 tex_coord9 : TEXCOORD9;
+};
+
+//===========
+//PixelShader
+float4 horizontal_blur_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
+{
+    float4 color;
+	float weight0, weight1, weight2, weight3, weight4;
+	float normalization;
+
+	weight0 = 1.0f;
+	weight1 = 0.9f;
+	weight2 = 0.55;
+	weight3 = 0.18;
+	weight4 = 0.1f;
+
+	normalization = (weight0 + 2.0f * (weight1 + weight2 + weight3 + weight4));
+
+	weight0 = weight0 / normalization;
+	weight1 = weight1 / normalization;
+	weight2 = weight2 / normalization;
+	weight3 = weight3 / normalization;
+	weight4 = weight4 / normalization;
+    
+	color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	color += shader_texture.Sample(sample_type, input.tex_coord1) * weight4;
+	color += shader_texture.Sample(sample_type, input.tex_coord2) * weight3;
+	color += shader_texture.Sample(sample_type, input.tex_coord3) * weight2;
+	color += shader_texture.Sample(sample_type, input.tex_coord4) * weight1;
+	color += shader_texture.Sample(sample_type, input.tex_coord5) * weight0;
+	color += shader_texture.Sample(sample_type, input.tex_coord6) * weight1;
+	color += shader_texture.Sample(sample_type, input.tex_coord7) * weight2;
+	color += shader_texture.Sample(sample_type, input.tex_coord8) * weight3;
+	color += shader_texture.Sample(sample_type, input.tex_coord9) * weight4;
+	color.a = 1.0f;
+
+    //sample pixel color from texture
+    color = shader_texture.Sample(sample_type, input.tex);
+    return color;
+};
+

@@ -108,6 +108,12 @@
     <ClCompile Include="depth_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="horizontal_blur_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vertical_blur_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -185,6 +191,12 @@
     <ClInclude Include="depth_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="horizontal_blur_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vertical_blur_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -221,6 +233,18 @@
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
     <None Include="shaders\pixel\depth.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\horizontal_blur.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\horizontal_blur.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\vertical_blur.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\vertical_blur.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

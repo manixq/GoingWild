@@ -82,7 +82,7 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 	color = color * texture_color;
 	color = saturate(color + specular);
 	
-	color = color * pow(0.95f, input.depth_position.z);
+	color = color * (input.depth_position.z * 10) / (input.depth_position.z * input.depth_position.z);
 
 	return color;
 }
