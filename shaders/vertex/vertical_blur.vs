@@ -9,7 +9,7 @@ cbuffer matrix_buffer
 
 cbuffer screen_size_buffer
 {
-	float screen_width;
+	float screen_height;
 	float3 padding;
 };
 
@@ -39,7 +39,7 @@ struct PIXEL_INPUT_TYPE
 
 //=============
 //Vertex shader
-PIXEL_INPUT_TYPE vertical_blur_vertex_shader(VERTEX_INPUT_TYPE input)
+PIXEL_INPUT_TYPE Vertical_blur_vertex_shader(VERTEX_INPUT_TYPE input)
 {
 	PIXEL_INPUT_TYPE output;
 	float texel_size;

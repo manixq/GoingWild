@@ -23,7 +23,7 @@ struct PIXEL_INPUT_TYPE
 
 //===========
 //PixelShader
-float4 vertical_blur_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
+float4 Vertical_blur_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 {
 	float4 color;
 	float weight0, weight1, weight2, weight3, weight4;
@@ -54,9 +54,8 @@ float4 vertical_blur_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 	color += shader_texture.Sample(sample_type, input.tex_coord8) * weight3;
 	color += shader_texture.Sample(sample_type, input.tex_coord9) * weight4;
 	color.a = 1.0f;
-
     //sample pixel color from texture
-	color = shader_texture.Sample(sample_type, input.tex);
+	//color = shader_texture.Sample(sample_type, input.tex);
 	return color;
 };
 

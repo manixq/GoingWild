@@ -166,6 +166,7 @@
     <ClCompile Include="model_class.cpp" />
     <ClCompile Include="model_list_class.cpp" />
     <ClCompile Include="normal_shader_class.cpp" />
+    <ClCompile Include="ortho_window_class.cpp" />
     <ClCompile Include="position_class.cpp" />
     <ClCompile Include="reflection_shader_class.cpp" />
     <ClCompile Include="refraction_shader_class.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="model_class.h" />
     <ClInclude Include="model_list_class.h" />
     <ClInclude Include="normal_shader_class.h" />
+    <ClInclude Include="ortho_window_class.h" />
     <ClInclude Include="position_class.h" />
     <ClInclude Include="reflection_shader_class.h" />
     <ClInclude Include="refraction_shader_class.h" />
@@ -213,6 +215,7 @@
     <None Include="shaders\pixel\normal_map.ps" />
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
+    <None Include="shaders\pixel\texture.ps" />
     <None Include="shaders\pixel\vertical_blur.ps" />
     <None Include="shaders\pixel\water.ps" />
     <None Include="shaders\vertex\depth.vs" />
@@ -221,6 +224,7 @@
     <None Include="shaders\vertex\normal_map.vs" />
     <None Include="shaders\vertex\reflection.vs" />
     <None Include="shaders\vertex\refraction.vs" />
+    <None Include="shaders\vertex\texture.vs" />
     <None Include="shaders\vertex\vertical_blur.vs" />
     <None Include="shaders\vertex\water.vs" />
   </ItemGroup>

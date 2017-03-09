@@ -39,7 +39,7 @@ struct PIXEL_INPUT_TYPE
 
 //=============
 //Vertex shader
-PIXEL_INPUT_TYPE horizontal_blur_vertex_shader(VERTEX_INPUT_TYPE input)
+PIXEL_INPUT_TYPE Horizontal_blur_vertex_shader(VERTEX_INPUT_TYPE input)
 {
 	PIXEL_INPUT_TYPE output;
 	float texel_size;

@@ -114,6 +114,9 @@
     <ClCompile Include="vertical_blur_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ortho_window_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -197,6 +200,9 @@
     <ClInclude Include="vertical_blur_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ortho_window_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -246,6 +252,12 @@
     </None>
     <None Include="shaders\pixel\vertical_blur.ps">
       <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\texture.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\texture.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

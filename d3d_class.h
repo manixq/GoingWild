@@ -45,6 +45,7 @@ public:
 
  ID3D11DepthStencilView* Get_depth_stencil_view();
  void Set_back_buffer_render_target();
+ void Reset_viewport();
 
 private:
  bool vsync_enabled_;
@@ -61,6 +62,7 @@ private:
  D3DXMATRIX world_matrix_;
  D3DXMATRIX ortho_matrix_;
 
+ D3D11_VIEWPORT view_port_;
  ID3D11DepthStencilState* depth_disabled_stencil_state;
  ID3D11BlendState* alpha_enable_blending_state_;
  ID3D11BlendState* alpha_disable_blending_state_;

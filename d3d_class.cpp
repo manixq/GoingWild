@@ -40,7 +40,6 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
  D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
  D3D11_RASTERIZER_DESC raster_desc;
- D3D11_VIEWPORT view_port;
  float field_of_view, screen_aspect;
  D3D11_BLEND_DESC blend_state_desc;
  D3D11_DEPTH_STENCIL_DESC depth_disabled_stencil_desc;
@@ -279,15 +278,15 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  device_context_->RSSetState(raster_state_);
 
  //set up view-port
- view_port.Width = static_cast<float>(screen_width);
- view_port.Height = static_cast<float>(screen_height);
- view_port.MinDepth = 0.0f;
- view_port.MaxDepth = 1.0f;
- view_port.TopLeftX = 0.0f;
- view_port.TopLeftY = 0.0f;
+ view_port_.Width = static_cast<float>(screen_width);
+ view_port_.Height = static_cast<float>(screen_height);
+ view_port_.MinDepth = 0.0f;
+ view_port_.MaxDepth = 1.0f;
+ view_port_.TopLeftX = 0.0f;
+ view_port_.TopLeftY = 0.0f;
 
  //create view-port
- device_context_->RSSetViewports(1, &view_port);
+ device_context_->RSSetViewports(1, &view_port_);
 
  //setup projection matrix
  field_of_view = static_cast<float>(D3DX_PI) / 4.0f;
@@ -482,6 +481,11 @@ ID3D11DepthStencilView* D3DClass::Get_depth_stencil_view()
 void D3DClass::Set_back_buffer_render_target()
 {
  device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+}
+
+void D3DClass::Reset_viewport()
+{
+    device_context_->RSSetViewports(1, &view_port_);
 }
 
 void D3DClass::TurnOffAlphaBlending()

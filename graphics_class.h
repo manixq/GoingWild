@@ -17,10 +17,14 @@
 #include "water_shader_class.h"
 #include "fire_shader_class.h"
 #include "depth_shader_class.h"
+#include "horizontal_blur_shader_class.h"
+#include "vertical_blur_shader_class.h"
+#include "ortho_window_class.h"
+#include "texture_shader_class.h"
 
 //=======
 //globals
-const bool FULL_SCREEN = true;
+static bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -30,42 +34,50 @@ const float SCREEN_NEAR = 0.1f;
 class GraphicsClass
 {
 public:
- GraphicsClass();
- GraphicsClass(const GraphicsClass&);
- ~GraphicsClass();
+    GraphicsClass();
+    GraphicsClass(const GraphicsClass&);
+    ~GraphicsClass();
 
- bool Initialize(int, int, HWND);
- void Shutdown();
- bool Frame(float, float, float, float);
- bool Render();
+    bool Initialize(int, int, HWND);
+    void Shutdown();
+    bool Frame(float, float, float, float);
+    bool Render();
 
 private:
- D3DClass* d3d_;
- CameraClass* camera_;
- ModelClass* model_;
- ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
- NormalShaderClass* normal_shader_;
- FireShaderClass* fire_shader_;
- LightClass* light_;
- ModelListClass* model_list_;
- FrustumClass* frustum_;
- ModelClass* floor_model_;
- ModelClass* fire_model_;
- DebugWindowClass* debug_window_;
- RenderTextureClass *reflection_texture_, *refraction_texture_;
+    bool Render_scene();
+    bool Render_to_texture();
+    bool Render_scene_to_texture();
+    bool Render_horizontal_bloor_to_texture();
+    bool Render_vertical_bloor_to_texture();
+    bool Up_sample_texture();
+    bool Down_sample_texture();
+    bool Render2d_texture_scene();
+    bool Render_refraction_to_texture();
+    bool Render_reflection_to_texture();
 
- ReflectionShaderClass* reflection_shader_;
- RefractionShaderClass* refraction_shader_;
- WaterShaderClass* water_shader_;
- DepthShaderClass* depth_shader_;
-
- bool Render_scene();
- bool Render_to_texture();
- bool Render_refraction_to_texture();
- bool Render_reflection_to_texture();
-
- float water_height_, water_translation_;
-
+    D3DClass* d3d_;
+    CameraClass* camera_;
+    ModelClass* model_;
+    ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
+    NormalShaderClass* normal_shader_;
+    FireShaderClass* fire_shader_;
+    LightClass* light_;
+    ModelListClass* model_list_;
+    FrustumClass* frustum_;
+    ModelClass* floor_model_;
+    ModelClass* fire_model_;
+    DebugWindowClass* debug_window_;
+    RenderTextureClass *reflection_texture_, *refraction_texture_;
+    ReflectionShaderClass* reflection_shader_;
+    RefractionShaderClass* refraction_shader_;
+    WaterShaderClass* water_shader_;
+    DepthShaderClass* depth_shader_;
+    HorizontalBlurShaderClass* horizontal_blur_shader_;
+    VerticalBlurShaderClass* vertical_blur_shader_;
+    RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
+    OrthoWindowClass *small_window_, *full_sceen_window_;
+    float water_height_, water_translation_;
+    TextureShaderClass* texture_shader_;
+    
 };
-
 #endif
