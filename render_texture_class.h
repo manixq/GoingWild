@@ -19,8 +19,8 @@ public:
  bool Initialize(ID3D11Device*, int, int, float, float);
  void Shutdown();
 
- void Set_render_target(ID3D11DeviceContext*, ID3D11DepthStencilView*);
- void Clear_render_target(ID3D11DeviceContext*, ID3D11DepthStencilView*, float, float, float, float);
+ void Set_render_target(ID3D11DeviceContext*);
+ void Clear_render_target(ID3D11DeviceContext*, float, float, float, float);
  ID3D11ShaderResourceView* Get_shader_resource_view();
  
  void Get_projection_matrix(D3DXMATRIX&);

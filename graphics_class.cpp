@@ -259,7 +259,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
      if (!horizontal_blur_texture_)
          return false;
 
-     result = horizontal_blur_texture_->Initialize(d3d_->GetDevice(), down_sample_width, down_sample_height, SCREEN_DEPTH, SCREEN_NEAR);
+     result = horizontal_blur_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
      if (!result)
      {
          MessageBox(hwnd, L"could not init horizontal blur texture", L"Error", MB_OK);
@@ -270,7 +270,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
      if (!vertical_blur_texture_)
          return false;
 
-     result = vertical_blur_texture_->Initialize(d3d_->GetDevice(), down_sample_width, down_sample_height, SCREEN_DEPTH, SCREEN_NEAR);
+     result = vertical_blur_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
      if (!result)
      {
          MessageBox(hwnd, L"could not init vertical blur texture", L"Error", MB_OK);
@@ -610,6 +610,10 @@ bool GraphicsClass::Frame(float rotation_x, float rotation_y, float x_pos, float
  water_translation_ += 0.001f;
  if (water_translation_ > 1.0)
   water_translation_ -= 1.0f;
+
+ rotation_x_ = rotation_x;
+ rotation_y_ = rotation_y;
+
  //camera_->Set_position(-10.0f, 6.0f, -10.0f);
  //camera_->Set_rotation(0.0f, 45.0f, 0.0f);
  camera_->Set_position(x_pos, 6.0f, z_pos);
@@ -635,10 +639,12 @@ bool GraphicsClass::Render()
  result = Render_scene_to_texture();
  if (!result)
   return false;
-
+ //ugly
+ /*
  result = Down_sample_texture();
  if(!result)
     return false;
+ */
 
  result = Render_horizontal_bloor_to_texture();
  if (!result)
@@ -647,11 +653,12 @@ bool GraphicsClass::Render()
  result = Render_vertical_bloor_to_texture();
  if (!result)
      return false;
-
+ //ugly
+ /*
  result = Up_sample_texture();
  if (!result)
      return false;
-
+ */
  result = Render2d_texture_scene();
  if (!result)
      return false;
@@ -764,52 +771,22 @@ bool GraphicsClass::Render_scene()
     return true;
 }
 
-bool GraphicsClass::Render_to_texture()
-{
- D3DXMATRIX world_matrix, reflection_view_matrix, projection_matrix;
- static float rotation = 0.0f;
- bool result;
-
- reflection_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-
- reflection_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
-
- camera_->Render_reflection(-15.5f);
- reflection_view_matrix = camera_->Get_reflection_view_matrix();
-
- d3d_->GetWorldMatrix(world_matrix);
- d3d_->GetProjectionMatrix(projection_matrix);
-
- rotation += (float)D3DX_PI * 0.005f;
- if (rotation > 360.0f)
- {
-  rotation -= 360.0f;
- }
- D3DXMatrixRotationY(&world_matrix, rotation);
-
- model_->Render(d3d_->GetDeviceContext());
-
- normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
- 
- d3d_->Set_back_buffer_render_target();
- //resetviewport
- return true;
-}
-
 bool GraphicsClass::Up_sample_texture()
 {
     D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
     bool result;
 
-    up_sample_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-    up_sample_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+    up_sample_texture_->Set_render_target(d3d_->GetDeviceContext());
+    d3d_->Reset_viewport();
+    up_sample_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
     camera_->Render();
 
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetOrthoMatrix(ortho_matrix);
+    up_sample_texture_->Get_ortho_matrix(ortho_matrix);
     d3d_->Turn_zbuffer_off();
 
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
     result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
     if (!result)
@@ -826,15 +803,17 @@ bool GraphicsClass::Down_sample_texture()
     D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
     bool result;
 
-    down_sample_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-    down_sample_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+    down_sample_texture_->Set_render_target(d3d_->GetDeviceContext());
+    d3d_->Reset_viewport();
+    down_sample_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
     camera_->Render();
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    
-    d3d_->GetOrthoMatrix(ortho_matrix);
-    
+    down_sample_texture_->Get_ortho_matrix(ortho_matrix); 
+    //D3DXMatrixOrthoOffCenterLH(&ortho_matrix, -down_sample_texture_->Get_texture_width() / 2, down_sample_texture_->Get_texture_width()/2, -down_sample_texture_->Get_texture_height() / 2, down_sample_texture_->Get_texture_height() / 2, SCREEN_NEAR, SCREEN_DEPTH);
+
     d3d_->Turn_zbuffer_off();
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     small_window_->Render(d3d_->GetDeviceContext());
     result = texture_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
     if (!result)
@@ -842,7 +821,7 @@ bool GraphicsClass::Down_sample_texture()
 
     d3d_->Turn_zbuffer_on();
     d3d_->Set_back_buffer_render_target();
-    //d3d_->Reset_viewport();
+    d3d_->Reset_viewport();
     return true;
 }
 
@@ -855,12 +834,11 @@ bool GraphicsClass::Render2d_texture_scene()
     camera_->Render();
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetOrthoMatrix(ortho_matrix);
-
+    d3d_->GetOrthoMatrix(ortho_matrix);   
     d3d_->Turn_zbuffer_off();
-
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
+    result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
     if (!result)
         return false;
 
@@ -877,9 +855,9 @@ bool GraphicsClass::Render_refraction_to_texture()
 
  clip_plane = D3DXVECTOR4(0.0f, -1.0f, 0.0f, water_height_+ 0.1f);
 
- refraction_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-
- refraction_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+ refraction_texture_->Set_render_target(d3d_->GetDeviceContext());
+ d3d_->Reset_viewport();
+ refraction_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
  camera_->Render();
 
@@ -896,6 +874,7 @@ bool GraphicsClass::Render_refraction_to_texture()
   return false;
 
  d3d_->Set_back_buffer_render_target();
+ d3d_->Reset_viewport();
  return true;
 }
 
@@ -926,9 +905,9 @@ bool GraphicsClass::Render_reflection_to_texture()
  distortion_scale = 0.8f;
  distortion_bias = 0.5f;
 
- reflection_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-
- reflection_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+ reflection_texture_->Set_render_target(d3d_->GetDeviceContext());
+ d3d_->Reset_viewport();
+ reflection_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
  camera_->Render_reflection(water_height_);
  reflection_view_matrix = camera_->Get_reflection_view_matrix();
@@ -962,6 +941,7 @@ bool GraphicsClass::Render_reflection_to_texture()
  d3d_->TurnOffAlphaBlending();
 
  d3d_->Set_back_buffer_render_target();
+ d3d_->Reset_viewport();
 
  return true;
 }
@@ -998,14 +978,15 @@ bool GraphicsClass::Render_scene_to_texture()
  distortion_scale = 0.8f;
  distortion_bias = 0.5f;
 
- render_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
- render_texture_->Clear_render_target(d3d_->GetDeviceContext(),d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+ render_texture_->Set_render_target(d3d_->GetDeviceContext());
+ d3d_->Reset_viewport();
+ render_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
  //d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
 
  camera_->Render();
 
- d3d_->GetWorldMatrix(world_matrix);
  camera_->Get_view_matrix(view_matrix);
+ d3d_->GetWorldMatrix(world_matrix);
  d3d_->GetProjectionMatrix(projection_matrix); 
 
  //ground
@@ -1083,24 +1064,26 @@ bool GraphicsClass::Render_horizontal_bloor_to_texture()
     bool result;
 
     screen_size_x = (float)horizontal_blur_texture_->Get_texture_width();
-    horizontal_blur_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-    horizontal_blur_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
-
+    horizontal_blur_texture_->Set_render_target(d3d_->GetDeviceContext());
+    d3d_->Reset_viewport();
+    horizontal_blur_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+    
     camera_->Render();
 
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetOrthoMatrix(ortho_matrix);
+    horizontal_blur_texture_->Get_ortho_matrix(ortho_matrix);
     d3d_->Turn_zbuffer_off();
 
-    small_window_->Render(d3d_->GetDeviceContext());
-    result = horizontal_blur_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, down_sample_texture_->Get_shader_resource_view(), screen_size_x);
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
+    full_sceen_window_->Render(d3d_->GetDeviceContext());
+    result = horizontal_blur_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix,render_texture_->Get_shader_resource_view(), screen_size_x);
     if (!result)
         return false;
 
     d3d_->Turn_zbuffer_on();
     d3d_->Set_back_buffer_render_target(); 
-    //d3d_->Reset_viewport();
+    d3d_->Reset_viewport();
     return true;
 }
 
@@ -1112,17 +1095,19 @@ bool GraphicsClass::Render_vertical_bloor_to_texture()
 
     screen_size_y = (float)vertical_blur_texture_->Get_texture_height();
 
-    vertical_blur_texture_->Set_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view());
-    vertical_blur_texture_->Clear_render_target(d3d_->GetDeviceContext(), d3d_->Get_depth_stencil_view(), 0.0f, 0.0f, 0.0f, 1.0f);
+    vertical_blur_texture_->Set_render_target(d3d_->GetDeviceContext());
+    d3d_->Reset_viewport();
+    vertical_blur_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
     camera_->Render();
 
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
 
-    d3d_->GetOrthoMatrix(ortho_matrix);
+    vertical_blur_texture_->Get_ortho_matrix(ortho_matrix);
 
     d3d_->Turn_zbuffer_off();
-    small_window_->Render(d3d_->GetDeviceContext());
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
+    full_sceen_window_->Render(d3d_->GetDeviceContext());
     result = vertical_blur_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, horizontal_blur_texture_->Get_shader_resource_view(), screen_size_y);
     if (!result)
         return result;

@@ -45,7 +45,6 @@ public:
 
 private:
     bool Render_scene();
-    bool Render_to_texture();
     bool Render_scene_to_texture();
     bool Render_horizontal_bloor_to_texture();
     bool Render_vertical_bloor_to_texture();
@@ -78,6 +77,8 @@ private:
     OrthoWindowClass *small_window_, *full_sceen_window_;
     float water_height_, water_translation_;
     TextureShaderClass* texture_shader_;
-    
+
+    float rotation_x_ = 0.0f;
+    float rotation_y_ = 0.0f;  
 };
 #endif

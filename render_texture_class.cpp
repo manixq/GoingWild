@@ -25,6 +25,11 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int texture_width, int
  HRESULT result;
  D3D11_RENDER_TARGET_VIEW_DESC render_target_view_desc;
  D3D11_SHADER_RESOURCE_VIEW_DESC shader_resource_view_desc;
+ D3D11_TEXTURE2D_DESC depth_buffer_desc;
+ D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
+
+ texture_width_ = texture_width;
+ texture_height_ = texture_height;
 
  ZeroMemory(&texture_desc, sizeof(texture_desc));
 
@@ -52,7 +57,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int texture_width, int
   return false;
 
  shader_resource_view_desc.Format = texture_desc.Format;
- shader_resource_view_desc.ViewDimension = D3D10_1_SRV_DIMENSION_TEXTURE2D;
+ shader_resource_view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
  shader_resource_view_desc.Texture2D.MostDetailedMip = 0;
  shader_resource_view_desc.Texture2D.MipLevels = 1;
 
@@ -101,7 +106,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int texture_width, int
         return false;
 
     shader_resource_view_desc.Format = texture_desc.Format;
-    shader_resource_view_desc.ViewDimension = D3D10_1_SRV_DIMENSION_TEXTURE2D;
+    shader_resource_view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     shader_resource_view_desc.Texture2D.MostDetailedMip = 0;
     shader_resource_view_desc.Texture2D.MipLevels = 1;
 
@@ -144,7 +149,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int texture_width, int
     viewport_.TopLeftX = 0.0f;
     viewport_.TopLeftY = 0.0f;
 
-    D3DXMatrixPerspectiveFovLH(&projection_matrix_, ((float)D3DX_PI / 4.0f), ((float)texture_width / (float)texture_height), screen_near, screen_depth);
+    D3DXMatrixPerspectiveFovLH(&projection_matrix_, (static_cast<float>(D3DX_PI) / 4.0f), (static_cast<float>(texture_width) / static_cast<float>(texture_height)), screen_near, screen_depth);
     D3DXMatrixOrthoLH(&ortho_matrix_, (float)texture_width, (float)texture_height, screen_near, screen_depth);
     
     return true;
@@ -183,13 +188,13 @@ void RenderTextureClass::Shutdown()
     }
 }
 
-void RenderTextureClass::Set_render_target(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depth_stencil_view)
+void RenderTextureClass::Set_render_target(ID3D11DeviceContext* device_context)
 {
- device_context->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view);
- //device_context->RSSetViewports(1, &viewport_);
+ device_context->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
+ device_context->RSSetViewports(1, &viewport_);
 }
 
-void RenderTextureClass::Clear_render_target(ID3D11DeviceContext* device_context, ID3D11DepthStencilView* depth_stencil_view, float red, float green, float blue, float alpha)
+void RenderTextureClass::Clear_render_target(ID3D11DeviceContext* device_context, float red, float green, float blue, float alpha)
 {
  float color[4];
 
@@ -199,7 +204,7 @@ void RenderTextureClass::Clear_render_target(ID3D11DeviceContext* device_context
  color[3] = alpha;
 
  device_context->ClearRenderTargetView(render_target_view_, color);
- device_context->ClearDepthStencilView(depth_stencil_view, D3D11_CLEAR_DEPTH, 1.0f, 0);
+ device_context->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 ID3D11ShaderResourceView* RenderTextureClass::Get_shader_resource_view()
@@ -209,12 +214,12 @@ ID3D11ShaderResourceView* RenderTextureClass::Get_shader_resource_view()
 
 void RenderTextureClass::Get_projection_matrix(D3DXMATRIX& projection_matrix)
 {
-    projection_matrix_ = projection_matrix;
+    projection_matrix = projection_matrix_;
 }
 
 void RenderTextureClass::Get_ortho_matrix(D3DXMATRIX& ortho_matrix)
 {
-    ortho_matrix_ = ortho_matrix;
+    ortho_matrix = ortho_matrix_;
 }
 
 int RenderTextureClass::Get_texture_width()
