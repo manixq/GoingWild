@@ -57,15 +57,15 @@ PIXEL_INPUT_TYPE Horizontal_blur_vertex_shader(VERTEX_INPUT_TYPE input)
 
 	texel_size = 1.0f / screen_width;
 
-	output.tex_coord1 = input.tex + float2(texel_size * -4.0f, 0.0f);
-	output.tex_coord2 = input.tex + float2(texel_size * -3.0f, 0.0f);
-	output.tex_coord3 = input.tex + float2(texel_size * -2.0f, 0.0f);
+	output.tex_coord1 = input.tex + float2(texel_size * -9.0f, 0.0f);
+	output.tex_coord2 = input.tex + float2(texel_size * -6.0f, 0.0f);
+	output.tex_coord3 = input.tex + float2(texel_size * -3.0f, 0.0f);
 	output.tex_coord4 = input.tex + float2(texel_size * -1.0f, 0.0f);
 	output.tex_coord5 = input.tex + float2(texel_size * 0.0f, 0.0f);
 	output.tex_coord6 = input.tex + float2(texel_size * 1.0f, 0.0f);
-	output.tex_coord7 = input.tex + float2(texel_size * 2.0f, 0.0f);
-	output.tex_coord8 = input.tex + float2(texel_size * 3.0f, 0.0f);
-	output.tex_coord9 = input.tex + float2(texel_size * 4.0f, 0.0f);
+	output.tex_coord7 = input.tex + float2(texel_size * 3.0f, 0.0f);
+	output.tex_coord8 = input.tex + float2(texel_size * 6.0f, 0.0f);
+	output.tex_coord9 = input.tex + float2(texel_size * 9.0f, 0.0f);
 
     return output;
 }
