@@ -325,7 +325,7 @@ void ModelClass::Render_buffers(ID3D11DeviceContext* device_context)
 
  device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
  device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
- device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+ device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 }
 
 bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1, WCHAR* filename_2, WCHAR* texture_filename_3)

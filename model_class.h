@@ -49,6 +49,7 @@ private:
   float bx, by, bz;
  };
 
+
  //struct for calc tangent and binormal
  struct TEMP_VERTEX_TYPE
  {

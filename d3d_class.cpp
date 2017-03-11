@@ -263,7 +263,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  raster_desc.DepthBias = 0;
  raster_desc.DepthBiasClamp = 0.0f;
  raster_desc.DepthClipEnable = true;
- raster_desc.FillMode = D3D11_FILL_SOLID;
+ raster_desc.FillMode = D3D11_FILL_WIREFRAME;
  raster_desc.FrontCounterClockwise = false;
  raster_desc.MultisampleEnable = false;
  raster_desc.ScissorEnable = false;

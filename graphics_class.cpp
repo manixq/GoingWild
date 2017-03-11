@@ -6,6 +6,7 @@ GraphicsClass::GraphicsClass()
  camera_ = nullptr;
  model_ = nullptr;
  normal_shader_ = nullptr;
+ color_shader_ = nullptr;
  light_ = nullptr;
  model_list_ = nullptr;
  frustum_ = nullptr;
@@ -212,9 +213,20 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 	 result = normal_shader_->Initialize(d3d_->GetDevice(), hwnd);
 	 if(!result)
 	 {
-	  MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
+	  MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 	  return false;
 	 }
+
+     color_shader_ = new ColorShaderClass;
+     if (!color_shader_)
+         return false;
+
+     result = color_shader_->Initialize(d3d_->GetDevice(), hwnd);
+     if (!result)
+     {
+         MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+         return false;
+     }
 
 	 light_ = new LightClass;
 	 if (!light_)
@@ -582,7 +594,14 @@ void GraphicsClass::Shutdown()
 		  normal_shader_->Shutdown();
 		  delete normal_shader_;
 		  normal_shader_ = nullptr;
-	 }
+	 } 
+     
+     if (color_shader_)
+     {
+         color_shader_->Shutdown();
+         delete color_shader_;
+         color_shader_ = nullptr;
+     }
 
 	 if(model_)
 	 {
@@ -830,19 +849,20 @@ bool GraphicsClass::Render2d_texture_scene()
     D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
     bool result;
 
-    d3d_->Begin_scene(1.0f, 0.0f, 0.0f, 0.0f);
+    d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
     camera_->Render();
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetOrthoMatrix(ortho_matrix);   
-    d3d_->Turn_zbuffer_off();
-    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
-    full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
+    d3d_->GetProjectionMatrix(ortho_matrix);   
+    //d3d_->Turn_zbuffer_off();
+    D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
+    //D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
+    model_->Render(d3d_->GetDeviceContext());
+    result = color_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, 12.0f);
     if (!result)
         return false;
 
-    d3d_->Turn_zbuffer_on();
+    //d3d_->Turn_zbuffer_on();
     d3d_->End_scene();
     return true;
 }

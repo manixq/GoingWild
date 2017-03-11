@@ -21,6 +21,7 @@
 #include "vertical_blur_shader_class.h"
 #include "ortho_window_class.h"
 #include "texture_shader_class.h"
+#include "color_shader_class.h"
 
 //=======
 //globals
@@ -58,6 +59,7 @@ private:
     CameraClass* camera_;
     ModelClass* model_;
     ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
+    ColorShaderClass* color_shader_;
     NormalShaderClass* normal_shader_;
     FireShaderClass* fire_shader_;
     LightClass* light_;

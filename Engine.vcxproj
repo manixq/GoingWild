@@ -209,6 +209,9 @@
     <ClInclude Include="water_shader_class.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\domain\color.ds" />
+    <None Include="shaders\hull\color.hs" />
+    <None Include="shaders\pixel\color.ps" />
     <None Include="shaders\pixel\depth.ps" />
     <None Include="shaders\pixel\fire.ps" />
     <None Include="shaders\pixel\horizontal_blur.ps" />
@@ -218,6 +221,7 @@
     <None Include="shaders\pixel\texture.ps" />
     <None Include="shaders\pixel\vertical_blur.ps" />
     <None Include="shaders\pixel\water.ps" />
+    <None Include="shaders\vertex\color.vs" />
     <None Include="shaders\vertex\depth.vs" />
     <None Include="shaders\vertex\fire.vs" />
     <None Include="shaders\vertex\horizontal_blur.vs" />

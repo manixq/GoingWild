@@ -28,6 +28,12 @@
     <Filter Include="Models\data">
       <UniqueIdentifier>{e7d11788-a7ab-4b49-959d-f09bb5e873dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\hull">
+      <UniqueIdentifier>{45d341bb-c0fa-4c73-a028-1e5569304c0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\domain">
+      <UniqueIdentifier>{e551a9a3-41d7-43f6-8d0a-68d739902d90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -258,6 +264,18 @@
     </None>
     <None Include="shaders\vertex\texture.vs">
       <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\color.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\hull\color.hs">
+      <Filter>Shaders\hull</Filter>
+    </None>
+    <None Include="shaders\domain\color.ds">
+      <Filter>Shaders\domain</Filter>
+    </None>
+    <None Include="shaders\pixel\color.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

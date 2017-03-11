@@ -1,0 +1,52 @@
+//=======
+//Globals
+cbuffer MatrixBuffer
+{
+     matrix world_matrix;
+     matrix view_matrix;
+     matrix projection_matrix;
+};
+
+
+//========
+//Typedefs
+struct CONSTANT_OUTPUT_TYPE
+{
+     float edges[3] : SV_TessFactor;
+     float inside : SV_InsideTessFactor;
+};
+
+struct HULL_OUTPUT_TYPE
+{
+    float3 position : POSITION;
+    float4 color : COLOR;
+};
+
+struct PIXEL_INPUT_TYPE
+{
+     float4 position : SV_POSITION;
+     float4 color : COLOR;
+};
+
+//=============
+//DOMAIN SHADER
+[domain("tri")]
+
+PIXEL_INPUT_TYPE Color_domain_shader(CONSTANT_OUTPUT_TYPE input, float3 uvw_coord : SV_DomainLocation, const OutputPatch<HULL_OUTPUT_TYPE, 3> patch)
+{
+
+    PIXEL_INPUT_TYPE output;
+    float3 vertex_position;
+
+    vertex_position = uvw_coord.x * patch[0].position + uvw_coord.y * patch[1].position + uvw_coord.z * patch[2].position;
+
+    //calc pos of the vert against the world, view, projection matrices
+    output.position = mul(float4(vertex_position, 1.0f), world_matrix);
+    output.position = mul(output.position, view_matrix);
+    output.position = mul(output.position, projection_matrix);
+
+    //store the input color for the pixel shader to use
+    output.color = patch[0].color;
+
+    return output;
+}
