@@ -263,7 +263,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  raster_desc.DepthBias = 0;
  raster_desc.DepthBiasClamp = 0.0f;
  raster_desc.DepthClipEnable = true;
- raster_desc.FillMode = D3D11_FILL_WIREFRAME;
+ raster_desc.FillMode = D3D11_FILL_SOLID;
  raster_desc.FrontCounterClockwise = false;
  raster_desc.MultisampleEnable = false;
  raster_desc.ScissorEnable = false;
@@ -325,7 +325,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  ZeroMemory(&blend_state_desc, sizeof(D3D11_BLEND_DESC));
  blend_state_desc.RenderTarget[0].BlendEnable = true;
  blend_state_desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
- blend_state_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+ blend_state_desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
  blend_state_desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
  blend_state_desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
  blend_state_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
@@ -336,6 +336,7 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
   return false;
 
  blend_state_desc.RenderTarget[0].BlendEnable = FALSE;
+ blend_state_desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
  result = device_->CreateBlendState(&blend_state_desc, &alpha_disable_blending_state_);
  if (FAILED(result))
   return false;

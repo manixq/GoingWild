@@ -123,6 +123,12 @@
     <ClCompile Include="ortho_window_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="particle_system_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="particle_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -209,6 +215,12 @@
     <ClInclude Include="ortho_window_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="particle_system_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="particle_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -275,6 +287,12 @@
       <Filter>Shaders\domain</Filter>
     </None>
     <None Include="shaders\pixel\color.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\particle.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\particle.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

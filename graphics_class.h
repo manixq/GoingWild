@@ -22,6 +22,8 @@
 #include "ortho_window_class.h"
 #include "texture_shader_class.h"
 #include "color_shader_class.h"
+#include "particle_system_class.h"
+#include "particle_shader_class.h"
 
 //=======
 //globals
@@ -41,7 +43,7 @@ public:
 
     bool Initialize(int, int, HWND);
     void Shutdown();
-    bool Frame(float, float, float, float);
+    bool Frame(float, float, float, float, float);
     bool Render();
 
 private:
@@ -57,30 +59,37 @@ private:
 
     D3DClass* d3d_;
     CameraClass* camera_;
+    DebugWindowClass* debug_window_;
+    OrthoWindowClass *small_window_, *full_sceen_window_;
+    LightClass* light_;
+
+    ParticleSystemClass* particle_system_;
+    ModelListClass* model_list_;
+
     ModelClass* model_;
     ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
-    ColorShaderClass* color_shader_;
-    NormalShaderClass* normal_shader_;
-    FireShaderClass* fire_shader_;
-    LightClass* light_;
-    ModelListClass* model_list_;
     FrustumClass* frustum_;
     ModelClass* floor_model_;
     ModelClass* fire_model_;
-    DebugWindowClass* debug_window_;
+
     RenderTextureClass *reflection_texture_, *refraction_texture_;
+    RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
+
+    ColorShaderClass* color_shader_;
+    NormalShaderClass* normal_shader_;
+    FireShaderClass* fire_shader_;
     ReflectionShaderClass* reflection_shader_;
     RefractionShaderClass* refraction_shader_;
     WaterShaderClass* water_shader_;
     DepthShaderClass* depth_shader_;
+    ParticleShaderClass* particle_shader_;
     HorizontalBlurShaderClass* horizontal_blur_shader_;
     VerticalBlurShaderClass* vertical_blur_shader_;
-    RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
-    OrthoWindowClass *small_window_, *full_sceen_window_;
-    float water_height_, water_translation_;
     TextureShaderClass* texture_shader_;
-
+    
+    float water_height_, water_translation_;
     float rotation_x_ = 0.0f;
-    float rotation_y_ = 0.0f;  
+    float rotation_y_ = 0.0f;
+    float frame_time_ = 0.0f;
 };
 #endif

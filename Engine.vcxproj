@@ -167,6 +167,8 @@
     <ClCompile Include="model_list_class.cpp" />
     <ClCompile Include="normal_shader_class.cpp" />
     <ClCompile Include="ortho_window_class.cpp" />
+    <ClCompile Include="particle_shader_class.cpp" />
+    <ClCompile Include="particle_system_class.cpp" />
     <ClCompile Include="position_class.cpp" />
     <ClCompile Include="reflection_shader_class.cpp" />
     <ClCompile Include="refraction_shader_class.cpp" />
@@ -197,6 +199,8 @@
     <ClInclude Include="model_list_class.h" />
     <ClInclude Include="normal_shader_class.h" />
     <ClInclude Include="ortho_window_class.h" />
+    <ClInclude Include="particle_shader_class.h" />
+    <ClInclude Include="particle_system_class.h" />
     <ClInclude Include="position_class.h" />
     <ClInclude Include="reflection_shader_class.h" />
     <ClInclude Include="refraction_shader_class.h" />
@@ -216,6 +220,7 @@
     <None Include="shaders\pixel\fire.ps" />
     <None Include="shaders\pixel\horizontal_blur.ps" />
     <None Include="shaders\pixel\normal_map.ps" />
+    <None Include="shaders\pixel\particle.ps" />
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
     <None Include="shaders\pixel\texture.ps" />
@@ -226,6 +231,7 @@
     <None Include="shaders\vertex\fire.vs" />
     <None Include="shaders\vertex\horizontal_blur.vs" />
     <None Include="shaders\vertex\normal_map.vs" />
+    <None Include="shaders\vertex\particle.vs" />
     <None Include="shaders\vertex\reflection.vs" />
     <None Include="shaders\vertex\refraction.vs" />
     <None Include="shaders\vertex\texture.vs" />

@@ -4,23 +4,19 @@ GraphicsClass::GraphicsClass()
 {
  d3d_ = nullptr;
  camera_ = nullptr;
- model_ = nullptr;
- normal_shader_ = nullptr;
- color_shader_ = nullptr;
  light_ = nullptr;
  model_list_ = nullptr;
  frustum_ = nullptr;
- floor_model_ = nullptr;
  debug_window_ = nullptr;
+ particle_system_ = nullptr;
 
+ model_ = nullptr;
  ground_model_ = nullptr;
  wall_model_ = nullptr;
  bath_model_ = nullptr;
  water_model_ = nullptr;
  fire_model_ = nullptr;
-
- reflection_texture_ = nullptr;
- refraction_texture_ = nullptr;
+ floor_model_ = nullptr;
 
  reflection_shader_ = nullptr;
  refraction_shader_ = nullptr;
@@ -28,10 +24,14 @@ GraphicsClass::GraphicsClass()
  fire_shader_ = nullptr;
  depth_shader_ = nullptr;
  texture_shader_ = nullptr;
-
+ normal_shader_ = nullptr;
+ color_shader_ = nullptr;
  horizontal_blur_shader_ = nullptr;
  vertical_blur_shader_ = nullptr;
+ particle_shader_ = nullptr;
 
+ reflection_texture_ = nullptr;
+ refraction_texture_ = nullptr;
  render_texture_ = nullptr;
  down_sample_texture_ = nullptr;
  horizontal_blur_texture_ = nullptr;
@@ -80,6 +80,15 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 	  MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
 	  return false;
 	 }
+
+     particle_system_ = new ParticleSystemClass;
+     if (!particle_system_)
+         return false;
+
+     result = particle_system_->Initialize(d3d_->GetDevice(), L"../Engine/data/star.dds");
+     if (!result)
+         return false;
+
 	 ground_model_ = new ModelClass;
 	 if (!ground_model_)
 	  return false;
@@ -152,6 +161,14 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 	  MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
 	  return false;
 	 }
+
+     particle_shader_ = new ParticleShaderClass;
+     if (!particle_shader_)
+         return false;
+
+     result = particle_shader_->Initialize(d3d_->GetDevice(), hwnd);
+     if (!result)
+         return false;
 
      horizontal_blur_shader_ = new HorizontalBlurShaderClass;
      if (!horizontal_blur_shader_)
@@ -403,11 +420,25 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+    if(particle_shader_)
+    {
+        particle_shader_->Shutdown();
+        delete particle_shader_;
+        particle_shader_ = nullptr;
+    }
+    
     if(texture_shader_)
     {
         texture_shader_->Shutdown();
         delete texture_shader_;
         texture_shader_ = nullptr;
+    }
+
+    if(particle_system_)
+    {
+        particle_system_->Shutdown();
+        delete particle_system_;
+        particle_system_ = nullptr;
     }
 
     if(full_sceen_window_)
@@ -624,21 +655,25 @@ void GraphicsClass::Shutdown()
 	 }
 }
 
-bool GraphicsClass::Frame(float rotation_x, float rotation_y, float x_pos, float z_pos)
-{ 
- water_translation_ += 0.001f;
- if (water_translation_ > 1.0)
-  water_translation_ -= 1.0f;
+bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, float x_pos, float z_pos)
+{
+    water_translation_ += 0.001f;
+    if (water_translation_ > 1.0)
+        water_translation_ -= 1.0f;
 
- rotation_x_ = rotation_x;
- rotation_y_ = rotation_y;
+    rotation_x_ = rotation_x;
+    rotation_y_ = rotation_y;
 
- //camera_->Set_position(-10.0f, 6.0f, -10.0f);
- //camera_->Set_rotation(0.0f, 45.0f, 0.0f);
- camera_->Set_position(x_pos, 6.0f, z_pos);
- camera_->Set_rotation(rotation_x, rotation_y, 0.0f);
- 
- return true;
+    //camera_->Set_position(-10.0f, 6.0f, -10.0f);
+    //camera_->Set_rotation(0.0f, 45.0f, 0.0f);
+    camera_->Set_position(x_pos, 6.0f, z_pos);
+    camera_->Set_rotation(rotation_x, rotation_y, 0.0f);
+
+    frame_time_ += frame_time / 1000;
+    if (frame_time_ >= 1000.0f)
+        frame_time_ = 0.0f;
+    particle_system_->Frame(frame_time, d3d_->GetDeviceContext());
+    return true;
 }
 
 bool GraphicsClass::Render()
@@ -698,10 +733,7 @@ bool GraphicsClass::Render_scene()
     D3DXVECTOR2 distortion1, distortion2, distortion3;
     float distortion_scale, distortion_bias;
 
-    static float frame_time = 0.0f;
-    frame_time += 0.001f;
-    if (frame_time > 1000.0f)
-        frame_time = 0.0f;
+    float frame_time = frame_time_;
 
     //three scrolling speeds for three different noise txtrs
     scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
@@ -849,20 +881,19 @@ bool GraphicsClass::Render2d_texture_scene()
     D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
     bool result;
 
-    d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
+    d3d_->Begin_scene(1.0f, 0.0f, 0.0f, 0.0f);
     camera_->Render();
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetProjectionMatrix(ortho_matrix);   
-    //d3d_->Turn_zbuffer_off();
-    D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
-    //D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
-    model_->Render(d3d_->GetDeviceContext());
-    result = color_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, 12.0f);
+    d3d_->GetOrthoMatrix(ortho_matrix);   
+    d3d_->Turn_zbuffer_off();
+    D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
+    full_sceen_window_->Render(d3d_->GetDeviceContext());
+    result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
     if (!result)
         return false;
 
-    //d3d_->Turn_zbuffer_on();
+    d3d_->Turn_zbuffer_on();
     d3d_->End_scene();
     return true;
 }
@@ -907,10 +938,7 @@ bool GraphicsClass::Render_reflection_to_texture()
  D3DXVECTOR2 distortion1, distortion2, distortion3;
  float distortion_scale, distortion_bias;
 
- static float frame_time = 0.0f;
- frame_time += 0.001f;
- if (frame_time > 1000.0f)
-  frame_time = 0.0f;
+ float frame_time = frame_time_;
 
  //three scrolling speeds for three different noise txtrs
  scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
@@ -950,13 +978,20 @@ bool GraphicsClass::Render_reflection_to_texture()
  normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
  d3d_->GetWorldMatrix(world_matrix);
 
- D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 7.0f); ;
-
+ D3DXMatrixTranslation(&world_matrix, 0.0f, 0.0f, 7.0f);
  d3d_->TurnOnAlphaBlending();
  fire_model_->Render(d3d_->GetDeviceContext());
  result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
  if (!result)
   return false;
+ d3d_->GetWorldMatrix(world_matrix);
+
+ //particles
+ particle_system_->Render(d3d_->GetDeviceContext());
+ result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, particle_system_->Get_texture());
+ if (!result)
+     return false;
+ d3d_->GetWorldMatrix(world_matrix);
 
  d3d_->TurnOffAlphaBlending();
 
@@ -976,14 +1011,11 @@ bool GraphicsClass::Render_scene_to_texture()
  double angle;
  float rotation;
 
+ float frame_time = frame_time_;
+
  D3DXVECTOR3 scroll_speed, scale;
  D3DXVECTOR2 distortion1, distortion2, distortion3;
  float distortion_scale, distortion_bias;
-
- static float frame_time = 0.0f;
- frame_time += 0.001f;
- if (frame_time > 1000.0f)
-  frame_time = 0.0f;
 
  //three scrolling speeds for three different noise txtrs
  scroll_speed = D3DXVECTOR3(1.3f, 2.1f, 2.3f);
@@ -1030,7 +1062,7 @@ bool GraphicsClass::Render_scene_to_texture()
  d3d_->TurnOnAlphaBlending();
  camera_position = camera_->Get_position();
  model_position.x = 0.0f;
- model_position.y = water_height_;
+ model_position.y = 0.0f;
  model_position.z = 7.0f;
  angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
  rotation = static_cast<float>(angle) * 0.0174532925f;
@@ -1071,6 +1103,26 @@ bool GraphicsClass::Render_scene_to_texture()
  if (!result)
   return false;
  d3d_->GetWorldMatrix(world_matrix);
+
+ //particles
+ d3d_->TurnOnAlphaBlending();
+ camera_position = camera_->Get_position();
+ model_position.x = 0.0f;
+ model_position.y = -1.0f;
+ model_position.z = 0.0f;
+ angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
+ rotation = static_cast<float>(angle) * 0.0174532925f;
+
+ D3DXMatrixRotationY(&world_matrix, rotation);
+ D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
+ D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
+ particle_system_->Render(d3d_->GetDeviceContext());
+ result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
+ if (!result)
+     return false;
+ d3d_->TurnOffAlphaBlending();
+ d3d_->GetWorldMatrix(world_matrix);
+
  //d3d_->End_scene();
  d3d_->Set_back_buffer_render_target();
  d3d_->Reset_viewport();

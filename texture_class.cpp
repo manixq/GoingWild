@@ -85,10 +85,3 @@ ID3D11ShaderResourceView* TextureClass::Get_texture()
 {
  return texture_;
 }
-
-
-
-
-
-
-
