@@ -24,6 +24,7 @@
 #include "color_shader_class.h"
 #include "particle_system_class.h"
 #include "particle_shader_class.h"
+#include "shadow_shader_class.h"
 
 //=======
 //globals
@@ -48,6 +49,7 @@ public:
 
 private:
     bool Render_scene();
+    bool Render_light_scene_to_texture();
     bool Render_scene_to_texture();
     bool Render_horizontal_bloor_to_texture();
     bool Render_vertical_bloor_to_texture();
@@ -74,6 +76,7 @@ private:
 
     RenderTextureClass *reflection_texture_, *refraction_texture_;
     RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
+    RenderTextureClass *shadow_texture_;
 
     ColorShaderClass* color_shader_;
     NormalShaderClass* normal_shader_;
@@ -86,6 +89,7 @@ private:
     HorizontalBlurShaderClass* horizontal_blur_shader_;
     VerticalBlurShaderClass* vertical_blur_shader_;
     TextureShaderClass* texture_shader_;
+    ShadowShaderClass* shadow_shader_;
     
     float water_height_, water_translation_;
     float rotation_x_ = 0.0f;

@@ -61,11 +61,10 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	//invert light direction for calculations
-	light_dir = -light_direction;
+	light_dir = light_direction;
 
 	//calc the amount of light
-	light_intensity = saturate(dot(normal, light_dir));
+    light_intensity = saturate(dot(normal, light_dir));
 
 	//determine the final amount of diffuse color based on diffuse color combined with light intensity
 	if(light_intensity > 0.0f)

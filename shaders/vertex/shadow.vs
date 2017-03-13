@@ -15,12 +15,6 @@ cbuffer light_buffer2
     float padding;
 };
 
-cbuffer camera_buffer
-{
-    float3 camera_position;
-    float padding;
-};
-
 //========
 //TypeDefs
 struct VERTEX_INPUT_TYPE
