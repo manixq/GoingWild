@@ -295,6 +295,12 @@
     <None Include="shaders\pixel\particle.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
+    <None Include="shaders\vertex\shadow.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\shadow.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\cube.txt">
