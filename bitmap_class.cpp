@@ -116,6 +116,10 @@ bool BitmapClass::Initialize_buffers(ID3D11Device* device)
     index_buffer_desc.MiscFlags = 0;
     index_buffer_desc.StructureByteStride = 0;
 
+    index_data.pSysMem = indices;
+    index_data.SysMemPitch = 0;
+    index_data.SysMemSlicePitch = 0;
+
     result = device->CreateBuffer(&index_buffer_desc, &index_data, &index_buffer_);
     if (FAILED(result))
         return false;
