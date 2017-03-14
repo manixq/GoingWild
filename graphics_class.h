@@ -25,10 +25,11 @@
 #include "particle_system_class.h"
 #include "particle_shader_class.h"
 #include "shadow_shader_class.h"
+#include "bitmap_class.h"
 
 //=======
 //globals
-static bool FULL_SCREEN = true;
+static bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -46,8 +47,11 @@ public:
     void Shutdown();
     bool Frame(float, float, float, float, float);
     bool Render();
+    bool Handle_input(bool, int, int);
 
 private:
+    bool RaySphereIntersect(D3DXVECTOR3, D3DXVECTOR3, float);
+    
     bool Render_scene();
     bool Render_light_scene_to_texture();
     bool Render_scene_to_texture();
@@ -90,7 +94,10 @@ private:
     VerticalBlurShaderClass* vertical_blur_shader_;
     TextureShaderClass* texture_shader_;
     ShadowShaderClass* shadow_shader_;
-    
+
+    BitmapClass* mouse_;
+    bool begin_check_;
+
     float water_height_, water_translation_;
     float rotation_x_ = 0.0f;
     float rotation_y_ = 0.0f;

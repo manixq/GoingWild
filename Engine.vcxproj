@@ -184,7 +184,6 @@
     <ClCompile Include="water_shader_class.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application_class.h" />
     <ClInclude Include="bitmap_class.h" />
     <ClInclude Include="debug_window_class.h" />
     <ClInclude Include="camera_class.h" />

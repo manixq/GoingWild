@@ -34,7 +34,9 @@ bool SystemClass::Initialize()
         return false;
 
     //init
-    input_->Initialize();
+    result = input_->Initialize(hinstance, hwnd, screen_width, screen_height);
+    if (!result)
+        return false;
 
     //Rendering and graphics
     graphics_ = new GraphicsClass;
@@ -111,6 +113,7 @@ void SystemClass::Shutdown()
     //Release input
     if (input_)
     {
+        input_->Shutdown();
         delete input_;
         input_ = nullptr;
     }
@@ -156,10 +159,17 @@ bool SystemClass::Frame()
 {
     bool key_down, result;
     float rotation_x, rotation_y, x_pos, z_pos;
+    int mouse_x, mouse_y;
 
     //escape? no.
+    result = input_->Frame();
+    if (!result)
+        return false;
+
     if (input_->Is_key_down(VK_ESCAPE))
         return false;
+
+    input_->Get_mouse_location(mouse_x, mouse_y);
 
     timer_->Frame();
 
@@ -177,6 +187,10 @@ bool SystemClass::Frame()
     position_->Get_zpos(z_pos);
 
     result = graphics_->Frame(timer_->Get_time(), rotation_x, rotation_y, x_pos, z_pos);
+    if (!result)
+        return false;
+
+    result = graphics_->Handle_input(1, mouse_x, mouse_y);
     if (!result)
         return false;
 

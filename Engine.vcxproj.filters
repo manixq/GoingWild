@@ -236,9 +236,6 @@
     <ClInclude Include="shader_manager_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="application_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bitmap_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>

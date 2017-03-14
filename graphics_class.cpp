@@ -42,6 +42,8 @@ GraphicsClass::GraphicsClass()
 
     small_window_ = nullptr;
     full_sceen_window_ = nullptr;
+
+    mouse_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -421,6 +423,18 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     frustum_ = new FrustumClass;
     if (!frustum_)
         return false;
+
+    mouse_ = new BitmapClass;
+    if (!mouse_)
+        return false;
+    result = mouse_->Initialize(d3d_->GetDevice(), screen_width, screen_height, L"../Engine/data/mouse.dds", 32, 32);
+    if(!result)
+    {
+        MessageBox(hwnd, L"could not initialize mouse.", L"Error", MB_OK);
+        return false;
+    }
+    begin_check_ = false;
+
     light_->Set_ambient_color(0.35f, 0.35f, 0.35f, 1.0f);
     light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
     light_->Set_position(0.0f, -1.0f, 0.5f);
@@ -445,6 +459,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+    if(mouse_)
+    {
+        mouse_->Shutdown();
+        delete mouse_;
+        mouse_ = nullptr;
+    }
+
     if(shadow_shader_)
     {
         shadow_shader_->Shutdown();
@@ -758,6 +779,12 @@ bool GraphicsClass::Render()
         return false;
 
     return true;
+}
+
+bool GraphicsClass::Handle_input(bool lmb, int mouse_x, int mouse_y)
+{
+    bool result;
+    return 1;
 }
 
 bool GraphicsClass::Render_scene()
