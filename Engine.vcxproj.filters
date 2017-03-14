@@ -132,6 +132,9 @@
     <ClCompile Include="shadow_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shader_manager_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -225,6 +228,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shadow_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_manager_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
