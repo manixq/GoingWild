@@ -135,6 +135,9 @@
     <ClCompile Include="shader_manager_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bitmap_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -231,6 +234,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shader_manager_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="application_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

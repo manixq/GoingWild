@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bitmap_class.cpp" />
     <ClCompile Include="debug_window_class.cpp" />
     <ClCompile Include="camera_class.cpp" />
     <ClCompile Include="color_shader_class.cpp" />
@@ -183,6 +184,8 @@
     <ClCompile Include="water_shader_class.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application_class.h" />
+    <ClInclude Include="bitmap_class.h" />
     <ClInclude Include="debug_window_class.h" />
     <ClInclude Include="camera_class.h" />
     <ClInclude Include="color_shader_class.h" />
