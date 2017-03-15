@@ -78,7 +78,7 @@ private:
  ID3D11Buffer *vertex_buffer_, *index_buffer_;
  int vertex_count_, index_count_;
  
- TextureClass* texture_;
+ TextureClass *texture_;
  MODEL_TYPE* model_;
 };
 #endif

@@ -61,6 +61,9 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     bool result;
     int down_sample_width, down_sample_height;
 
+    screen_height_ = screen_height;
+    screen_width_ = screen_width;
+
     down_sample_width = screen_width / 2;
     down_sample_height = screen_height / 2;
 
@@ -784,7 +787,72 @@ bool GraphicsClass::Render()
 bool GraphicsClass::Handle_input(bool lmb, int mouse_x, int mouse_y)
 {
     bool result;
-    return 1;
+    mouse_x_ = mouse_x;
+    mouse_y_ = mouse_y;
+
+    if (lmb)
+    {
+        if (!begin_check_)
+        {
+            begin_check_ = true;
+            Test_intersection();
+        }
+    }
+    else
+        begin_check_ = false;
+    return true;
+}
+
+void GraphicsClass::Test_intersection()
+{
+    float point_x, point_y;
+    D3DXMATRIX projection, view, inverse_view, world, translate, inverse_world;
+    D3DXVECTOR3 direction, origin, ray_origin, ray_direction;
+    bool intersect, result;
+
+    point_x = ((2.0f * (float)mouse_x_) / (float)screen_width_) - 1.0f;
+    point_y = (((2.0f * (float)mouse_y_) / (float)screen_height_) - 1.0f) * -1.0f;
+
+    d3d_->GetProjectionMatrix(projection);
+    point_x = point_x / projection._11;
+    point_y = point_y / projection._22;
+
+    camera_->Get_view_matrix(view);
+    D3DXMatrixInverse(&inverse_view, nullptr, &view);
+    
+    direction.x = (point_x * inverse_view._11) + (point_y * inverse_view._21) + inverse_view._31;
+    direction.y = (point_x * inverse_view._12) + (point_y * inverse_view._22) + inverse_view._32;
+    direction.z = (point_x * inverse_view._13) + (point_y * inverse_view._23) + inverse_view._33;
+
+    origin = camera_->Get_position();
+
+    d3d_->GetWorldMatrix(world);
+    D3DXMatrixTranslation(&translate, 0.0f, 5.0f, 0.0f);
+    D3DXMatrixMultiply(&world, &world, &translate);
+
+    D3DXMatrixInverse(&inverse_world, nullptr, &world);
+
+    D3DXVec3TransformCoord(&ray_origin, &origin, &inverse_world);
+    D3DXVec3TransformNormal(&ray_direction, &direction, &inverse_world);
+
+    D3DXVec3Normalize(&ray_direction, &ray_direction);
+
+    intersect = Ray_sphere_intersect(ray_origin, ray_direction, 1.0f);
+    fire_on_ = intersect;
+}
+
+bool GraphicsClass::Ray_sphere_intersect(D3DXVECTOR3 ray_origin, D3DXVECTOR3 ray_direction, float radius)
+{
+    float a, b, c, discriminant;
+    
+    a = (ray_direction.x * ray_direction.x) + (ray_direction.y * ray_direction.y) + (ray_direction.z * ray_direction.z);
+    b = (ray_direction.x * ray_origin.x) + (ray_direction.y * ray_origin.y) + (ray_direction.z * ray_origin.z) * 2.0f;
+    c = (ray_origin.x * ray_origin.x) + (ray_origin.y * ray_origin.y) + (ray_origin.z * ray_origin.z) - (radius * radius);
+
+    discriminant = (b * b) - (4 * a * c);
+    if (discriminant < 0.0f)
+        return false;
+    return true;
 }
 
 bool GraphicsClass::Render_scene()
@@ -840,26 +908,28 @@ bool GraphicsClass::Render_scene()
     d3d_->GetWorldMatrix(world_matrix);
 
     //fire
-    d3d_->Turn_zbuffer_off();
-    d3d_->TurnOnAlphaBlending();
-    camera_position = camera_->Get_position();
-    model_position.x = 0.0f;
-    model_position.y = water_height_;
-    model_position.z = 7.0f;
-    angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
-    rotation = static_cast<float>(angle) * 0.0174532925f;
+    if (fire_on_)
+    {
+        d3d_->Turn_zbuffer_off();
+        d3d_->TurnOnAlphaBlending();
+        camera_position = camera_->Get_position();
+        model_position.x = 0.0f;
+        model_position.y = water_height_;
+        model_position.z = 7.0f;
+        angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
+        rotation = static_cast<float>(angle) * 0.0174532925f;
 
-    D3DXMatrixRotationY(&world_matrix, rotation);
-    D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
-    D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
+        D3DXMatrixRotationY(&world_matrix, rotation);
+        D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
+        D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
 
-    fire_model_->Render(d3d_->GetDeviceContext());
-    result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
-    if (!result)
-        return false;
-    d3d_->TurnOffAlphaBlending();
-    d3d_->Turn_zbuffer_on();
-
+        fire_model_->Render(d3d_->GetDeviceContext());
+        result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+        if (!result)
+            return false;
+        d3d_->TurnOffAlphaBlending();
+        d3d_->Turn_zbuffer_on();
+    }
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
@@ -1118,7 +1188,7 @@ bool GraphicsClass::Render_reflection_to_texture()
 
 bool GraphicsClass::Render_scene_to_texture()
 {
-    D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix, translate_matrix;
+    D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix, translate_matrix, ortho_matrix;
     D3DXMATRIX light_view_matrix, light_projection_matrix;
     bool result;
 
@@ -1156,6 +1226,7 @@ bool GraphicsClass::Render_scene_to_texture()
     camera_->Get_view_matrix(view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
     d3d_->GetProjectionMatrix(projection_matrix);
+    d3d_->GetOrthoMatrix(ortho_matrix);
     light_->Get_view_matrix(light_view_matrix);
     light_->Get_projection_matrix(light_projection_matrix);
 
@@ -1175,27 +1246,29 @@ bool GraphicsClass::Render_scene_to_texture()
         return false;
     d3d_->GetWorldMatrix(world_matrix);
 
-    //fire
-    d3d_->Turn_zbuffer_off();
-    d3d_->TurnOnAlphaBlending();
-    camera_position = camera_->Get_position();
-    model_position.x = 0.0f;
-    model_position.y = 0.0f;
-    model_position.z = 7.0f;
-    angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
-    rotation = static_cast<float>(angle) * 0.0174532925f;
+    if (!fire_on_)
+    {
+        //fire
+        d3d_->Turn_zbuffer_off();
+        d3d_->TurnOnAlphaBlending();
+        camera_position = camera_->Get_position();
+        model_position.x = 0.0f;
+        model_position.y = 0.0f;
+        model_position.z = 7.0f;
+        angle = atan2(model_position.x - camera_position.x, model_position.z - camera_position.z) * (180.0f / D3DX_PI);
+        rotation = static_cast<float>(angle) * 0.0174532925f;
 
-    D3DXMatrixRotationY(&world_matrix, rotation);
-    D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
-    D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
+        D3DXMatrixRotationY(&world_matrix, rotation);
+        D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
+        D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
 
-    fire_model_->Render(d3d_->GetDeviceContext());
-    result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
-    if (!result)
-        return false;
-    d3d_->TurnOffAlphaBlending();
-    d3d_->Turn_zbuffer_on();
-
+        fire_model_->Render(d3d_->GetDeviceContext());
+        result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+        if (!result)
+            return false;
+        d3d_->TurnOffAlphaBlending();
+        d3d_->Turn_zbuffer_on();
+    }
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
@@ -1238,6 +1311,14 @@ bool GraphicsClass::Render_scene_to_texture()
     result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
+    d3d_->GetWorldMatrix(world_matrix);
+
+    //mouse
+    result = mouse_->Render(d3d_->GetDeviceContext(), mouse_x_, mouse_y_);
+    if (!result)
+        return false;
+    result = texture_shader_->Render(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, mouse_->Get_texture());
+
     d3d_->TurnOffAlphaBlending();
     d3d_->GetWorldMatrix(world_matrix);
 

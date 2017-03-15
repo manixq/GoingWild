@@ -50,7 +50,8 @@ public:
     bool Handle_input(bool, int, int);
 
 private:
-    bool RaySphereIntersect(D3DXVECTOR3, D3DXVECTOR3, float);
+    void Test_intersection();
+    bool Ray_sphere_intersect(D3DXVECTOR3, D3DXVECTOR3, float);
     
     bool Render_scene();
     bool Render_light_scene_to_texture();
@@ -97,10 +98,17 @@ private:
 
     BitmapClass* mouse_;
     bool begin_check_;
+    int mouse_x_ = 0;
+    int mouse_y_ = 0;
 
     float water_height_, water_translation_;
     float rotation_x_ = 0.0f;
     float rotation_y_ = 0.0f;
     float frame_time_ = 0.0f;
+
+    float screen_width_;
+    float screen_height_;
+
+    bool fire_on_ = false;
 };
 #endif

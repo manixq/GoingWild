@@ -159,6 +159,7 @@ bool SystemClass::Frame()
 {
     bool key_down, result;
     float rotation_x, rotation_y, x_pos, z_pos;
+    bool lmb;
     int mouse_x, mouse_y;
 
     //escape? no.
@@ -170,6 +171,7 @@ bool SystemClass::Frame()
         return false;
 
     input_->Get_mouse_location(mouse_x, mouse_y);
+    lmb = input_->Is_left_mouse_button_down();
 
     timer_->Frame();
 
@@ -190,7 +192,7 @@ bool SystemClass::Frame()
     if (!result)
         return false;
 
-    result = graphics_->Handle_input(1, mouse_x, mouse_y);
+    result = graphics_->Handle_input(lmb, mouse_x, mouse_y);
     if (!result)
         return false;
 

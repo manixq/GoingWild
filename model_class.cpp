@@ -207,7 +207,7 @@ void ModelClass::Calculate_model_vectors()
   model_[index - 1].nx = normal.x;
   model_[index - 1].ny = normal.y;
   model_[index - 1].nz = normal.z;
-  model_[index - 1].tx =tangent.x;
+  model_[index - 1].tx = tangent.x;
   model_[index - 1].ty = tangent.y;
   model_[index - 1].tz = tangent.z;
   model_[index - 1].bx = binormal.x;
@@ -363,12 +363,12 @@ bool ModelClass::Load_texture(ID3D11Device* device, WCHAR* filename_1)
 
 void ModelClass::Release_texture()
 {
- if (texture_)
- {
-  texture_->Shutdown();
-  delete texture_;
-  texture_ = nullptr;
- }
+    if (texture_)
+    {
+        texture_->Shutdown();
+        delete texture_;
+        texture_ = nullptr;
+    }
 }
 
 
@@ -424,7 +424,6 @@ void ModelClass::Release_model()
   model_ = nullptr;
  }
 }
-
 
 
 

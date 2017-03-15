@@ -97,6 +97,13 @@ void InputClass::Get_mouse_location(int &mouse_x, int &mouse_y)
     mouse_y = mouse_y_;
 }
 
+bool InputClass::Is_left_mouse_button_down()
+{
+    if (mouse_state_.rgbButtons[0] & 0x80)
+        return true;
+    return false;
+}
+
 bool InputClass::Is_key_down(unsigned int key)
 {
     return keys_[key];
