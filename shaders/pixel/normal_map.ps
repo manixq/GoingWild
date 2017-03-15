@@ -61,7 +61,7 @@ float4 Normal_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 
 	specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	light_dir = light_direction;
+	light_dir = -light_direction;
 
 	//calc the amount of light
     light_intensity = saturate(dot(normal, light_dir));

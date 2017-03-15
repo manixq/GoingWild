@@ -10,7 +10,6 @@ ShadowShaderClass::ShadowShaderClass()
     sample_state_clamp_ = nullptr;
     matrix_buffer_ = nullptr;
     light_buffer_ = nullptr;
-    light_buffer2_ = nullptr;
 }
 
 ShadowShaderClass::ShadowShaderClass(const ShadowShaderClass&)
@@ -38,11 +37,11 @@ void ShadowShaderClass::Shutdown()
     Shutdown_shader();
 }
 
-bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_position, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
+bool ShadowShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
 {
     bool result;
 
-    result = Set_shader_parameters(device_context, world, view, projection, light_view, light_projection, texture, depth_map_texture, light_position, ambient_color, diffuse_color);
+    result = Set_shader_parameters(device_context, world, view, projection, light_view, light_projection, texture, depth_map_texture, light_direction, ambient_color, diffuse_color);
     if (!result)
         return false;
 
@@ -62,7 +61,6 @@ bool ShadowShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR
     D3D11_SAMPLER_DESC sampler_desc;
     D3D11_BUFFER_DESC matrix_buffer_desc;
     D3D11_BUFFER_DESC light_buffer_desc;
-    D3D11_BUFFER_DESC light_buffer_desc2;
 
     error_message = nullptr;
     vertex_shader_buffer = nullptr;
@@ -179,17 +177,6 @@ bool ShadowShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR
     if (FAILED(result))
         return false;
 
-    light_buffer_desc2.Usage = D3D11_USAGE_DYNAMIC;
-    light_buffer_desc2.ByteWidth = sizeof(LIGHT_BUFFER_TYPE2);
-    light_buffer_desc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    light_buffer_desc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    light_buffer_desc2.MiscFlags = 0;
-    light_buffer_desc2.StructureByteStride = 0;
-
-    result = device->CreateBuffer(&light_buffer_desc2, nullptr, &light_buffer2_);
-    if (FAILED(result))
-        return false;
-
     return true;
 }
 
@@ -201,11 +188,6 @@ void ShadowShaderClass::Shutdown_shader()
         light_buffer_ = nullptr;
     }
 
-    if (light_buffer2_)
-    {
-        light_buffer2_->Release();
-        light_buffer2_ = nullptr;
-    }
 
     if (matrix_buffer_)
     {
@@ -263,14 +245,13 @@ void ShadowShaderClass::Output_shader_error_message(ID3D10Blob* error_message, H
     MessageBox(hwnd, L"Error compiling shader", shader_filename, MB_OK);
 }
 
-bool ShadowShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_position, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
+bool ShadowShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
 {
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mapped_resource;
     unsigned int buffer_number;
     MATRIX_BUFFER_TYPE* data_ptr;
     LIGHT_BUFFER_TYPE* data_ptr2;
-    LIGHT_BUFFER_TYPE2* data_ptr3;
 
     D3DXMatrixTranspose(&world, &world);
     D3DXMatrixTranspose(&view, &view);
@@ -303,25 +284,13 @@ bool ShadowShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_contex
     data_ptr2 = static_cast<LIGHT_BUFFER_TYPE*>(mapped_resource.pData);
     data_ptr2->ambient_color = ambient_color;
     data_ptr2->diffuse_color = diffuse_color;
+    data_ptr2->light_direction = light_direction;
+    data_ptr2->padding = 0.0f;
 
     device_context->Unmap(light_buffer_, 0);
     buffer_number = 0;
 
     device_context->PSSetConstantBuffers(buffer_number, 1, &light_buffer_);
-
-    result = device_context->Map(light_buffer2_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
-    if (FAILED(result))
-        return false;
-
-    data_ptr3 = static_cast<LIGHT_BUFFER_TYPE2*>(mapped_resource.pData);
-    data_ptr3->light_position = light_position;
-    data_ptr3->padding = 0.0f;
-
-    device_context->Unmap(light_buffer2_, 0);
-    buffer_number = 1;
-
-    device_context->VSSetConstantBuffers(buffer_number, 1, &light_buffer2_);
-
     return true;
 }
 

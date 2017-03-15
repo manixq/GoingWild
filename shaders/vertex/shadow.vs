@@ -9,12 +9,6 @@ cbuffer matrix_buffer
     matrix light_projection_matrix;
 };
 
-cbuffer light_buffer2
-{
-    float3 light_position;
-    float padding;
-};
-
 //========
 //TypeDefs
 struct VERTEX_INPUT_TYPE
@@ -30,7 +24,6 @@ struct PIXEL_INPUT_TYPE
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
     float4 light_view_position : TEXCOORD1;
-    float3 light_pos : TEXCOORD2;
 };
 
 //============
@@ -56,13 +49,6 @@ PIXEL_INPUT_TYPE Shadow_vertex_shader(VERTEX_INPUT_TYPE input)
     output.normal = mul(input.normal, (float3x3) world_matrix);
     //normalize normal vector
     output.normal = normalize(output.normal);
-
-
-    //calc vertex pos in the world
-    world_position = mul(input.position, world_matrix);
-
-    output.light_pos = light_position.xyz - world_position.xyz;
-    output.light_pos = normalize(output.light_pos);
 
     return output;
 }

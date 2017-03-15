@@ -273,7 +273,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     if (!shadow_texture_)
         return false;
 
-    result = shadow_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
+    result = shadow_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
     if (!result)
     {
         MessageBox(hwnd, L"could not init shadow texture", L"Error", MB_OK);
@@ -440,11 +440,11 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 
     light_->Set_ambient_color(0.35f, 0.35f, 0.35f, 1.0f);
     light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
-    light_->Set_position(0.0f, -1.0f, 0.5f);
+    light_->Set_position(0.0f, 18.0f, 0.5f);
     light_->Set_specular_color(1.0f, 1.0f, 1.0f, 1.0f);
     light_->Set_specular_power(32.0f);
     light_->Set_look_at(0.0f, 5.0f, 0.0f);
-    light_->Generate_projection_matrix(SCREEN_DEPTH, SCREEN_NEAR);
+    light_->Generate_ortho_matrix(20.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 
     debug_window_ = new DebugWindowClass;
     if (!debug_window_)
@@ -713,12 +713,22 @@ void GraphicsClass::Shutdown()
 
 bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, float x_pos, float z_pos)
 {
-    static float light_pos_x = -5.0f;
+    static float light_angle = 270.0f;
+    float radians;
+    static float light_pos_x = 9.0f;
 
-    light_pos_x += 0.02f;
-    if (light_pos_x >= 5.0f)
-        light_pos_x = -5.0;
-    light_->Set_position(light_pos_x, 15.0f, -5.0f);
+    light_pos_x -= 0.003f * frame_time;
+    light_angle -= 0.03f * frame_time;
+    if (light_angle <= 90.0f)
+    {
+        light_angle = 270.0f;
+        light_pos_x = 9.0f;
+    }
+    
+    radians = light_angle * 0.0174532925f;
+    light_->Set_direction(sinf(radians), cosf(radians), 0.0f);
+    light_->Set_position(light_pos_x, 15.0f, -0.1f);
+    light_->Set_look_at(-light_pos_x, 0.0f, 0.0f);
 
     water_translation_ += 0.001f;
     if (water_translation_ > 1.0)
@@ -894,7 +904,7 @@ bool GraphicsClass::Render_scene()
     //ground
     D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
     ground_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -902,7 +912,7 @@ bool GraphicsClass::Render_scene()
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -933,7 +943,7 @@ bool GraphicsClass::Render_scene()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -943,7 +953,7 @@ bool GraphicsClass::Render_scene()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -961,7 +971,7 @@ bool GraphicsClass::Render_scene()
 
 bool GraphicsClass::Render_light_scene_to_texture()
 {
-    D3DXMATRIX world_matrix, light_view_matrix, light_projection_matrix;
+    D3DXMATRIX world_matrix, light_view_matrix, light_ortho_matrix;
     bool result;
 
 
@@ -970,16 +980,15 @@ bool GraphicsClass::Render_light_scene_to_texture()
     shadow_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
     //d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
 
-    light_->Set_look_at(0.0f, 0.0f, 0.0f);
     light_->Generate_view_matrix();
     light_->Get_view_matrix(light_view_matrix);
     d3d_->GetWorldMatrix(world_matrix);
-    light_->Get_projection_matrix(light_projection_matrix);
+    light_->Get_ortho_matrix(light_ortho_matrix);
 
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, light_view_matrix, light_projection_matrix);
+    result = depth_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);     
@@ -987,7 +996,7 @@ bool GraphicsClass::Render_light_scene_to_texture()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, light_view_matrix, light_projection_matrix);
+    result = depth_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -995,7 +1004,7 @@ bool GraphicsClass::Render_light_scene_to_texture()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, light_view_matrix, light_projection_matrix);
+    result = depth_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1149,17 +1158,17 @@ bool GraphicsClass::Render_reflection_to_texture()
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
 
     d3d_->GetWorldMatrix(world_matrix);
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     d3d_->GetWorldMatrix(world_matrix);
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     d3d_->GetWorldMatrix(world_matrix);
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 0.0f, 7.0f);
@@ -1189,7 +1198,7 @@ bool GraphicsClass::Render_reflection_to_texture()
 bool GraphicsClass::Render_scene_to_texture()
 {
     D3DXMATRIX world_matrix, view_matrix, projection_matrix, reflection_matrix, translate_matrix, ortho_matrix;
-    D3DXMATRIX light_view_matrix, light_projection_matrix;
+    D3DXMATRIX light_view_matrix, light_ortho_matrix;
     bool result;
 
     D3DXVECTOR3 camera_position, model_position;
@@ -1228,12 +1237,12 @@ bool GraphicsClass::Render_scene_to_texture()
     d3d_->GetProjectionMatrix(projection_matrix);
     d3d_->GetOrthoMatrix(ortho_matrix);
     light_->Get_view_matrix(light_view_matrix);
-    light_->Get_projection_matrix(light_projection_matrix);
+    light_->Get_ortho_matrix(light_ortho_matrix);
 
     //ground
     D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
     ground_model_->Render(d3d_->GetDeviceContext());
-    result = shadow_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_projection_matrix, ground_model_->Get_texture(), shadow_texture_->Get_shader_resource_view(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color());
+    result = shadow_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, ground_model_->Get_texture(), shadow_texture_->Get_shader_resource_view(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1241,7 +1250,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1272,7 +1281,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1282,7 +1291,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);

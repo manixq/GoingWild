@@ -56,12 +56,9 @@ void LightClass::Generate_view_matrix()
     D3DXMatrixLookAtLH(&view_matrix_, &position_, &look_at_, &up);
 }
 
-void LightClass::Generate_projection_matrix(float screen_depth, float screen_near)
+void LightClass::Generate_ortho_matrix(float width, float screen_depth, float screen_near)
 {
-    float field_of_view, screen_aspect;
-    field_of_view = (float)D3DX_PI / 2;
-    screen_aspect = 1.0f;
-    D3DXMatrixPerspectiveFovLH(&projection_matrix_, field_of_view, screen_aspect, screen_near, screen_depth);
+    D3DXMatrixOrthoLH(&ortho_matrix_, width, width, screen_near, screen_depth);
 }
 
 void LightClass::Get_view_matrix(D3DXMATRIX& view_matrix)
@@ -69,9 +66,20 @@ void LightClass::Get_view_matrix(D3DXMATRIX& view_matrix)
     view_matrix = view_matrix_;
 }
 
-void LightClass::Get_projection_matrix(D3DXMATRIX& projection_matrix)
+void LightClass::Set_direction(float x, float y, float z)
 {
-    projection_matrix = projection_matrix_;
+    direction_ = D3DXVECTOR3(x, y, z);
+}
+
+D3DXVECTOR3 LightClass::Get_direction()
+{
+    return direction_;
+}
+
+
+void LightClass::Get_ortho_matrix(D3DXMATRIX& ortho_matrix)
+{
+    ortho_matrix = ortho_matrix_;
 }
 
 D3DXVECTOR4 LightClass::Get_ambient_color()

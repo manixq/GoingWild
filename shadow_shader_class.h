@@ -27,13 +27,10 @@ class ShadowShaderClass
     {
         D3DXVECTOR4 ambient_color;
         D3DXVECTOR4 diffuse_color;
-    };
-
-    struct LIGHT_BUFFER_TYPE2
-    {
-        D3DXVECTOR3 light_position;
+        D3DXVECTOR3 light_direction;
         float padding;
     };
+
 
 public:
     ShadowShaderClass();
@@ -58,6 +55,5 @@ private:
     ID3D11SamplerState* sample_state_clamp_;
     ID3D11Buffer* matrix_buffer_;
     ID3D11Buffer* light_buffer_;
-    ID3D11Buffer* light_buffer2_;
 };
 #endif
