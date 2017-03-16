@@ -158,6 +158,8 @@
     <ClCompile Include="deferred_shader_class.cpp" />
     <ClCompile Include="depth_shader_class.cpp" />
     <ClCompile Include="fire_shader_class.cpp" />
+    <ClCompile Include="font_class.cpp" />
+    <ClCompile Include="font_shader_class.cpp" />
     <ClCompile Include="fps_class.cpp" />
     <ClCompile Include="frustum_class.cpp" />
     <ClCompile Include="graphics_class.cpp" />
@@ -181,6 +183,7 @@
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
+    <ClCompile Include="text_class.cpp" />
     <ClCompile Include="timer_class.cpp" />
     <ClCompile Include="vertical_blur_shader_class.cpp" />
     <ClCompile Include="water_shader_class.cpp" />
@@ -196,6 +199,8 @@
     <ClInclude Include="deferred_shader_class.h" />
     <ClInclude Include="depth_shader_class.h" />
     <ClInclude Include="fire_shader_class.h" />
+    <ClInclude Include="font_class.h" />
+    <ClInclude Include="font_shader_class.h" />
     <ClInclude Include="fps_class.h" />
     <ClInclude Include="frustum_class.h" />
     <ClInclude Include="graphics_class.h" />
@@ -218,6 +223,7 @@
     <ClInclude Include="system_class.h" />
     <ClInclude Include="texture_class.h" />
     <ClInclude Include="texture_shader_class.h" />
+    <ClInclude Include="text_class.h" />
     <ClInclude Include="timer_class.h" />
     <ClInclude Include="vertical_blur_shader_class.h" />
     <ClInclude Include="water_shader_class.h" />
@@ -229,6 +235,7 @@
     <None Include="shaders\pixel\deferred.ps" />
     <None Include="shaders\pixel\depth.ps" />
     <None Include="shaders\pixel\fire.ps" />
+    <None Include="shaders\pixel\font.ps" />
     <None Include="shaders\pixel\horizontal_blur.ps" />
     <None Include="shaders\pixel\light.ps" />
     <None Include="shaders\pixel\normal_map.ps" />
@@ -243,6 +250,7 @@
     <None Include="shaders\vertex\deferred.vs" />
     <None Include="shaders\vertex\depth.vs" />
     <None Include="shaders\vertex\fire.vs" />
+    <None Include="shaders\vertex\font.vs" />
     <None Include="shaders\vertex\horizontal_blur.vs" />
     <None Include="shaders\vertex\light.vs" />
     <None Include="shaders\vertex\normal_map.vs" />

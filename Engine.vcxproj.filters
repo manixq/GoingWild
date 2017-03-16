@@ -144,6 +144,15 @@
     <ClCompile Include="deferred_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="font_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="font_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -251,6 +260,15 @@
     <ClInclude Include="deferred_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="font_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="text_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -342,6 +360,12 @@
     </None>
     <None Include="shaders\vertex\light.vs">
       <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\font.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\font.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
