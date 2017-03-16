@@ -85,10 +85,47 @@ void CameraClass::Render()
  D3DXMatrixLookAtLH(&view_matrix_, &position, &look_at, &up);
 }
 
+void CameraClass::Render_static()
+{
+    D3DXVECTOR3 up, position, look_at;
+    float yaw, pitch, roll;
+    D3DXMATRIX rotation_matrix;
+
+    up.x = 0.0f;
+    up.y = 1.0f;
+    up.z = 0.0f;
+
+    position.x = position_x_;
+    position.y = position_y_;
+    position.z = position_z_;
+
+    look_at.x = 0.0f;
+    look_at.y = 0.0f;
+    look_at.z = 1.0f;
+
+    //rotations in radians
+    pitch = rotation_x_ * 0.0174532925f;
+    yaw = rotation_y_ * 0.0174532925f;
+    roll = rotation_z_ * 0.0174532925f;
+
+    D3DXMatrixRotationYawPitchRoll(&rotation_matrix, yaw, pitch, roll);
+    D3DXVec3TransformCoord(&look_at, &look_at, &rotation_matrix);
+    D3DXVec3TransformCoord(&up, &up, &rotation_matrix);
+
+    look_at = position + look_at;
+
+    //finally create view matrix
+    D3DXMatrixLookAtLH(&static_view_matrix_, &position, &look_at, &up);
+}
 
 void CameraClass::Get_view_matrix(D3DXMATRIX& view_matrix)
 {
  view_matrix = view_matrix_;
+}
+
+void CameraClass::Get_static_view_matrix(D3DXMATRIX& static_view_matrix)
+{
+    static_view_matrix = static_view_matrix_;
 }
 
 void CameraClass::Render_reflection(float height)

@@ -7,7 +7,6 @@ LightShaderClass::LightShaderClass()
  layout_ = nullptr;
  sample_state_ = nullptr;
  matrix_buffer_ = nullptr;
- camera_buffer_ = nullptr;
  light_buffer_ = nullptr;
 }
 
@@ -25,7 +24,7 @@ bool LightShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
  bool result;
 
- result = Initialize_shader(device, hwnd, L"../Engine/light.vs", L"../Engine/light.ps");
+ result = Initialize_shader(device, hwnd, L"../Engine/shaders/vertex/light.vs", L"../Engine/shaders/pixel/light.ps");
  if (!result)
   return false;
  return true;
@@ -36,11 +35,11 @@ void LightShaderClass::Shutdown()
  Shutdown_shader();
 }
 
-bool LightShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool LightShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* color_texture, ID3D11ShaderResourceView* normal_texture, D3DXVECTOR3 light_direction)
 {
  bool result;
 
- result = Set_shader_parameters(device_context, world, view, projection, texture, light_direction, ambient_color, diffuse_color, camera_position, specular_color, specular_power);
+ result = Set_shader_parameters(device_context, world, view, projection, color_texture, normal_texture, light_direction);
  if (!result)
   return false;
 
@@ -55,11 +54,10 @@ bool LightShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR*
  ID3D10Blob* vertex_shader_buffer;
  ID3D10Blob* pixel_shader_buffer;
 
- D3D11_INPUT_ELEMENT_DESC polygon_layout[3];
+ D3D11_INPUT_ELEMENT_DESC polygon_layout[2];
  unsigned int num_elements;
  D3D11_SAMPLER_DESC sampler_desc;
  D3D11_BUFFER_DESC matrix_buffer_desc;
- D3D11_BUFFER_DESC camera_buffer_desc;
  D3D11_BUFFER_DESC light_buffer_desc;
 
  error_message = nullptr;
@@ -109,13 +107,6 @@ bool LightShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR*
  polygon_layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
  polygon_layout[1].InstanceDataStepRate = 0;
 
- polygon_layout[2].SemanticName = "NORMAL";
- polygon_layout[2].SemanticIndex = 0;
- polygon_layout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
- polygon_layout[2].InputSlot = 0;
- polygon_layout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
- polygon_layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
- polygon_layout[2].InstanceDataStepRate = 0;
 
  num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
 
@@ -129,10 +120,10 @@ bool LightShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR*
  pixel_shader_buffer->Release();
  pixel_shader_buffer = nullptr;
 
- sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
- sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
- sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
- sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+ sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+ sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+ sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+ sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
  sampler_desc.MipLODBias = 0.0f;
  sampler_desc.MaxAnisotropy = 1;
  sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -157,18 +148,7 @@ bool LightShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHAR*
  result = device->CreateBuffer(&matrix_buffer_desc, nullptr, &matrix_buffer_);
  if (FAILED(result))
   return false;
-
- camera_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
- camera_buffer_desc.ByteWidth = sizeof(CAMERA_BUFFER_TYPE);
- camera_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
- camera_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
- camera_buffer_desc.MiscFlags = 0;
- camera_buffer_desc.StructureByteStride = 0;
-
- result = device->CreateBuffer(&camera_buffer_desc, nullptr, &camera_buffer_);
- if (FAILED(result))
-  return false;
-
+ 
  light_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
  light_buffer_desc.ByteWidth = sizeof(LIGHT_BUFFER_TYPE);
  light_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -190,13 +170,7 @@ void LightShaderClass::Shutdown_shader()
   light_buffer_->Release();
   light_buffer_ = nullptr;
  }
-
- if(camera_buffer_)
- {
-  camera_buffer_->Release();
-  camera_buffer_ = nullptr;
- }
-
+ 
  if(matrix_buffer_)
  {
   matrix_buffer_->Release();
@@ -247,14 +221,13 @@ void LightShaderClass::Output_shader_error_message(ID3D10Blob* error_message, HW
  MessageBox(hwnd, L"Error compiling shader", shader_filename, MB_OK);
 }
 
-bool LightShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color, D3DXVECTOR3 camera_position, D3DXVECTOR4 specular_color, float specular_power)
+bool LightShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* color_texture, ID3D11ShaderResourceView* normal_texture, D3DXVECTOR3 light_direction)
 {
  HRESULT result;
  D3D11_MAPPED_SUBRESOURCE mapped_resource;
  unsigned int buffer_number;
  MATRIX_BUFFER_TYPE* data_ptr;
  LIGHT_BUFFER_TYPE* data_ptr2;
- CAMERA_BUFFER_TYPE* data_ptr3;
 
  D3DXMatrixTranspose(&world, &world);
  D3DXMatrixTranspose(&view, &view);
@@ -273,32 +246,17 @@ bool LightShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context
  buffer_number = 0;
 
  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
-
- result = device_context->Map(camera_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
- if (FAILED(result))
-  return false;
-
- data_ptr3 = static_cast<CAMERA_BUFFER_TYPE*>(mapped_resource.pData);
- data_ptr3->camera_position = camera_position;
- data_ptr3->padding = 0.0f;
-
- device_context->Unmap(camera_buffer_, 0);
-
- buffer_number = 1;
- device_context->VSSetConstantBuffers(buffer_number, 1, &camera_buffer_);
  
- device_context->PSSetShaderResources(0, 1, &texture);
+ device_context->PSSetShaderResources(0, 1, &color_texture);
+ device_context->PSSetShaderResources(1, 1, &normal_texture);
 
  result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
  if (FAILED(result))
   return false;
 
  data_ptr2 = static_cast<LIGHT_BUFFER_TYPE*>(mapped_resource.pData);
- data_ptr2->ambient_color = ambient_color;
- data_ptr2->diffuse_color = diffuse_color;
  data_ptr2->light_direction = light_direction;
- data_ptr2->specular_color = specular_color;
- data_ptr2->specular_power = specular_power;
+ data_ptr2->padding = 0.0f;
 
  device_context->Unmap(light_buffer_, 0);
  buffer_number = 0;

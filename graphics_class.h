@@ -26,6 +26,9 @@
 #include "particle_shader_class.h"
 #include "shadow_shader_class.h"
 #include "bitmap_class.h"
+#include "light_shader_class.h"
+#include "deferred_shader_class.h"
+#include "deferred_buffers_class.h"
 
 //=======
 //globals
@@ -99,6 +102,10 @@ private:
     VerticalBlurShaderClass* vertical_blur_shader_;
     TextureShaderClass* texture_shader_;
     ShadowShaderClass* shadow_shader_;
+    LightShaderClass* light_shader_;
+    DeferredShaderClass* deferred_shader_;
+
+    DeferredBuffersClass* deferred_buffers_;
 
     BitmapClass* mouse_;
     bool begin_check_;

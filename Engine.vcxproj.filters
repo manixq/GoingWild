@@ -138,6 +138,12 @@
     <ClCompile Include="bitmap_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="deferred_buffers_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deferred_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -239,6 +245,12 @@
     <ClInclude Include="bitmap_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="deferred_buffers_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deferred_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -318,6 +330,18 @@
     </None>
     <None Include="shaders\pixel\shadow.ps">
       <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\deferred.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\deferred.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\light.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\light.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

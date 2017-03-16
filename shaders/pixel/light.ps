@@ -1,61 +1,43 @@
 //=======
 //Globals
-Texture2D shader_texture;
-SamplerState sample_type;
+Texture2D color_texture : register(t0);
+Texture2D normal_texture : register(t1);
+SamplerState sample_type_point : register(s0);
 
 cbuffer light_buffer
 {
- float4 ambient_color;
- float4 diffuse_color;
- float3 light_direction;
- float specular_power;
- float4 specular_color;
+    float3 light_direction;
+    float padding;
 };
 
 //========
 //TypeDefs
 struct PIXEL_INPUT_TYPE
 {
- float4 position : SV_POSITION;
- float2 tex : TEXCOORD0;
- float3 normal : NORMAL;
- float3 view_direction : TEXCOORD1;
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 //===========
 //PixelShader
 float4 Light_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 {
- float4 texture_color;
- float3 light_dir;
- float light_intensity;
- float4 color;
- float3 reflection;
- float4 specular;
+    float4 texture_color;
+    float4 normals;
+    float3 light_dir;
+    float light_intensity;
+    float4 color;
 
- //sample pixel color from the texture using the sampler at this texture coord loc
- texture_color = shader_texture.Sample(sample_type, input.tex);
+    //sample pixel color from the texture using the sampler at this texture coord loc
+    texture_color = color_texture.Sample(sample_type_point, input.tex);
+    normals = normal_texture.Sample(sample_type_point, input.tex);
 
- color = ambient_color;
+    //invert light direction for calculations
+    light_dir = -light_direction;
 
- specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    //calc the amount of light
+    light_intensity = saturate(dot(normals.xyz, light_dir));
 
- //invert light direction for calculations
- light_dir = -light_direction;
-
- //calc the amount of light
- light_intensity = saturate(dot(input.normal, light_dir));
-
- //determine the final amount of diffuse color based on diffuse color combined with light intensity
- if(light_intensity > 0.0f)
-  {
-   color += diffuse_color * light_intensity;   
-   color = saturate(color);
-   reflection = normalize(2 * light_intensity * input.normal - light_dir);
-   specular = pow(saturate(dot(reflection, input.view_direction)), specular_power);
-  }
- //texture pix * final diffuse color to get final pixel color result
- color = color * texture_color;
- color = saturate(color + specular);
- return color;
+    color = saturate(texture_color + light_intensity);
+    return color;
 }
