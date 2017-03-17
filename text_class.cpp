@@ -51,16 +51,15 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* device_con
     result = Initialize_sentence(&sentence1_, 16, device);
     if (!result)
         return false;
-
-    result = Update_sentence(sentence1_, "Default", 100, 100, 1.0f, 1.0f, 1.0f, device_context);
+    result = Update_sentence(sentence1_, "FPS: -", 20, 20, 1.0f, 0.0f, 0.0f, device_context);
     if (!result)
         return false;
 
-    result = Initialize_sentence(&sentence2_, 16, device);
+    result = Initialize_sentence(&sentence2_, 32, device);
     if (!result)
         return false;
 
-    result = Update_sentence(sentence1_, "Default", 100, 200, 1.0f, 1.0f, 0.0f, device_context);
+    result = Update_sentence(sentence2_, "Someday here we will see GUI.", 20, screen_height - 20, 1.0f, 1.0f, 0.0f, device_context);
     if (!result)
         return false;
 
@@ -96,6 +95,29 @@ bool TextClass::Render(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3
         return false;
 
     result = Render_sentence(device_context, sentence2_, world, ortho);
+    if (!result)
+        return false;
+
+    return true;
+}
+
+bool TextClass::Set_fps(int fps, ID3D11DeviceContext* device_context)
+{
+    char temp_string[16];
+    char fps_string[16];
+    float red, green, blue;
+    bool result;
+
+    if (fps > 9999)
+        fps = 9999;
+
+    _itoa_s(fps, temp_string, 10);
+    strcpy_s(fps_string, "FPS: ");
+    strcat_s(fps_string, temp_string);
+    red = (60.0f - fps) / 60.0f;
+    green = fps / 60.0f;
+    blue = 0.0f;
+    result = Update_sentence(sentence1_, fps_string, 20, 20, red, green, blue, device_context);
     if (!result)
         return false;
 

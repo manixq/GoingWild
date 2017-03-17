@@ -29,10 +29,11 @@
 #include "light_shader_class.h"
 #include "deferred_shader_class.h"
 #include "deferred_buffers_class.h"
+#include "text_class.h"
 
 //=======
 //globals
-static bool FULL_SCREEN = false;
+static bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -85,6 +86,8 @@ private:
     FrustumClass* frustum_;
     ModelClass* floor_model_;
     ModelClass* fire_model_;
+
+    TextClass* text_;
 
     RenderTextureClass *reflection_texture_, *refraction_texture_;
     RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;

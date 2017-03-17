@@ -25,12 +25,12 @@ float4 Font_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
     //sample pixel color from texture
     texture_color = shader_texture.Sample(sample_type, input.tex);
 
-    if(texture_color.r == 0.0f)
+    if(texture_color.r >= 0.1f)
         texture_color.a = 0.0f;
     else
     {
         texture_color.a = 1.0f;
-        texture_color = texture_color * pixel_color;
+        texture_color = (1 - texture_color.r) * pixel_color;
     }
 
     return texture_color;

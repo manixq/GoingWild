@@ -53,14 +53,14 @@ void FontClass::Build_vertex_array(void* vertices, char* sentence, float draw_x,
     {
         letter = ((int)sentence[i]) - 32;
         if (letter == 0)
-            draw_x = draw_x + 3.0f;
+            draw_x = draw_x + 30.0f;
         else
         {
-            vertex_ptr[index].position = D3DXVECTOR3(draw_x, draw_y, 0.0f);
+            vertex_ptr[index].position = D3DXVECTOR3(draw_x, draw_y + 16, 0.0f);
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].left, 0.0f);
             index++;
 
-            vertex_ptr[index].position = D3DXVECTOR3((draw_x + font_[letter].size), (draw_y - 16), 0.0f);
+            vertex_ptr[index].position = D3DXVECTOR3((draw_x + font_[letter].size / 2) , (draw_y - 16), 0.0f);
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].right, 1.0f);
             index++;
 
@@ -68,19 +68,19 @@ void FontClass::Build_vertex_array(void* vertices, char* sentence, float draw_x,
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].left, 1.0f);
             index++;
 
-            vertex_ptr[index].position = D3DXVECTOR3(draw_x, draw_y, 0.0f);
+            vertex_ptr[index].position = D3DXVECTOR3(draw_x, draw_y + 16, 0.0f);
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].left, 0.0f);
             index++;
 
-            vertex_ptr[index].position = D3DXVECTOR3(draw_x + font_[letter].size, draw_y, 0.0f);
+            vertex_ptr[index].position = D3DXVECTOR3((draw_x + font_[letter].size / 2), draw_y + 16, 0.0f);
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].right, 0.0f);
             index++;
 
-            vertex_ptr[index].position = D3DXVECTOR3((draw_x + font_[letter].size), (draw_y - 16), 0.0f);
+            vertex_ptr[index].position = D3DXVECTOR3((draw_x + font_[letter].size / 2) , (draw_y - 16), 0.0f);
             vertex_ptr[index].texture = D3DXVECTOR2(font_[letter].right, 1.0f);
             index++;
 
-            draw_x = draw_x + font_[letter].size + 1.0f;
+            draw_x = draw_x + font_[letter].size / 2 + 1.0f;
         }
     }
 }
@@ -99,14 +99,7 @@ bool FontClass::Load_font_data(char* filename)
         return false;
 
     for (i = 0; i < 95; i++)
-    {
-        fin.get(temp);
-        while (temp != ' ')
-            fin.get(temp);
-        fin.get(temp);
-        while (temp != ' ')
-            fin.get(temp);
-
+    {      
         fin >> font_[i].left;
         fin >> font_[i].right;
         fin >> font_[i].size;

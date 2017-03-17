@@ -46,4 +46,4 @@ private:
     FONT_TYPE* font_;
     TextureClass* texture_;
 };
-
+#endif

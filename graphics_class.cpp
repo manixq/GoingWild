@@ -48,6 +48,8 @@ GraphicsClass::GraphicsClass()
     full_sceen_window_ = nullptr;
 
     mouse_ = nullptr;
+
+    text_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -63,6 +65,7 @@ GraphicsClass::~GraphicsClass()
 bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 {
     bool result;
+    D3DXMATRIX static_view_matrix;
     int down_sample_width, down_sample_height;
 
     screen_height_ = screen_height;
@@ -91,7 +94,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
         return false;
     }
-
+   
     particle_system_ = new ParticleSystemClass;
     if (!particle_system_)
         return false;
@@ -162,6 +165,17 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     camera_->Set_position(0.0f, 0.0f, -10.0f);
     camera_->Render();
     camera_->Render_static();
+    camera_->Get_view_matrix(static_view_matrix);
+
+    text_ = new TextClass;
+    if (!text_)
+        return false;
+    result = text_->Initialize(d3d_->GetDevice(), d3d_->GetDeviceContext(), hwnd, screen_width, screen_height, static_view_matrix);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize text object.", L"Error", MB_OK);
+        return false;
+    }
 
     //create model object
     model_ = new ModelClass;
@@ -491,6 +505,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+    if(text_)
+    {
+        text_->Shutdown();
+        delete text_;
+        text_ = nullptr;
+    }
+
     if(mouse_)
     {
         mouse_->Shutdown();
@@ -766,6 +787,17 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
     static float light_angle = 270.0f;
     float radians;
     static float light_pos_x = 9.0f;
+    static float frame_count = 0;
+    static float frame_acum = 0;
+
+    frame_acum += frame_time;
+    frame_count++;
+    if (frame_acum >= 1000.0f)
+    {
+        text_->Set_fps(frame_count, d3d_->GetDeviceContext());
+        frame_count = 0;
+        frame_acum = 0;
+    }
 
     light_pos_x -= 0.003f * frame_time;
     light_angle -= 0.03f * frame_time;
@@ -786,13 +818,14 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 
     rotation_x_ = rotation_x;
     rotation_y_ = rotation_y;
-
+    
     camera_->Set_position(x_pos, 6.0f, z_pos);
     camera_->Set_rotation(rotation_x, rotation_y, 0.0f);
 
-    frame_time_ += frame_time / 1000;
+    frame_time_ += frame_time / 1000.0f;    
     if (frame_time_ >= 1000.0f)
-        frame_time_ = 0.0f;
+        frame_time_ = 0.0f;      
+    
     particle_system_->Frame(frame_time, d3d_->GetDeviceContext());
     return true;
 }
@@ -1234,8 +1267,7 @@ bool GraphicsClass::Render_reflection_to_texture()
     result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
-    d3d_->GetWorldMatrix(world_matrix);
-
+    d3d_->GetWorldMatrix(world_matrix);    
     d3d_->TurnOffAlphaBlending();
 
     d3d_->Set_back_buffer_render_target();
@@ -1370,13 +1402,20 @@ bool GraphicsClass::Render_scene_to_texture()
     result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
-    d3d_->GetWorldMatrix(world_matrix);
+    d3d_->GetWorldMatrix(world_matrix);   
+    
+    result = text_->Render(d3d_->GetDeviceContext(), world_matrix, ortho_matrix);
+    if (!result)
+        return false;
 
     //mouse
     result = mouse_->Render(d3d_->GetDeviceContext(), mouse_x_, mouse_y_);
     if (!result)
         return false;
+
     result = texture_shader_->Render(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, static_view_matrix, ortho_matrix, mouse_->Get_texture());
+    if (!result)
+        return false;
 
     d3d_->TurnOffAlphaBlending();
     d3d_->GetWorldMatrix(world_matrix);
