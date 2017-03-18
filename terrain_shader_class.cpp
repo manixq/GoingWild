@@ -37,11 +37,11 @@ void TerrainShaderClass::Shutdown()
     Shutdown_shader();
 }
 
-bool TerrainShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
+bool TerrainShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, ID3D11ShaderResourceView* normal_map, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
 {
     bool result;
 
-    result = Set_shader_parameters(device_context, world, view, projection, light_view, light_projection, texture, depth_map_texture, light_direction, ambient_color, diffuse_color);
+    result = Set_shader_parameters(device_context, world, view, projection, light_view, light_projection, texture, depth_map_texture, normal_map, light_direction, ambient_color, diffuse_color);
     if (!result)
         return false;
 
@@ -56,7 +56,7 @@ bool TerrainShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
     ID3D10Blob* vertex_shader_buffer;
     ID3D10Blob* pixel_shader_buffer;
 
-    D3D11_INPUT_ELEMENT_DESC polygon_layout[4];
+    D3D11_INPUT_ELEMENT_DESC polygon_layout[6];
     unsigned int num_elements;
     D3D11_SAMPLER_DESC sampler_desc;
     D3D11_BUFFER_DESC matrix_buffer_desc;
@@ -117,13 +117,29 @@ bool TerrainShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
     polygon_layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygon_layout[2].InstanceDataStepRate = 0;
 
-    polygon_layout[3].SemanticName = "COLOR";
+    polygon_layout[3].SemanticName = "TANGENT";
     polygon_layout[3].SemanticIndex = 0;
     polygon_layout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
     polygon_layout[3].InputSlot = 0;
     polygon_layout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     polygon_layout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygon_layout[3].InstanceDataStepRate = 0;
+
+    polygon_layout[4].SemanticName = "BINORMAL";
+    polygon_layout[4].SemanticIndex = 0;
+    polygon_layout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygon_layout[4].InputSlot = 0;
+    polygon_layout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygon_layout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygon_layout[4].InstanceDataStepRate = 0;
+
+    polygon_layout[5].SemanticName = "COLOR";
+    polygon_layout[5].SemanticIndex = 0;
+    polygon_layout[5].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygon_layout[5].InputSlot = 0;
+    polygon_layout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygon_layout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygon_layout[5].InstanceDataStepRate = 0;
 
     num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
 
@@ -253,7 +269,7 @@ void TerrainShaderClass::Output_shader_error_message(ID3D10Blob* error_message, 
     MessageBox(hwnd, L"Error compiling shader", shader_filename, MB_OK);
 }
 
-bool TerrainShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
+bool TerrainShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, ID3D11ShaderResourceView* normal_map, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
 {
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mapped_resource;
@@ -284,6 +300,7 @@ bool TerrainShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_conte
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
     device_context->PSSetShaderResources(0, 1, &texture);
     device_context->PSSetShaderResources(1, 1, &depth_map_texture);
+    device_context->PSSetShaderResources(2, 1, &normal_map);
 
     result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
     if (FAILED(result))

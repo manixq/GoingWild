@@ -16,6 +16,8 @@ struct VERTEX_INPUT_TYPE
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
     float3 color : COLOR;
 };
 
@@ -24,6 +26,8 @@ struct PIXEL_INPUT_TYPE
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
     float4 light_view_position : TEXCOORD1;
     float4 color : COLOR;
 };
@@ -52,6 +56,12 @@ PIXEL_INPUT_TYPE Terrain_vertex_shader(VERTEX_INPUT_TYPE input)
 
     //normalize normal vector
     output.normal = normalize(output.normal);    
+
+    output.tangent = mul(input.tangent, (float3x3) world_matrix);
+    output.tangent = normalize(output.tangent);
+
+    output.binormal = mul(input.binormal, (float3x3) world_matrix);
+    output.binormal = normalize(output.binormal);
 
     output.color = float4(input.color, 1.0f);
 

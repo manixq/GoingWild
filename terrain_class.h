@@ -20,6 +20,8 @@ class TerrainClass
         XMFLOAT3 position;
         XMFLOAT2 texture;
         XMFLOAT3 normal;
+        XMFLOAT3 tangent;
+        XMFLOAT3 binormal;
         XMFLOAT3 color;
     };
 
@@ -35,12 +37,21 @@ class TerrainClass
         float x, y, z;
         float tu, tv;
         float nx, ny, nz;
+        float tx, ty, tz;
+        float bx, by, bz;
         float r, g, b;
     };
 
     struct VECTOR_TYPE
     {
         float x, y, z;
+    };
+
+    struct TEMP_VERTEX_TYPE
+    {
+        float x, y, z;
+        float tu, tv;
+        float nx, ny, nz;
     };
 
 public:
@@ -63,6 +74,9 @@ private:
     bool Load_color_map();
     bool Build_terrain_model();
     void Shutdown_terrain_model();
+
+    void Calculate_terrain_vectors();
+    void Calculate_tangent_binormal(TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, VECTOR_TYPE&, VECTOR_TYPE&);
 
     bool Initialize_buffer(ID3D11Device*);
     void Shutdown_buffers();

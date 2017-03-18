@@ -2,6 +2,7 @@
 //Globals
 Texture2D shader_texture : register(t0);
 Texture2D depth_map_texture : register(t1);
+Texture2D normal_map_texture : register(t2);
 
 SamplerState sample_type_clamp : register(s0);
 SamplerState sample_type_wrap : register(s1);
@@ -21,6 +22,8 @@ struct PIXEL_INPUT_TYPE
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
     float4 light_view_position : TEXCOORD1;
     float4 color : COLOR;
 };
@@ -37,6 +40,8 @@ float4 Terrain_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
     float light_depth_value;
     float bias;
     float light_intensity;
+    float4 bump_map;
+    float3 bump_normal;
     
     bias = 0.001f;
     color = ambient_color;
@@ -45,29 +50,32 @@ float4 Terrain_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
     //get projected tex coords and check if coords are in view of light
     project_tex_coord.x = input.light_view_position.x / input.light_view_position.w / 2.0f + 0.5f;
     project_tex_coord.y = -input.light_view_position.y / input.light_view_position.w / 2.0f + 0.5f;
+
+    bump_map = normal_map_texture.Sample(sample_type_wrap, input.tex);
+    bump_map = (bump_map * 2.0f) - 1.0f;
+    bump_normal = (bump_map.x * input.tangent) + (bump_map.y * input.binormal) + (bump_map.z * input.normal);
+    bump_normal = normalize(bump_normal);
     if((saturate(project_tex_coord.x) == project_tex_coord.x) && (saturate(project_tex_coord.y) == project_tex_coord.y))
     {
         depth_value = depth_map_texture.Sample(sample_type_clamp, project_tex_coord).r;
         light_depth_value = input.light_view_position.z / 50.0f;
         light_depth_value = light_depth_value - bias;        
         if (light_depth_value >= depth_value)
-        {
-           // color += 1;
-            light_intensity = saturate(dot(input.normal, light_dir));
+        {            
+            light_intensity = saturate(dot(bump_normal, light_dir));
             if(light_intensity > 0.0f)
             {
-                color += (diffuse_color * light_intensity);
+                color += (diffuse_color * pow(light_intensity, 5));
                 color = saturate(color);
             }
         }
     }
     else
     {
-        //color += 1;
-        light_intensity = saturate(dot(input.normal, light_dir));
+        light_intensity = saturate(dot(bump_normal, light_dir));
         if(light_intensity > 0.0)
         {
-            color += (diffuse_color * light_intensity);
+            color += (diffuse_color * pow(light_intensity, 5));
             color = saturate(color);
         }
     } 
