@@ -32,6 +32,11 @@ bool TerrainClass::Initialize(ID3D11Device* device, char* setup_filename)
         return false;
 
     Set_terrain_coordinates();
+
+    result = Calculate_normals();
+    if (!result)
+        return false;
+
     result = Build_terrain_model();
     if (!result)
         return false;
@@ -160,7 +165,7 @@ bool TerrainClass::Load_bitmap_height_map()
             height_map_[index].y = (float)height;
             k += 3;
         }
-        k++;
+k++;
     }
     delete[] bitmap_image;
     bitmap_image = nullptr;
@@ -173,7 +178,7 @@ bool TerrainClass::Load_bitmap_height_map()
 
 void TerrainClass::Shutdown_height_map()
 {
-    if(height_map_)
+    if (height_map_)
     {
         delete[] height_map_;
         height_map_ = nullptr;
@@ -198,6 +203,111 @@ void TerrainClass::Set_terrain_coordinates()
 
         }
     }
+}
+
+bool TerrainClass::Calculate_normals()
+{
+    int i, j, index1, index2, index3, index;
+    float vertex1[3], vertex2[3], vertex3[3], vector1[3], vector2[3], sum[3], length;
+    VECTOR_TYPE* normals;
+
+    normals = new VECTOR_TYPE[(terrain_height_ - 1) * (terrain_width_ - 1)];
+    if (!normals)
+        return false;
+
+    for (j = 0; j < (terrain_height_ - 1); j++)
+    {
+        for (i = 0; i < (terrain_width_ - 1); i++)
+        {
+            index1 = ((j + 1) * terrain_width_) + i;
+            index2 = ((j + 1) * terrain_width_) + (i + 1);
+            index3 = ((j)* terrain_width_) + i;
+
+            vertex1[0] = height_map_[index1].x;
+            vertex1[1] = height_map_[index1].y;
+            vertex1[2] = height_map_[index1].z;
+
+            vertex2[0] = height_map_[index2].x;
+            vertex2[1] = height_map_[index2].y;
+            vertex2[2] = height_map_[index2].z;
+
+            vertex3[0] = height_map_[index3].x;
+            vertex3[1] = height_map_[index3].y;
+            vertex3[2] = height_map_[index3].z;
+
+            vector1[0] = vertex1[0] - vertex3[0];
+            vector1[1] = vertex1[1] - vertex3[1];
+            vector1[2] = vertex1[2] - vertex3[2];
+            vector2[0] = vertex3[0] - vertex2[0];
+            vector2[1] = vertex3[1] - vertex2[1];
+            vector2[2] = vertex3[2] - vertex2[2];
+
+            index = (j * (terrain_width_ - 1)) + i;
+
+            normals[index].x = (vector1[1] * vector2[2]) - (vector1[2] * vector2[1]);
+            normals[index].y = (vector1[2] * vector2[0]) - (vector1[0] * vector2[2]);
+            normals[index].z = (vector1[0] * vector2[1]) - (vector1[1] * vector2[0]);
+
+            length = (float)sqrt((normals[index].x * normals[index].x) + (normals[index].y * normals[index].y) + (normals[index].z * normals[index].z));
+
+            normals[index].x = (normals[index].x / length);
+            normals[index].y = (normals[index].y / length);
+            normals[index].z = (normals[index].z / length);
+        }
+    }
+
+    for (j = 0; j < terrain_width_; j++)
+    {
+        for (i = 0; i < terrain_width_; i++)
+        {
+            sum[0] = 0.0f;
+            sum[1] = 0.0f;
+            sum[2] = 0.0f;
+
+            if (((i - 1) >= 0) && ((j - 1) >= 0))
+            {
+                index = ((j - 1) * (terrain_width_ - 1)) + (i - 1);
+                sum[0] += normals[index].x;
+                sum[1] += normals[index].y;
+                sum[2] += normals[index].z;
+            }
+
+            if ((i < (terrain_width_ - 1)) && ((j - 1) >= 0))
+            {
+                index = ((j - 1) * (terrain_width_ - 1)) + i;
+                sum[0] += normals[index].x;
+                sum[1] += normals[index].y;
+                sum[2] += normals[index].z;
+            }
+
+            if (((i - 1) >= 0) && (j < terrain_height_ - 1))
+            {
+                index = (j * (terrain_width_ - 1)) + (i - 1);
+                sum[0] += normals[index].x;
+                sum[1] += normals[index].y;
+                sum[2] += normals[index].z;
+            }
+
+            if ((i < (terrain_width_ - 1)) && (j < terrain_height_ - 1))
+            {
+                index = (j * (terrain_width_ - 1)) + i;
+                sum[0] += normals[index].x;
+                sum[1] += normals[index].y;
+                sum[2] += normals[index].z;
+            }
+
+            length = (float)sqrt((sum[0] * sum[0]) + (sum[1] * sum[1]) + (sum[2] * sum[2]));
+            index = (j * terrain_width_) + i;
+
+            height_map_[index].nx = (sum[0] / length);
+            height_map_[index].ny = (sum[1] / length);
+            height_map_[index].nz = (sum[2] / length);
+        }
+    }
+    delete[] normals;
+    normals = nullptr;
+
+    return true;
 }
 
 bool TerrainClass::Build_terrain_model()
@@ -226,13 +336,19 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].z = height_map_[index1].z;
             terrain_model_[index].tu = 0.0f;
             terrain_model_[index].tv = 0.0f;
+            terrain_model_[index].nx = height_map_[index1].nx;
+            terrain_model_[index].ny = height_map_[index1].ny;
+            terrain_model_[index].nz = height_map_[index1].nz;
             index++;
 
             terrain_model_[index].x = height_map_[index2].x;
             terrain_model_[index].y = height_map_[index2].y;
             terrain_model_[index].z = height_map_[index2].z;
             terrain_model_[index].tu = 1.0f;
-            terrain_model_[index].tv = 0.0f;
+            terrain_model_[index].tv = 0.0f; 
+            terrain_model_[index].nx = height_map_[index2].nx;
+            terrain_model_[index].ny = height_map_[index2].ny;
+            terrain_model_[index].nz = height_map_[index2].nz;
             index++;
 
             terrain_model_[index].x = height_map_[index3].x;
@@ -240,6 +356,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].z = height_map_[index3].z;
             terrain_model_[index].tu = 0.0f;
             terrain_model_[index].tv = 1.0f;
+            terrain_model_[index].nx = height_map_[index3].nx;
+            terrain_model_[index].ny = height_map_[index3].ny;
+            terrain_model_[index].nz = height_map_[index3].nz;
             index++;
 
             terrain_model_[index].x = height_map_[index3].x;
@@ -247,6 +366,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].z = height_map_[index3].z;
             terrain_model_[index].tu = 0.0f;
             terrain_model_[index].tv = 1.0f;
+            terrain_model_[index].nx = height_map_[index3].nx;
+            terrain_model_[index].ny = height_map_[index3].ny;
+            terrain_model_[index].nz = height_map_[index3].nz;
             index++;
 
             terrain_model_[index].x = height_map_[index2].x;
@@ -254,6 +376,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].z = height_map_[index2].z;
             terrain_model_[index].tu = 1.0f;
             terrain_model_[index].tv = 0.0f;
+            terrain_model_[index].nx = height_map_[index2].nx;
+            terrain_model_[index].ny = height_map_[index2].ny;
+            terrain_model_[index].nz = height_map_[index2].nz;
             index++;
 
             terrain_model_[index].x = height_map_[index4].x;
@@ -261,6 +386,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].z = height_map_[index4].z;
             terrain_model_[index].tu = 1.0f;
             terrain_model_[index].tv = 1.0f;
+            terrain_model_[index].nx = height_map_[index4].nx;
+            terrain_model_[index].ny = height_map_[index4].ny;
+            terrain_model_[index].nz = height_map_[index4].nz;
             index++;
         }
     }
@@ -309,6 +437,7 @@ bool TerrainClass::Initialize_buffer(ID3D11Device* device)
     {
         vertices[i].position = XMFLOAT3(terrain_model_[i].x, terrain_model_[i].y, terrain_model_[i].z);
         vertices[i].texture = XMFLOAT2(terrain_model_[i].tu, terrain_model_[i].tv);
+        vertices[i].normal = XMFLOAT3(terrain_model_[i].nx, terrain_model_[i].ny, terrain_model_[i].nz);
         indices[i] = i;
     }
 

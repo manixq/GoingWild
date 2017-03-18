@@ -19,17 +19,25 @@ class TerrainClass
     {
         XMFLOAT3 position;
         XMFLOAT2 texture;
+        XMFLOAT3 normal;
     };
 
     struct HEIGHT_MAP_TYPE
     {
         float x, y, z;
+        float nx, ny, nz;
     };
 
     struct MODEL_TYPE
     {
         float x, y, z;
         float tu, tv;
+        float nx, ny, nz;
+    };
+
+    struct VECTOR_TYPE
+    {
+        float x, y, z;
     };
 
 public:
@@ -48,6 +56,7 @@ private:
     bool Load_bitmap_height_map();
     void Shutdown_height_map();
     void Set_terrain_coordinates();
+    bool Calculate_normals();
     bool Build_terrain_model();
     void Shutdown_terrain_model();
 
