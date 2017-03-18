@@ -181,6 +181,7 @@
     <ClCompile Include="shader_manager_class.cpp" />
     <ClCompile Include="shadow_shader_class.cpp" />
     <ClCompile Include="system_class.cpp" />
+    <ClCompile Include="terrain_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
     <ClCompile Include="text_class.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="shader_manager_class.h" />
     <ClInclude Include="shadow_shader_class.h" />
     <ClInclude Include="system_class.h" />
+    <ClInclude Include="terrain_class.h" />
     <ClInclude Include="texture_class.h" />
     <ClInclude Include="texture_shader_class.h" />
     <ClInclude Include="text_class.h" />

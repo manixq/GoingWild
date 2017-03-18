@@ -30,6 +30,7 @@
 #include "deferred_shader_class.h"
 #include "deferred_buffers_class.h"
 #include "text_class.h"
+#include "terrain_class.h"
 
 //=======
 //globals
@@ -86,6 +87,7 @@ private:
     FrustumClass* frustum_;
     ModelClass* floor_model_;
     ModelClass* fire_model_;
+    TerrainClass* terrain_;
 
     TextClass* text_;
 

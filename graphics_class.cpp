@@ -95,6 +95,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         return false;
     }
    
+    terrain_ = new TerrainClass;
+    if (!terrain_)
+        return false;
+    result = terrain_->Initialize(d3d_->GetDevice());
+    if (!result)
+        return false;
+
     particle_system_ = new ParticleSystemClass;
     if (!particle_system_)
         return false;
@@ -1321,9 +1328,9 @@ bool GraphicsClass::Render_scene_to_texture()
     light_->Get_ortho_matrix(light_ortho_matrix);
 
     //ground
-    D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
-    ground_model_->Render(d3d_->GetDeviceContext());
-    result = shadow_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, ground_model_->Get_texture(), shadow_texture_->Get_shader_resource_view(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
+    D3DXMatrixTranslation(&world_matrix, -128.0f, 1.0f, -128.0f);
+    terrain_->Render(d3d_->GetDeviceContext());
+    result = shadow_shader_->Render(d3d_->GetDeviceContext(), terrain_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, ground_model_->Get_texture(), shadow_texture_->Get_shader_resource_view(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1419,7 +1426,7 @@ bool GraphicsClass::Render_scene_to_texture()
 
     d3d_->TurnOffAlphaBlending();
     d3d_->GetWorldMatrix(world_matrix);
-
+    
     //d3d_->End_scene();
     d3d_->Set_back_buffer_render_target();
 
