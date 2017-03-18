@@ -184,6 +184,7 @@
     <ClCompile Include="terrain_class.cpp" />
     <ClCompile Include="terrain_shader_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
+    <ClCompile Include="texture_manager_class.cpp" />
     <ClCompile Include="texture_shader_class.cpp" />
     <ClCompile Include="text_class.cpp" />
     <ClCompile Include="timer_class.cpp" />

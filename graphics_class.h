@@ -31,6 +31,7 @@
 #include "deferred_buffers_class.h"
 #include "text_class.h"
 #include "terrain_class.h"
+#include "texture_manager_class.h"
 
 //=======
 //globals
