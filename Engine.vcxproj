@@ -249,6 +249,7 @@
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
     <None Include="shaders\pixel\shadow.ps" />
+    <None Include="shaders\pixel\terrain.ps" />
     <None Include="shaders\pixel\texture.ps" />
     <None Include="shaders\pixel\vertical_blur.ps" />
     <None Include="shaders\pixel\water.ps" />
@@ -264,6 +265,7 @@
     <None Include="shaders\vertex\reflection.vs" />
     <None Include="shaders\vertex\refraction.vs" />
     <None Include="shaders\vertex\shadow.vs" />
+    <None Include="shaders\vertex\terrain.vs" />
     <None Include="shaders\vertex\texture.vs" />
     <None Include="shaders\vertex\vertical_blur.vs" />
     <None Include="shaders\vertex\water.vs" />

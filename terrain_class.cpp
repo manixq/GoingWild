@@ -371,7 +371,7 @@ bool TerrainClass::Load_color_map()
         for (i = 0; i < terrain_width_; i++)
         {
             index = (terrain_width_ * (terrain_height_ - 1 - j)) + i;
-            height_map_[index].b = (float)bitmap_image[k]/255.0f;
+            height_map_[index].b = (float)bitmap_image[k] / 255.0f;
             height_map_[index].g = (float)bitmap_image[k + 1] / 255.0f;
             height_map_[index].r = (float)bitmap_image[k + 2] / 255.0f;
             k += 3;
@@ -418,7 +418,7 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].ny = height_map_[index1].ny;
             terrain_model_[index].nz = height_map_[index1].nz;
             terrain_model_[index].r = height_map_[index1].r;
-            terrain_model_[index].b = height_map_[index1].g;
+            terrain_model_[index].g = height_map_[index1].g;
             terrain_model_[index].b = height_map_[index1].b;
             index++;
 
@@ -469,9 +469,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].nx = height_map_[index2].nx;
             terrain_model_[index].ny = height_map_[index2].ny;
             terrain_model_[index].nz = height_map_[index2].nz;
-            terrain_model_[index].r = height_map_[index3].r;
-            terrain_model_[index].g = height_map_[index3].g;
-            terrain_model_[index].b = height_map_[index3].b;
+            terrain_model_[index].r = height_map_[index2].r;
+            terrain_model_[index].g = height_map_[index2].g;
+            terrain_model_[index].b = height_map_[index2].b;
             index++;
 
             terrain_model_[index].x = height_map_[index4].x;
@@ -482,9 +482,9 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].nx = height_map_[index4].nx;
             terrain_model_[index].ny = height_map_[index4].ny;
             terrain_model_[index].nz = height_map_[index4].nz;
-            terrain_model_[index].r = height_map_[index3].r;
-            terrain_model_[index].g = height_map_[index3].g;
-            terrain_model_[index].b = height_map_[index3].b;
+            terrain_model_[index].r = height_map_[index4].r;
+            terrain_model_[index].g = height_map_[index4].g;
+            terrain_model_[index].b = height_map_[index4].b;
             index++;
         }
     }

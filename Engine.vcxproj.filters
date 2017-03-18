@@ -385,6 +385,12 @@
     <None Include="shaders\pixel\font.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
+    <None Include="shaders\vertex\terrain.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\terrain.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\cube.txt">

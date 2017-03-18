@@ -31,6 +31,7 @@
 #include "deferred_buffers_class.h"
 #include "text_class.h"
 #include "terrain_class.h"
+#include "terrain_shader_class.h"
 #include "texture_manager_class.h"
 
 //=======
@@ -91,6 +92,7 @@ private:
     TerrainClass* terrain_;
 
     TextClass* text_;
+    TextureManagerClass* texture_manager_;
 
     RenderTextureClass *reflection_texture_, *refraction_texture_;
     RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
@@ -110,6 +112,7 @@ private:
     ShadowShaderClass* shadow_shader_;
     LightShaderClass* light_shader_;
     DeferredShaderClass* deferred_shader_;
+    TerrainShaderClass* terrain_shader_;
 
     DeferredBuffersClass* deferred_buffers_;
 

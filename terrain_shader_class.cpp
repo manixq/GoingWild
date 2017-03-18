@@ -66,7 +66,7 @@ bool TerrainShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
     vertex_shader_buffer = nullptr;
     pixel_shader_buffer = nullptr;
 
-    result = D3DX11CompileFromFile(vs_filename, nullptr, nullptr, "Shadow_vertex_shader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &vertex_shader_buffer, &error_message, nullptr);
+    result = D3DX11CompileFromFile(vs_filename, nullptr, nullptr, "Terrain_vertex_shader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &vertex_shader_buffer, &error_message, nullptr);
     if (FAILED(result))
     {
         if (error_message)
@@ -76,7 +76,7 @@ bool TerrainShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
         return false;
     }
 
-    result = D3DX11CompileFromFile(ps_filename, nullptr, nullptr, "Shadow_pixel_shader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &pixel_shader_buffer, &error_message, nullptr);
+    result = D3DX11CompileFromFile(ps_filename, nullptr, nullptr, "Terrain_pixel_shader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, nullptr, &pixel_shader_buffer, &error_message, nullptr);
     if (FAILED(result))
     {
         if (error_message)
