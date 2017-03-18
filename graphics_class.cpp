@@ -98,7 +98,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     terrain_ = new TerrainClass;
     if (!terrain_)
         return false;
-    result = terrain_->Initialize(d3d_->GetDevice());
+    result = terrain_->Initialize(d3d_->GetDevice(), "../Engine/data/setup.txt");
     if (!result)
         return false;
 

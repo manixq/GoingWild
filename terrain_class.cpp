@@ -4,6 +4,9 @@ TerrainClass::TerrainClass()
 {
     vertex_buffer_ = nullptr;
     index_buffer_ = nullptr;
+    terrain_filename_ = nullptr;
+    height_map_ = nullptr;
+    terrain_model_ = nullptr;
 }
 
 TerrainClass::TerrainClass(const TerrainClass&)
@@ -16,13 +19,30 @@ TerrainClass::~TerrainClass()
     
 }
 
-bool TerrainClass::Initialize(ID3D11Device* device)
+bool TerrainClass::Initialize(ID3D11Device* device, char* setup_filename)
 {
     bool result;
+
+    result = Load_setup_file(setup_filename);
+    if (!result)
+        return false;
+
+    result = Load_bitmap_height_map();
+    if (!result)
+        return false;
+
+    Set_terrain_coordinates();
+    result = Build_terrain_model();
+    if (!result)
+        return false;
+
+    Shutdown_height_map();
 
     result = Initialize_buffer(device);
     if (!result)
         return false;
+
+    Shutdown_terrain_model();
 
     return true;
 }
@@ -30,6 +50,8 @@ bool TerrainClass::Initialize(ID3D11Device* device)
 void TerrainClass::Shutdown()
 {
     Shutdown_buffers();
+    Shutdown_terrain_model();
+    Shutdown_height_map();
 }
 
 bool TerrainClass::Render(ID3D11DeviceContext* device_context)
@@ -41,6 +63,217 @@ bool TerrainClass::Render(ID3D11DeviceContext* device_context)
 int TerrainClass::Get_index_count()
 {
     return index_count_;
+}
+
+bool TerrainClass::Load_setup_file(char* filename)
+{
+    int string_len;
+    ifstream fin;
+    char input;
+
+    string_len = 256;
+    terrain_filename_ = new char[string_len];
+    if (!terrain_filename_)
+        return false;
+
+    fin.open(filename);
+    if (fin.fail())
+        return false;
+
+    fin.get(input);
+    while (input != ':')
+        fin.get(input);
+    fin >> terrain_filename_;
+
+    fin.get(input);
+    while (input != ':')
+        fin.get(input);
+    fin >> terrain_height_;
+
+    fin.get(input);
+    while (input != ':')
+        fin.get(input);
+    fin >> terrain_width_;
+
+    fin.get(input);
+    while (input != ':')
+        fin.get(input);
+    fin >> height_scale_;
+
+    fin.close();
+    return true;
+}
+
+bool TerrainClass::Load_bitmap_height_map()
+{
+    int error, image_size, i, j, k, index;
+    FILE* file_ptr;
+    unsigned long long count;
+    BITMAPFILEHEADER bitmap_file_header;
+    BITMAPINFOHEADER bitmap_info_header;
+    unsigned char* bitmap_image;
+    unsigned char height;
+
+    height_map_ = new HEIGHT_MAP_TYPE[terrain_width_ * terrain_height_];
+    if (!height_map_)
+        return false;
+
+    error = fopen_s(&file_ptr, terrain_filename_, "rb");
+    if (error != 0)
+        return false;
+
+    count = fread(&bitmap_file_header, sizeof(BITMAPFILEHEADER), 1, file_ptr);
+    if (count != 1)
+        return false;
+
+    count = fread(&bitmap_info_header, sizeof(BITMAPINFOHEADER), 1, file_ptr);
+    if (count != 1)
+        return false;
+
+    if ((bitmap_info_header.biHeight != terrain_height_) || (bitmap_info_header.biWidth != terrain_width_))
+        return false;
+
+    //need to add extra coz 257x257 non-divide-able
+    image_size = terrain_height_ * ((terrain_width_ * 3) + 1);
+
+    bitmap_image = new unsigned char[image_size];
+    if (!bitmap_image)
+        return false;
+
+    //beginning of bitmap data
+    fseek(file_ptr, bitmap_file_header.bfOffBits, SEEK_SET);
+    count = fread(bitmap_image, 1, image_size, file_ptr);
+    if (count != image_size)
+        return false;
+
+    error = fclose(file_ptr);
+    if (error != 0)
+        return false;
+
+    k = 0;
+    for (j = 0; j < terrain_height_; j++)
+    {
+        for (i = 0; i < terrain_width_; i++)
+        {
+            index = (terrain_width_ * (terrain_height_ - 1 - j)) + i;
+            height = bitmap_image[k];
+            height_map_[index].y = (float)height;
+            k += 3;
+        }
+        k++;
+    }
+    delete[] bitmap_image;
+    bitmap_image = nullptr;
+
+    delete[] terrain_filename_;
+    terrain_filename_ = nullptr;
+
+    return true;
+}
+
+void TerrainClass::Shutdown_height_map()
+{
+    if(height_map_)
+    {
+        delete[] height_map_;
+        height_map_ = nullptr;
+    }
+}
+
+//bitmap is upside down
+void TerrainClass::Set_terrain_coordinates()
+{
+    int i, j, index;
+
+    for (j = 0; j < terrain_height_; j++)
+    {
+        for (i = 0; i < terrain_width_; i++)
+        {
+            index = (terrain_width_ * j) + i;
+
+            height_map_[index].x = (float)i;
+            height_map_[index].z = -(float)j;
+            height_map_[index].z += (float)(terrain_height_ - 1);
+            height_map_[index].y /= height_scale_;
+
+        }
+    }
+}
+
+bool TerrainClass::Build_terrain_model()
+{
+    int i, j, index, index1, index2, index3, index4;
+
+    vertex_count_ = (terrain_height_ - 1) * (terrain_width_ - 1) * 6;
+
+    terrain_model_ = new MODEL_TYPE[vertex_count_];
+    if (!terrain_model_)
+        return false;
+
+    //triangle strip
+    index = 0;
+    for (j = 0; j < (terrain_height_ - 1); j++)
+    {
+        for (i = 0; i < (terrain_width_ - 1); i++)
+        {
+            index1 = (terrain_width_ * j) + i;
+            index2 = (terrain_width_ * j) + (i + 1);
+            index3 = (terrain_width_ * (j + 1)) + i;
+            index4 = (terrain_width_ * (j + 1)) + (i + 1);
+
+            terrain_model_[index].x = height_map_[index1].x;
+            terrain_model_[index].y = height_map_[index1].y;
+            terrain_model_[index].z = height_map_[index1].z;
+            terrain_model_[index].tu = 0.0f;
+            terrain_model_[index].tv = 0.0f;
+            index++;
+
+            terrain_model_[index].x = height_map_[index2].x;
+            terrain_model_[index].y = height_map_[index2].y;
+            terrain_model_[index].z = height_map_[index2].z;
+            terrain_model_[index].tu = 1.0f;
+            terrain_model_[index].tv = 0.0f;
+            index++;
+
+            terrain_model_[index].x = height_map_[index3].x;
+            terrain_model_[index].y = height_map_[index3].y;
+            terrain_model_[index].z = height_map_[index3].z;
+            terrain_model_[index].tu = 0.0f;
+            terrain_model_[index].tv = 1.0f;
+            index++;
+
+            terrain_model_[index].x = height_map_[index3].x;
+            terrain_model_[index].y = height_map_[index3].y;
+            terrain_model_[index].z = height_map_[index3].z;
+            terrain_model_[index].tu = 0.0f;
+            terrain_model_[index].tv = 1.0f;
+            index++;
+
+            terrain_model_[index].x = height_map_[index2].x;
+            terrain_model_[index].y = height_map_[index2].y;
+            terrain_model_[index].z = height_map_[index2].z;
+            terrain_model_[index].tu = 1.0f;
+            terrain_model_[index].tv = 0.0f;
+            index++;
+
+            terrain_model_[index].x = height_map_[index4].x;
+            terrain_model_[index].y = height_map_[index4].y;
+            terrain_model_[index].z = height_map_[index4].z;
+            terrain_model_[index].tu = 1.0f;
+            terrain_model_[index].tv = 1.0f;
+            index++;
+        }
+    }
+    return true;
+}
+
+void TerrainClass::Shutdown_terrain_model()
+{
+    if(terrain_model_)
+    {
+        delete[] terrain_model_;
+        terrain_model_ = nullptr;
+    }
 }
 
 bool TerrainClass::Initialize_buffer(ID3D11Device* device)
@@ -58,7 +291,7 @@ bool TerrainClass::Initialize_buffer(ID3D11Device* device)
     terrain_width = 256;
 
     color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    vertex_count_ = (terrain_width - 1) * (terrain_height - 1) * 8;
+    vertex_count_ = (terrain_width - 1) * (terrain_height - 1) * 6;
 
     index_count_ = vertex_count_;
 
@@ -72,74 +305,11 @@ bool TerrainClass::Initialize_buffer(ID3D11Device* device)
 
     index = 0;
 
-    for (j = 0; j < (terrain_height - 1); j++)
+    for (i = 0; i < vertex_count_; i++)
     {
-        for (i = 0; i < (terrain_width - 1); i++)
-        {
-            position_x = (float)i;
-            position_z = (float)(j + 1);
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)(i + 1);
-            position_z = (float)(j + 1);
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)(i + 1);
-            position_z = (float)(j + 1);
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)(i + 1);
-            position_z = (float)j;
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)(i + 1);
-            position_z = (float)j;
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)i;
-            position_z = (float)j;
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)i;
-            position_z = (float)j;
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-
-            position_x = (float)i;
-            position_z = (float)(j + 1);
-
-            vertices[index].position = XMFLOAT3(position_x, 0.0f, position_z);
-            vertices[index].color = color;
-            indices[index] = index;
-            index++;
-        }
+        vertices[i].position = XMFLOAT3(terrain_model_[i].x, terrain_model_[i].y, terrain_model_[i].z);
+        vertices[i].texture = XMFLOAT2(terrain_model_[i].tu, terrain_model_[i].tv);
+        indices[i] = i;
     }
 
     vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -204,5 +374,5 @@ void TerrainClass::Render_buffers(ID3D11DeviceContext* device_context)
 
     device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
     device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
-    device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+    device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

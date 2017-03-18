@@ -5,8 +5,11 @@
 //INCLUDES
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <fstream>
+#include <stdio.h>
 
 using namespace DirectX;
+using namespace std;
 
 //============
 //TerrainClass
@@ -15,7 +18,18 @@ class TerrainClass
     struct VERTEX_TYPE
     {
         XMFLOAT3 position;
-        XMFLOAT4 color;
+        XMFLOAT2 texture;
+    };
+
+    struct HEIGHT_MAP_TYPE
+    {
+        float x, y, z;
+    };
+
+    struct MODEL_TYPE
+    {
+        float x, y, z;
+        float tu, tv;
     };
 
 public:
@@ -23,18 +37,31 @@ public:
     TerrainClass(const TerrainClass&);
     ~TerrainClass();
 
-    bool Initialize(ID3D11Device*);
+    bool Initialize(ID3D11Device*, char*);
     void Shutdown();
     bool Render(ID3D11DeviceContext*);
 
     int Get_index_count();
 
 private:
+    bool Load_setup_file(char*);
+    bool Load_bitmap_height_map();
+    void Shutdown_height_map();
+    void Set_terrain_coordinates();
+    bool Build_terrain_model();
+    void Shutdown_terrain_model();
+
     bool Initialize_buffer(ID3D11Device*);
     void Shutdown_buffers();
     void Render_buffers(ID3D11DeviceContext*);
 
     ID3D11Buffer *vertex_buffer_, *index_buffer_;
     int vertex_count_, index_count_;
+
+    int terrain_height_, terrain_width_;
+    float height_scale_;
+    char* terrain_filename_;
+    HEIGHT_MAP_TYPE* height_map_;
+    MODEL_TYPE* terrain_model_;
 };
 #endif
