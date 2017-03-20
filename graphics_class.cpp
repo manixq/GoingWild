@@ -1,4 +1,5 @@
 #include "graphics_class.h"
+#include "water_shader_class.h"
 
 GraphicsClass::GraphicsClass()
 {
@@ -6,7 +7,6 @@ GraphicsClass::GraphicsClass()
     camera_ = nullptr;
     light_ = nullptr;
     model_list_ = nullptr;
-    frustum_ = nullptr;
     debug_window_ = nullptr;
     particle_system_ = nullptr;
 
@@ -19,21 +19,6 @@ GraphicsClass::GraphicsClass()
     floor_model_ = nullptr;
     skybox_ = nullptr;
 
-    reflection_shader_ = nullptr;
-    refraction_shader_ = nullptr;
-    water_shader_ = nullptr;
-    fire_shader_ = nullptr;
-    depth_shader_ = nullptr;
-    texture_shader_ = nullptr;
-    normal_shader_ = nullptr;
-    color_shader_ = nullptr;
-    horizontal_blur_shader_ = nullptr;
-    vertical_blur_shader_ = nullptr;
-    particle_shader_ = nullptr;
-    shadow_shader_ = nullptr;
-    terrain_shader_ = nullptr;
-    skybox_shader_ = nullptr;
-
     reflection_texture_ = nullptr;
     refraction_texture_ = nullptr;
     render_texture_ = nullptr;
@@ -41,9 +26,6 @@ GraphicsClass::GraphicsClass()
     horizontal_blur_texture_ = nullptr;
     vertical_blur_texture_ = nullptr;
     up_sample_texture_ = nullptr;
-    shadow_shader_ = nullptr;
-    light_shader_ = nullptr;
-    deferred_shader_ = nullptr;
 
     deferred_buffers_ = nullptr;
 
@@ -54,6 +36,7 @@ GraphicsClass::GraphicsClass()
 
     text_ = nullptr;
     texture_manager_ = nullptr;
+    shader_manager_ = nullptr;
 }
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
@@ -98,7 +81,15 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize Direct3D", L"Error", MB_OK);
         return false;
     }
-   
+
+
+    shader_manager_ = new ShaderManagerClass;
+    if (!shader_manager_)
+        return false;
+    result = shader_manager_->Initialize(d3d_->GetDevice(), hwnd);
+    if (!result)
+        return false;
+
     texture_manager_ = new TextureManagerClass;
     if (!texture_manager_)
         return false;
@@ -107,17 +98,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         return false;
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01d.dds", 0);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01n.dds", 1);
-
-    skybox_shader_ = new SkyboxShaderClass;
-    if (!skybox_shader_)
-        return false;
-    result = skybox_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the skybox shader", L"Error", MB_OK);
-        return false;
-    }
-
+    
     skybox_ = new SkyBoxClass;
     if (!skybox_)
         return false;
@@ -127,17 +108,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the skybox object", L"Error", MB_OK);
         return false;
     }
-
-    terrain_shader_ = new TerrainShaderClass;
-    if (!terrain_shader_)
-        return false;
-    result = terrain_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the terrain shader", L"Error", MB_OK);
-        return false;
-    }
-
+    
     terrain_ = new TerrainClass;
     if (!terrain_)
         return false;
@@ -148,7 +119,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     particle_system_ = new ParticleSystemClass;
     if (!particle_system_)
         return false;
-
     result = particle_system_->Initialize(d3d_->GetDevice(), L"../Engine/data/star.dds");
     if (!result)
         return false;
@@ -156,7 +126,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     ground_model_ = new ModelClass;
     if (!ground_model_)
         return false;
-
     result = ground_model_->Initialize(d3d_->GetDevice(), "../Engine/data/ground.txt", L"../Engine/data/ground01.dds", L"../Engine/data/ground01_normal.dds", L"../Engine/data/ground01_spec.dds");
     if (!result)
     {
@@ -167,7 +136,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     wall_model_ = new ModelClass;
     if (!wall_model_)
         return false;
-
     result = wall_model_->Initialize(d3d_->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall01.dds", L"../Engine/data/wall01_normal.dds", L"../Engine/data/wall01_spec.dds");
     if (!result)
     {
@@ -178,7 +146,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     bath_model_ = new ModelClass;
     if (!bath_model_)
         return false;
-
     result = bath_model_->Initialize(d3d_->GetDevice(), "../Engine/data/bath.txt", L"../Engine/data/marble01.dds", L"../Engine/data/marble01_normal.dds", L"../Engine/data/marble01_spec.dds");
     if (!result)
     {
@@ -189,7 +156,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     water_model_ = new ModelClass;
     if (!water_model_)
         return false;
-
     result = water_model_->Initialize(d3d_->GetDevice(), "../Engine/data/water.txt", L"../Engine/data/water01.dds");
     if (!result)
     {
@@ -200,7 +166,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     fire_model_ = new ModelClass;
     if (!fire_model_)
         return false;
-
     result = fire_model_->Initialize(d3d_->GetDevice(), "../Engine/data/square.txt", L"../Engine/data/fire01.dds", L"../Engine/data/noise01.dds", L"../Engine/data/alpha01.dds");
     if (!result)
     {
@@ -231,7 +196,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     model_ = new ModelClass;
     if (!model_)
         return false;
-
     //init model
     result = model_->Initialize(d3d_->GetDevice(), "../Engine/data/sphere.txt", L"../Engine/data/floor.dds", L"../Engine/data/floor_normal.dds", L"../Engine/data/floor_spec.dds");
     if (!result)
@@ -239,107 +203,12 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
         return false;
     }
-
-    particle_shader_ = new ParticleShaderClass;
-    if (!particle_shader_)
-        return false;
-
-    result = particle_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-        return false;
-
-    horizontal_blur_shader_ = new HorizontalBlurShaderClass;
-    if (!horizontal_blur_shader_)
-        return false;
-
-    result = horizontal_blur_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize horizontal blur shader obj.", L"error", MB_OK);
-        return false;
-    }
-
-    texture_shader_ = new TextureShaderClass;
-    if (!texture_shader_)
-        return false;
-
-    result = texture_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize texture shader obj.", L"error", MB_OK);
-        return false;
-    }
-
-    vertical_blur_shader_ = new VerticalBlurShaderClass;
-    if (!vertical_blur_shader_)
-        return false;
-
-    result = vertical_blur_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize vertical blur shader obj.", L"error", MB_OK);
-        return false;
-    }
-
-    depth_shader_ = new DepthShaderClass;
-    if (!depth_shader_)
-        return false;
-
-    result = depth_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-        return false;
-
-    fire_shader_ = new FireShaderClass;
-    if (!fire_shader_)
-        return false;
-
-    result = fire_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize fire shader obj", L"Error", MB_OK);
-        return false;
-    }
-
-    //create color shader object
-    normal_shader_ = new NormalShaderClass;
-    if (!normal_shader_)
-        return false;
-
-    result = normal_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    deferred_shader_ = new DeferredShaderClass;
-    if (!deferred_shader_)
-        return false;
-    result = deferred_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-        return false;
-
-    color_shader_ = new ColorShaderClass;
-    if (!color_shader_)
-        return false;
-
-    result = color_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    light_ = new LightClass;
-    if (!light_)
-        return false;
-
+    
     model_list_ = new ModelListClass;
     if (!model_list_)
     {
         return false;
     }
-
     result = model_list_->Initialize(50);
     if (!result)
     {
@@ -350,7 +219,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     shadow_texture_ = new RenderTextureClass;
     if (!shadow_texture_)
         return false;
-
     result = shadow_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
     if (!result)
     {
@@ -361,7 +229,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     render_texture_ = new RenderTextureClass;
     if (!render_texture_)
         return false;
-
     result = render_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
@@ -372,7 +239,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     down_sample_texture_ = new RenderTextureClass;
     if (!down_sample_texture_)
         return false;
-
     result = down_sample_texture_->Initialize(d3d_->GetDevice(), down_sample_width, down_sample_height, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
@@ -383,7 +249,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     horizontal_blur_texture_ = new RenderTextureClass;
     if (!horizontal_blur_texture_)
         return false;
-
     result = horizontal_blur_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
@@ -394,7 +259,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     vertical_blur_texture_ = new RenderTextureClass;
     if (!vertical_blur_texture_)
         return false;
-
     result = vertical_blur_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
@@ -405,7 +269,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     up_sample_texture_ = new RenderTextureClass;
     if (!up_sample_texture_)
         return false;
-
     result = up_sample_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
     if (!result)
     {
@@ -416,7 +279,6 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     refraction_texture_ = new RenderTextureClass;
     if (!refraction_texture_)
         return false;
-
     refraction_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
     if (!result)
     {
@@ -425,71 +287,15 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     }
 
     reflection_texture_ = new RenderTextureClass;
-    if (!reflection_texture_)
-        return false;
+    if (!reflection_texture_)        return false;
 
     result = reflection_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
     if (!result)
-        return false;
-
-    shadow_shader_ = new ShadowShaderClass;
-    if (!shadow_shader_)
-        return false;
-
-    result = shadow_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"could not init shadow shader object", L"Error", MB_OK);
-        return false;
-    }
-
-    refraction_shader_ = new RefractionShaderClass;
-    if (!refraction_shader_)
-        return false;
-
-    refraction_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    reflection_shader_ = new ReflectionShaderClass;
-    if (!reflection_shader_)
-        return false;
-
-    result = reflection_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    light_shader_ = new LightShaderClass;
-    if (!light_shader_)
-        return false;
-    result = light_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-        return false;
-
-    water_shader_ = new WaterShaderClass;
-    if (!water_shader_)
-        return false;
-
-    result = water_shader_->Initialize(d3d_->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK);
-        return false;
-    }
-
-    water_height_ = 2.75f;
-    water_translation_ = 0.0f;
-
+        return false;        
+    
     small_window_ = new OrthoWindowClass;
     if (!small_window_)
         return false;
-
     result = small_window_->Initialize(d3d_->GetDevice(), down_sample_width, down_sample_height);
     if (!result)
     {
@@ -500,17 +306,12 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     full_sceen_window_ = new OrthoWindowClass;
     if (!full_sceen_window_)
         return false;
-
     result = full_sceen_window_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the fullscreen window object.", L"Error", MB_OK);
         return false;
     }
-
-    frustum_ = new FrustumClass;
-    if (!frustum_)
-        return false;
 
     mouse_ = new BitmapClass;
     if (!mouse_)
@@ -530,6 +331,10 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     if (!result)
         return false;
 
+
+    light_ = new LightClass;
+    if (!light_)
+        return false;
     light_->Set_ambient_color(0.35f, 0.35f, 0.35f, 1.0f);
     light_->Set_diffuse_color(1.0f, 1.0f, 1.0f, 1.0f);
     light_->Set_position(0.0f, 18.0f, 0.5f);
@@ -539,10 +344,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     light_->Set_look_at(0.0f, 5.0f, 0.0f);
     light_->Generate_ortho_matrix(20.0f, SHADOWMAP_DEPTH, SHADOWMAP_NEAR);
 
+    water_height_ = 2.75f;
+    water_translation_ = 0.0f;
+
+
     debug_window_ = new DebugWindowClass;
     if (!debug_window_)
         return false;
-
     result = debug_window_->Initialize(d3d_->GetDevice(), screen_width, screen_height, 100, 100);
     if (!result)
     {
@@ -555,6 +363,13 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+    if(shader_manager_)
+    {
+        shader_manager_->Shutdown();
+        delete shader_manager_;
+        shader_manager_ = nullptr;
+    }
+
     if(skybox_)
     {
         skybox_->Shutdown();
@@ -562,12 +377,6 @@ void GraphicsClass::Shutdown()
         skybox_ = nullptr;
     }
 
-    if(skybox_shader_)
-    {
-        skybox_shader_->Shutdown();
-        delete skybox_shader_;
-        skybox_shader_ = nullptr;
-    }
 
     if(text_)
     {
@@ -583,46 +392,11 @@ void GraphicsClass::Shutdown()
         mouse_ = nullptr;
     }
 
-    if(light_shader_)
-    {
-        light_shader_->Shutdown();
-        delete light_shader_;
-        light_shader_ = nullptr;
-    }
-
-    if(deferred_shader_)
-    {
-        deferred_shader_->Shutdown();
-        delete deferred_shader_;
-        deferred_shader_ = nullptr;
-    }
-
     if(deferred_buffers_)
     {
         deferred_buffers_->Shutdown();
-        delete deferred_shader_;
-        deferred_shader_ = nullptr;
-    }
-
-    if(shadow_shader_)
-    {
-        shadow_shader_->Shutdown();
-        delete shadow_shader_;
-        shadow_shader_ = nullptr;
-    }
-
-    if (particle_shader_)
-    {
-        particle_shader_->Shutdown();
-        delete particle_shader_;
-        particle_shader_ = nullptr;
-    }
-
-    if (texture_shader_)
-    {
-        texture_shader_->Shutdown();
-        delete texture_shader_;
-        texture_shader_ = nullptr;
+        delete deferred_buffers_;
+        deferred_buffers_ = nullptr;
     }
 
     if (particle_system_)
@@ -679,61 +453,12 @@ void GraphicsClass::Shutdown()
         delete render_texture_;
         render_texture_ = nullptr;
     }
-
-    if (vertical_blur_shader_)
-    {
-        vertical_blur_shader_->Shutdown();
-        delete vertical_blur_shader_;
-        vertical_blur_shader_ = nullptr;
-    }
-
-    if (horizontal_blur_shader_)
-    {
-        horizontal_blur_shader_->Shutdown();
-        delete horizontal_blur_shader_;
-        horizontal_blur_shader_ = nullptr;
-    }
-
-    if (depth_shader_)
-    {
-        depth_shader_->Shutdown();
-        delete depth_shader_;
-        depth_shader_ = nullptr;
-    }
-
-    if (fire_shader_)
-    {
-        fire_shader_->Shutdown();
-        delete fire_shader_;
-        fire_shader_ = nullptr;
-    }
-
-    if (refraction_shader_)
-    {
-        refraction_shader_->Shutdown();
-        delete refraction_shader_;
-        refraction_shader_ = nullptr;
-    }
-
-    if (water_shader_)
-    {
-        water_shader_->Shutdown();
-        delete water_shader_;
-        water_shader_ = nullptr;
-    }
-
+    
     if (refraction_texture_)
     {
         refraction_texture_->Shutdown();
         delete refraction_texture_;
         refraction_texture_ = nullptr;
-    }
-
-    if (reflection_shader_)
-    {
-        reflection_shader_->Shutdown();
-        delete reflection_shader_;
-        reflection_shader_ = nullptr;
     }
 
     if (debug_window_)
@@ -791,13 +516,7 @@ void GraphicsClass::Shutdown()
         delete ground_model_;
         ground_model_ = nullptr;
     }
-
-    if (frustum_)
-    {
-        delete frustum_;
-        frustum_ = nullptr;
-    }
-
+    
     if (model_list_)
     {
         model_list_->Shutdown();
@@ -810,21 +529,7 @@ void GraphicsClass::Shutdown()
         delete light_;
         light_ = nullptr;
     }
-
-    if (normal_shader_)
-    {
-        normal_shader_->Shutdown();
-        delete normal_shader_;
-        normal_shader_ = nullptr;
-    }
-
-    if (color_shader_)
-    {
-        color_shader_->Shutdown();
-        delete color_shader_;
-        color_shader_ = nullptr;
-    }
-
+    
     if (model_)
     {
         model_->Shutdown();
@@ -1051,7 +756,7 @@ bool GraphicsClass::Render_scene()
     //ground
     D3DXMatrixTranslation(&world_matrix, 0.0f, 1.0f, 0.0f);
     ground_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), ground_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, ground_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1059,7 +764,7 @@ bool GraphicsClass::Render_scene()
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1081,7 +786,7 @@ bool GraphicsClass::Render_scene()
         D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
 
         fire_model_->Render(d3d_->GetDeviceContext());
-        result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+        result = shader_manager_->Render_fire_shader(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
         if (!result)
             return false;
         d3d_->TurnOffAlphaBlending();
@@ -1090,7 +795,7 @@ bool GraphicsClass::Render_scene()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1100,7 +805,7 @@ bool GraphicsClass::Render_scene()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1108,7 +813,7 @@ bool GraphicsClass::Render_scene()
     //water
     D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 0.0f);
     water_model_->Render(d3d_->GetDeviceContext());
-    result = water_shader_->Render(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
+    result = shader_manager_->Render_water_shader(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1135,7 +840,7 @@ bool GraphicsClass::Render_light_scene_to_texture()
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
+    result = shader_manager_->Render_depth_shader(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);     
@@ -1143,7 +848,7 @@ bool GraphicsClass::Render_light_scene_to_texture()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
+    result = shader_manager_->Render_depth_shader(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1151,7 +856,7 @@ bool GraphicsClass::Render_light_scene_to_texture()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = depth_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
+    result = shader_manager_->Render_depth_shader(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1179,7 +884,7 @@ bool GraphicsClass::Up_sample_texture()
 
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = texture_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
+    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
     if (!result)
         return false;
 
@@ -1206,7 +911,7 @@ bool GraphicsClass::Down_sample_texture()
     d3d_->Turn_zbuffer_off();
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     small_window_->Render(d3d_->GetDeviceContext());
-    result = texture_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
+    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
     if (!result)
         return false;
 
@@ -1227,9 +932,9 @@ bool GraphicsClass::Render2d_texture_scene()
     d3d_->GetWorldMatrix(world_matrix);
     d3d_->GetOrthoMatrix(ortho_matrix);
     d3d_->Turn_zbuffer_off();
-   // D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = light_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), deferred_buffers_->Get_shader_resource_view(1), light_->Get_direction());
+    //result = light_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), deferred_buffers_->Get_shader_resource_view(1), light_->Get_direction());
+    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0));
     if (!result)
         return false;
 
@@ -1260,7 +965,7 @@ bool GraphicsClass::Render_refraction_to_texture()
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
 
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = refraction_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_texture(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), clip_plane);
+    result = shader_manager_->Render_refraction_shader(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_texture(), light_->Get_position(), light_->Get_ambient_color(), light_->Get_diffuse_color(), clip_plane);
     if (!result)
         return false;
 
@@ -1305,30 +1010,37 @@ bool GraphicsClass::Render_reflection_to_texture()
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    if (!result)
+        return false;
 
     d3d_->GetWorldMatrix(world_matrix);
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    if (!result)
+        return false;
+
     d3d_->GetWorldMatrix(world_matrix);
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    if (!result)
+        return false;
     d3d_->GetWorldMatrix(world_matrix);
 
     D3DXMatrixTranslation(&world_matrix, 0.0f, 0.0f, 7.0f);
     d3d_->TurnOnAlphaBlending();
     fire_model_->Render(d3d_->GetDeviceContext());
-    result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+    result = shader_manager_->Render_fire_shader(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
 
     //particles
     particle_system_->Render(d3d_->GetDeviceContext());
-    result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, particle_system_->Get_texture());
+    result = shader_manager_->Render_particle_shader(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);    
@@ -1389,14 +1101,14 @@ bool GraphicsClass::Render_scene_to_texture()
     d3d_->Turn_zbuffer_off();
     D3DXMatrixTranslation(&world_matrix, camera_position.x, camera_position.y, camera_position.z);
     skybox_->Render(d3d_->GetDeviceContext());
-    result = skybox_shader_->Render(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, skybox_->Get_apex_color(), skybox_->Get_center_color());
+    result = shader_manager_->Render_skybox_shader(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, skybox_->Get_apex_color(), skybox_->Get_center_color());
     d3d_->Turn_zbuffer_on();
     d3d_->Turn_zbuffer_on();
 
     //ground
     D3DXMatrixTranslation(&world_matrix, -128.0f, 1.0f, -128.0f);
     terrain_->Render(d3d_->GetDeviceContext());
-    result = terrain_shader_->Render(d3d_->GetDeviceContext(), terrain_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
+    result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1404,7 +1116,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //wall
     D3DXMatrixTranslation(&world_matrix, 0.0f, 6.0f, 8.0f);
     wall_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, wall_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1426,7 +1138,7 @@ bool GraphicsClass::Render_scene_to_texture()
         D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
 
         fire_model_->Render(d3d_->GetDeviceContext());
-        result = fire_shader_->Render(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
+        result = shader_manager_->Render_fire_shader(d3d_->GetDeviceContext(), fire_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, fire_model_->Get_textures()[0], fire_model_->Get_textures()[1], fire_model_->Get_textures()[2], frame_time, scroll_speed, scale, distortion1, distortion2, distortion3, distortion_scale, distortion_bias);
         if (!result)
             return false;
         d3d_->TurnOffAlphaBlending();
@@ -1435,7 +1147,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
-    result = normal_shader_->Render(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), bath_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, bath_model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1445,8 +1157,8 @@ bool GraphicsClass::Render_scene_to_texture()
     //polandball
     D3DXMatrixTranslation(&world_matrix, 0.0f, 5.0f, 0.0f);
     model_->Render(d3d_->GetDeviceContext());
-    result = deferred_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_texture());
-    //result = normal_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
+    //result = deferred_shader_->Render(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures()[0], model_->Get_textures()[1]);
+    result = shader_manager_->Render_normal_shader(d3d_->GetDeviceContext(), model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, model_->Get_textures(), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color(), camera_->Get_position(), light_->Get_specular_color(), light_->Get_specular_power());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1454,7 +1166,7 @@ bool GraphicsClass::Render_scene_to_texture()
     //water
     D3DXMatrixTranslation(&world_matrix, 0.0f, water_height_, 0.0f);
     water_model_->Render(d3d_->GetDeviceContext());
-    result = water_shader_->Render(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
+    result = shader_manager_->Render_water_shader(d3d_->GetDeviceContext(), water_model_->Get_index_count(), world_matrix, view_matrix, projection_matrix, reflection_matrix, reflection_texture_->Get_shader_resource_view(), refraction_texture_->Get_shader_resource_view(), water_model_->Get_texture(), water_translation_, 0.05f);
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);
@@ -1472,7 +1184,7 @@ bool GraphicsClass::Render_scene_to_texture()
     D3DXMatrixTranslation(&translate_matrix, model_position.x, model_position.y, model_position.z);
     D3DXMatrixMultiply(&world_matrix, &world_matrix, &translate_matrix);
     particle_system_->Render(d3d_->GetDeviceContext());
-    result = particle_shader_->Render(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
+    result = shader_manager_->Render_particle_shader(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
     d3d_->GetWorldMatrix(world_matrix);   
@@ -1486,7 +1198,7 @@ bool GraphicsClass::Render_scene_to_texture()
     if (!result)
         return false;
 
-    result = texture_shader_->Render(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, static_view_matrix, ortho_matrix, mouse_->Get_texture());
+    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, static_view_matrix, ortho_matrix, mouse_->Get_texture());
     if (!result)
         return false;
 
@@ -1520,7 +1232,7 @@ bool GraphicsClass::Render_horizontal_bloor_to_texture()
 
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = horizontal_blur_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view(), screen_size_x);
+    result = shader_manager_->Render_horizontal_blur_shader(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view(), screen_size_x);
     if (!result)
         return false;
 
@@ -1551,7 +1263,7 @@ bool GraphicsClass::Render_vertical_bloor_to_texture()
     d3d_->Turn_zbuffer_off();
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = vertical_blur_shader_->Render(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, horizontal_blur_texture_->Get_shader_resource_view(), screen_size_y);
+    result = shader_manager_->Render_vertical_blur_shader(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, horizontal_blur_texture_->Get_shader_resource_view(), screen_size_y);
     if (!result)
         return result;
 

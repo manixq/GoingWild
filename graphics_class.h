@@ -6,39 +6,23 @@
 #include "d3d_class.h"
 #include "camera_class.h"
 #include "model_class.h"
-#include "normal_shader_class.h"
 #include "light_class.h"
 #include "model_list_class.h"
-#include "frustum_class.h"
 #include "debug_window_class.h"
 #include "render_texture_class.h"
-#include "reflection_shader_class.h"
-#include "refraction_shader_class.h"
-#include "water_shader_class.h"
-#include "fire_shader_class.h"
-#include "depth_shader_class.h"
-#include "horizontal_blur_shader_class.h"
-#include "vertical_blur_shader_class.h"
 #include "ortho_window_class.h"
-#include "texture_shader_class.h"
-#include "color_shader_class.h"
 #include "particle_system_class.h"
-#include "particle_shader_class.h"
-#include "shadow_shader_class.h"
 #include "bitmap_class.h"
-#include "light_shader_class.h"
-#include "deferred_shader_class.h"
 #include "deferred_buffers_class.h"
 #include "text_class.h"
 #include "terrain_class.h"
-#include "terrain_shader_class.h"
 #include "texture_manager_class.h"
 #include "skybox_class.h"
-#include "skybox_shader_class.h"
+#include "shader_manager_class.h"
 
 //=======
 //globals
-static bool FULL_SCREEN = true;
+static bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -88,7 +72,6 @@ private:
 
     ModelClass* model_;
     ModelClass *ground_model_, *wall_model_, *bath_model_, *water_model_;
-    FrustumClass* frustum_;
     ModelClass* floor_model_;
     ModelClass* fire_model_;
     TerrainClass* terrain_;
@@ -96,27 +79,11 @@ private:
 
     TextClass* text_;
     TextureManagerClass* texture_manager_;
+    ShaderManagerClass* shader_manager_;
 
     RenderTextureClass *reflection_texture_, *refraction_texture_;
     RenderTextureClass *render_texture_, *down_sample_texture_, *horizontal_blur_texture_, *vertical_blur_texture_, *up_sample_texture_;
     RenderTextureClass *shadow_texture_;
-
-    ColorShaderClass* color_shader_;
-    NormalShaderClass* normal_shader_;
-    FireShaderClass* fire_shader_;
-    ReflectionShaderClass* reflection_shader_;
-    RefractionShaderClass* refraction_shader_;
-    WaterShaderClass* water_shader_;
-    DepthShaderClass* depth_shader_;
-    ParticleShaderClass* particle_shader_;
-    HorizontalBlurShaderClass* horizontal_blur_shader_;
-    VerticalBlurShaderClass* vertical_blur_shader_;
-    TextureShaderClass* texture_shader_;
-    ShadowShaderClass* shadow_shader_;
-    LightShaderClass* light_shader_;
-    DeferredShaderClass* deferred_shader_;
-    TerrainShaderClass* terrain_shader_;
-    SkyboxShaderClass* skybox_shader_;
 
     DeferredBuffersClass* deferred_buffers_;
 

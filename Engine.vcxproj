@@ -151,7 +151,6 @@
     <ClCompile Include="bitmap_class.cpp" />
     <ClCompile Include="debug_window_class.cpp" />
     <ClCompile Include="camera_class.cpp" />
-    <ClCompile Include="color_shader_class.cpp" />
     <ClCompile Include="cpu_class.cpp" />
     <ClCompile Include="d3d_class.cpp" />
     <ClCompile Include="deferred_buffers_class.cpp" />
@@ -197,7 +196,6 @@
     <ClInclude Include="bitmap_class.h" />
     <ClInclude Include="debug_window_class.h" />
     <ClInclude Include="camera_class.h" />
-    <ClInclude Include="color_shader_class.h" />
     <ClInclude Include="cpu_class.h" />
     <ClInclude Include="d3d_class.h" />
     <ClInclude Include="deferred_buffers_class.h" />
@@ -241,7 +239,6 @@
   <ItemGroup>
     <None Include="shaders\domain\color.ds" />
     <None Include="shaders\hull\color.hs" />
-    <None Include="shaders\pixel\color.ps" />
     <None Include="shaders\pixel\deferred.ps" />
     <None Include="shaders\pixel\depth.ps" />
     <None Include="shaders\pixel\fire.ps" />
@@ -258,7 +255,6 @@
     <None Include="shaders\pixel\texture.ps" />
     <None Include="shaders\pixel\vertical_blur.ps" />
     <None Include="shaders\pixel\water.ps" />
-    <None Include="shaders\vertex\color.vs" />
     <None Include="shaders\vertex\deferred.vs" />
     <None Include="shaders\vertex\depth.vs" />
     <None Include="shaders\vertex\fire.vs" />

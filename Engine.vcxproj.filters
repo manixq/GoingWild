@@ -34,6 +34,12 @@
     <Filter Include="Shaders\domain">
       <UniqueIdentifier>{e551a9a3-41d7-43f6-8d0a-68d739902d90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\shader class">
+      <UniqueIdentifier>{b4a09f18-2fc0-4ea0-9105-5ddf9fa802f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shader class">
+      <UniqueIdentifier>{38a711a1-39f2-4135-b8e8-a838d0d3edc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,19 +60,10 @@
     <ClCompile Include="model_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="color_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="camera_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="texture_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texture_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="light_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="light_class.cpp">
@@ -90,46 +87,16 @@
     <ClCompile Include="timer_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="normal_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="render_texture_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="debug_window_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="reflection_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="water_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="refraction_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="fire_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="depth_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="horizontal_blur_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vertical_blur_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ortho_window_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="particle_system_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="particle_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shadow_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shader_manager_class.cpp">
@@ -141,13 +108,7 @@
     <ClCompile Include="deferred_buffers_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="deferred_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="font_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="font_shader_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="text_class.cpp">
@@ -156,17 +117,59 @@
     <ClCompile Include="terrain_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="terrain_shader_class.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="texture_manager_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="skybox_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="deferred_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="depth_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="fire_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="font_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="horizontal_blur_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="light_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="normal_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="particle_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="reflection_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="refraction_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="shadow_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
     <ClCompile Include="skybox_shader_class.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="vertical_blur_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
+    </ClCompile>
+    <ClCompile Include="water_shader_class.cpp">
+      <Filter>Source Files\shader class</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -185,19 +188,10 @@
     <ClInclude Include="model_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="color_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="camera_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texture_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texture_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="light_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="light_class.h">
@@ -221,46 +215,19 @@
     <ClInclude Include="timer_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="normal_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="render_texture_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="debug_window_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="reflection_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="water_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="refraction_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fire_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="depth_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="horizontal_blur_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vertical_blur_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ortho_window_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="particle_system_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="particle_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="shadow_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shader_manager_class.h">
@@ -272,13 +239,7 @@
     <ClInclude Include="deferred_buffers_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="deferred_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="font_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="font_shader_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="text_class.h">
@@ -287,17 +248,56 @@
     <ClInclude Include="terrain_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="terrain_shader_class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="texture_manager_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skybox_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="deferred_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="depth_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="fire_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="font_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="light_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="normal_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="particle_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="refraction_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="reflection_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="shadow_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
     <ClInclude Include="skybox_shader_class.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="vertical_blur_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="water_shader_class.h">
+      <Filter>Header Files\shader class</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -355,17 +355,11 @@
     <None Include="shaders\vertex\texture.vs">
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
-    <None Include="shaders\vertex\color.vs">
-      <Filter>Shaders\Vertex Shader</Filter>
-    </None>
     <None Include="shaders\hull\color.hs">
       <Filter>Shaders\hull</Filter>
     </None>
     <None Include="shaders\domain\color.ds">
       <Filter>Shaders\domain</Filter>
-    </None>
-    <None Include="shaders\pixel\color.ps">
-      <Filter>Shaders\Pixel Shader</Filter>
     </None>
     <None Include="shaders\vertex\particle.vs">
       <Filter>Shaders\Vertex Shader</Filter>

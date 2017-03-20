@@ -33,7 +33,9 @@ PIXEL_INPUT_TYPE Light_vertex_shader(VERTEX_INPUT_TYPE input)
     output.position = mul(input.position, world_matrix);
     output.position = mul(output.position, view_matrix);
     output.position = mul(output.position, projection_matrix);
-    output.tex = input.tex;
+
+    output.tex = input.tex;    
+
 
     return output;
 }

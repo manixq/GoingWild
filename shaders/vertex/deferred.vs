@@ -14,6 +14,8 @@ struct VERTEX_INPUT_TYPE
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 struct PIXEL_INPUT_TYPE
@@ -21,6 +23,8 @@ struct PIXEL_INPUT_TYPE
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 //=============
@@ -41,7 +45,13 @@ PIXEL_INPUT_TYPE Deferred_vertex_shader(VERTEX_INPUT_TYPE input)
     output.tex = input.tex;
 
     output.normal = mul(input.normal, (float3x3) world_matrix);
-    output.normal = normalize(output.normal);
+    output.normal = normalize(output.normal);    
+
+    output.tangent = mul(input.tangent, (float3x3) world_matrix);
+    output.tangent = normalize(output.tangent);
+
+    output.binormal = mul(input.binormal, (float3x3) world_matrix);
+    output.binormal = normalize(output.binormal);
 
     return output;
 }

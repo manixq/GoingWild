@@ -2,6 +2,7 @@
 //Globals
 Texture2D color_texture : register(t0);
 Texture2D normal_texture : register(t1);
+
 SamplerState sample_type_point : register(s0);
 
 cbuffer light_buffer
@@ -24,20 +25,26 @@ float4 Light_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 {
     float4 texture_color;
     float4 normals;
+
     float3 light_dir;
     float light_intensity;
     float4 color;
 
+    color = float4(0.2f, 0.2f, 0.2f, 1.0f);
+
     //sample pixel color from the texture using the sampler at this texture coord loc
     texture_color = color_texture.Sample(sample_type_point, input.tex);
-    normals = normal_texture.Sample(sample_type_point, input.tex);
+    normals = normal_texture.Sample(sample_type_point, input.tex);        
 
     //invert light direction for calculations
     light_dir = -light_direction;
+    normals = normalize((normals * 2.0f) - 1.0f);
 
     //calc the amount of light
     light_intensity = saturate(dot(normals.xyz, light_dir));
-
-    color = saturate(texture_color + light_intensity);
+    color = texture_color;
+    if(light_intensity > 0.0f)
+        color = saturate(texture_color * light_intensity);
+    
     return color;
 }

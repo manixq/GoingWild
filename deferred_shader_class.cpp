@@ -33,10 +33,10 @@ void DeferredShaderClass::Shutdown()
     Shutdown_shader();
 }
 
-bool DeferredShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture)
+bool DeferredShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normal)
 {
     bool result;
-    result = Set_shader_parameters(device_context, world, view, projection, texture);
+    result = Set_shader_parameters(device_context, world, view, projection, texture, normal);
     if (!result)
         return false;
 
@@ -50,7 +50,7 @@ bool DeferredShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCH
     ID3D10Blob* error_message;
     ID3D10Blob* vertex_shader_buffer;
     ID3D10Blob* pixel_shader_buffer;
-    D3D11_INPUT_ELEMENT_DESC polygon_layout[3];
+    D3D11_INPUT_ELEMENT_DESC polygon_layout[5];
     unsigned int num_elements;
     D3D11_BUFFER_DESC matrix_buffer_desc;
     D3D11_SAMPLER_DESC sampler_desc;
@@ -111,6 +111,23 @@ bool DeferredShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCH
     polygon_layout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     polygon_layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygon_layout[2].InstanceDataStepRate = 0;
+
+    //tangent and binormal elements
+    polygon_layout[3].SemanticName = "TANGENT";
+    polygon_layout[3].SemanticIndex = 0;
+    polygon_layout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygon_layout[3].InputSlot = 0;
+    polygon_layout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygon_layout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygon_layout[3].InstanceDataStepRate = 0;
+
+    polygon_layout[4].SemanticName = "BINORMAL";
+    polygon_layout[4].SemanticIndex = 0;
+    polygon_layout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygon_layout[4].InputSlot = 0;
+    polygon_layout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygon_layout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygon_layout[4].InstanceDataStepRate = 0;
 
     num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
 
@@ -208,7 +225,7 @@ void DeferredShaderClass::Output_shader_error_message(ID3D10Blob* error_message,
     MessageBox(hwnd, L"Error compiling shader. check txt file.", shader_filename, MB_OK);
 }
 
-bool DeferredShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture)
+bool DeferredShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normal)
 {
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mapped_resource;
@@ -240,6 +257,7 @@ bool DeferredShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_cont
     device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
     //set shader texture resource in the pixel shader
     device_context->PSSetShaderResources(0, 1, &texture);
+    device_context->PSSetShaderResources(1, 1, &normal);
 
     return true;
 }
