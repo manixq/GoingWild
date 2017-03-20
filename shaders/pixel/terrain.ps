@@ -65,7 +65,7 @@ float4 Terrain_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
             light_intensity = saturate(dot(bump_normal, light_dir));
             if(light_intensity > 0.0f)
             {
-                color += (diffuse_color * pow(light_intensity, 5));
+                color += (diffuse_color * light_intensity);
                 color = saturate(color);
             }
         }
@@ -75,7 +75,7 @@ float4 Terrain_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
         light_intensity = saturate(dot(bump_normal, light_dir));
         if(light_intensity > 0.0)
         {
-            color += (diffuse_color * pow(light_intensity, 5));
+            color += (diffuse_color * light_intensity);
             color = saturate(color);
         }
     } 

@@ -277,6 +277,11 @@ bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND 
  //set it up
  device_context_->RSSetState(raster_state_);
 
+ raster_desc.CullMode = D3D11_CULL_NONE;
+ result = device_->CreateRasterizerState(&raster_desc, &raster_state_no_culling_);
+ if (FAILED(result))
+     return false;
+
  //set up view-port
  view_port_.Width = static_cast<float>(screen_width);
  view_port_.Height = static_cast<float>(screen_height);
@@ -391,6 +396,12 @@ void D3DClass::Shutdown()
   depth_stencil_buffer_ = nullptr;
  }
 
+ if(raster_state_no_culling_)
+ {
+     raster_state_no_culling_->Release();
+     raster_state_no_culling_ = nullptr;
+ }
+
  if(render_target_view_)
  {
   render_target_view_->Release();
@@ -472,6 +483,16 @@ void D3DClass::Turn_zbuffer_on()
 void D3DClass::Turn_zbuffer_off()
 {
  device_context_->OMSetDepthStencilState(depth_disabled_stencil_state, 1);
+}
+
+void D3DClass::Turn_culling_on()
+{
+    device_context_->RSSetState(raster_state_);
+}
+
+void D3DClass::Turn_culling_off()
+{
+    device_context_->RSSetState(raster_state_no_culling_);
 }
 
 ID3D11DepthStencilView* D3DClass::Get_depth_stencil_view()

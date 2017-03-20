@@ -33,6 +33,8 @@
 #include "terrain_class.h"
 #include "terrain_shader_class.h"
 #include "texture_manager_class.h"
+#include "skybox_class.h"
+#include "skybox_shader_class.h"
 
 //=======
 //globals
@@ -90,6 +92,7 @@ private:
     ModelClass* floor_model_;
     ModelClass* fire_model_;
     TerrainClass* terrain_;
+    SkyBoxClass* skybox_;
 
     TextClass* text_;
     TextureManagerClass* texture_manager_;
@@ -113,6 +116,7 @@ private:
     LightShaderClass* light_shader_;
     DeferredShaderClass* deferred_shader_;
     TerrainShaderClass* terrain_shader_;
+    SkyboxShaderClass* skybox_shader_;
 
     DeferredBuffersClass* deferred_buffers_;
 

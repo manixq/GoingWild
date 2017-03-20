@@ -39,6 +39,8 @@ public:
 
  void Turn_zbuffer_on();
  void Turn_zbuffer_off();
+ void Turn_culling_on();
+ void Turn_culling_off();
 
  void TurnOnAlphaBlending();
  void TurnOffAlphaBlending();
@@ -56,7 +58,7 @@ private:
  ID3D11Texture2D* depth_stencil_buffer_;
  ID3D11DepthStencilState* depth_stencil_state_;
  ID3D11DepthStencilView* depth_stencil_view_;
- ID3D11RasterizerState* raster_state_;
+ ID3D11RasterizerState *raster_state_, *raster_state_no_culling_;
  
  D3DXMATRIX projection_matrix_;
  D3DXMATRIX world_matrix_;

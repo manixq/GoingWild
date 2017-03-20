@@ -1,0 +1,29 @@
+cbuffer ColorBuffer
+{
+    float4 apex_color;
+    float4 center_color;
+};
+
+//========
+//Typedefs
+struct PIXEL_INPUT_TYPE
+{
+    float4 position : SV_POSITION;
+    float4 skybox_position : TEXCOORD0;
+};
+
+
+//===========
+//Pixelshader
+float4 Skybox_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
+{
+    float height;
+    float4 output_color;
+
+    height = input.skybox_position.y;
+    if(height < 0.0)
+        height = 0.0f;
+
+    output_color = lerp(center_color, apex_color, height);
+    return output_color;
+}

@@ -162,6 +162,12 @@
     <ClCompile Include="texture_manager_class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="skybox_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skybox_shader_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -287,6 +293,12 @@
     <ClInclude Include="texture_manager_class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="skybox_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skybox_shader_class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex\normal_map.vs">
@@ -389,6 +401,12 @@
       <Filter>Shaders\Vertex Shader</Filter>
     </None>
     <None Include="shaders\pixel\terrain.ps">
+      <Filter>Shaders\Pixel Shader</Filter>
+    </None>
+    <None Include="shaders\vertex\skybox.vs">
+      <Filter>Shaders\Vertex Shader</Filter>
+    </None>
+    <None Include="shaders\pixel\skybox.ps">
       <Filter>Shaders\Pixel Shader</Filter>
     </None>
   </ItemGroup>

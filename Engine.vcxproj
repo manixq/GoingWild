@@ -180,6 +180,8 @@
     <ClCompile Include="render_texture_class.cpp" />
     <ClCompile Include="shader_manager_class.cpp" />
     <ClCompile Include="shadow_shader_class.cpp" />
+    <ClCompile Include="skybox_class.cpp" />
+    <ClCompile Include="skybox_shader_class.cpp" />
     <ClCompile Include="system_class.cpp" />
     <ClCompile Include="terrain_class.cpp" />
     <ClCompile Include="terrain_shader_class.cpp" />
@@ -223,6 +225,8 @@
     <ClInclude Include="render_texture_class.h" />
     <ClInclude Include="shader_manager_class.h" />
     <ClInclude Include="shadow_shader_class.h" />
+    <ClInclude Include="skybox_class.h" />
+    <ClInclude Include="skybox_shader_class.h" />
     <ClInclude Include="system_class.h" />
     <ClInclude Include="terrain_class.h" />
     <ClInclude Include="terrain_shader_class.h" />
@@ -249,6 +253,7 @@
     <None Include="shaders\pixel\reflection.ps" />
     <None Include="shaders\pixel\refraction.ps" />
     <None Include="shaders\pixel\shadow.ps" />
+    <None Include="shaders\pixel\skybox.ps" />
     <None Include="shaders\pixel\terrain.ps" />
     <None Include="shaders\pixel\texture.ps" />
     <None Include="shaders\pixel\vertical_blur.ps" />
@@ -265,6 +270,7 @@
     <None Include="shaders\vertex\reflection.vs" />
     <None Include="shaders\vertex\refraction.vs" />
     <None Include="shaders\vertex\shadow.vs" />
+    <None Include="shaders\vertex\skybox.vs" />
     <None Include="shaders\vertex\terrain.vs" />
     <None Include="shaders\vertex\texture.vs" />
     <None Include="shaders\vertex\vertical_blur.vs" />

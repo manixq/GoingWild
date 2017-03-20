@@ -17,6 +17,7 @@ GraphicsClass::GraphicsClass()
     water_model_ = nullptr;
     fire_model_ = nullptr;
     floor_model_ = nullptr;
+    skybox_ = nullptr;
 
     reflection_shader_ = nullptr;
     refraction_shader_ = nullptr;
@@ -31,6 +32,7 @@ GraphicsClass::GraphicsClass()
     particle_shader_ = nullptr;
     shadow_shader_ = nullptr;
     terrain_shader_ = nullptr;
+    skybox_shader_ = nullptr;
 
     reflection_texture_ = nullptr;
     refraction_texture_ = nullptr;
@@ -103,9 +105,28 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     result = texture_manager_->Initialize(10);
     if (!result)
         return false;
-    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/grass01.dds", 0);
-    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/grass01n.dds", 1);
+    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01d.dds", 0);
+    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01n.dds", 1);
 
+    skybox_shader_ = new SkyboxShaderClass;
+    if (!skybox_shader_)
+        return false;
+    result = skybox_shader_->Initialize(d3d_->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the skybox shader", L"Error", MB_OK);
+        return false;
+    }
+
+    skybox_ = new SkyBoxClass;
+    if (!skybox_)
+        return false;
+    result = skybox_->Initialize(d3d_->GetDevice());
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the skybox object", L"Error", MB_OK);
+        return false;
+    }
 
     terrain_shader_ = new TerrainShaderClass;
     if (!terrain_shader_)
@@ -534,6 +555,20 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
+    if(skybox_)
+    {
+        skybox_->Shutdown();
+        delete skybox_;
+        skybox_ = nullptr;
+    }
+
+    if(skybox_shader_)
+    {
+        skybox_shader_->Shutdown();
+        delete skybox_shader_;
+        skybox_shader_ = nullptr;
+    }
+
     if(text_)
     {
         text_->Shutdown();
@@ -1348,6 +1383,15 @@ bool GraphicsClass::Render_scene_to_texture()
     d3d_->GetOrthoMatrix(ortho_matrix);
     light_->Get_view_matrix(light_view_matrix);
     light_->Get_ortho_matrix(light_ortho_matrix);
+
+    camera_position = camera_->Get_position();
+    d3d_->Turn_culling_off();
+    d3d_->Turn_zbuffer_off();
+    D3DXMatrixTranslation(&world_matrix, camera_position.x, camera_position.y, camera_position.z);
+    skybox_->Render(d3d_->GetDeviceContext());
+    result = skybox_shader_->Render(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, skybox_->Get_apex_color(), skybox_->Get_center_color());
+    d3d_->Turn_zbuffer_on();
+    d3d_->Turn_zbuffer_on();
 
     //ground
     D3DXMatrixTranslation(&world_matrix, -128.0f, 1.0f, -128.0f);
