@@ -182,6 +182,7 @@
     <ClCompile Include="skybox_class.cpp" />
     <ClCompile Include="skybox_shader_class.cpp" />
     <ClCompile Include="system_class.cpp" />
+    <ClCompile Include="terrain_cell_class.cpp" />
     <ClCompile Include="terrain_class.cpp" />
     <ClCompile Include="terrain_shader_class.cpp" />
     <ClCompile Include="texture_class.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="skybox_class.h" />
     <ClInclude Include="skybox_shader_class.h" />
     <ClInclude Include="system_class.h" />
+    <ClInclude Include="terrain_cell_class.h" />
     <ClInclude Include="terrain_class.h" />
     <ClInclude Include="terrain_shader_class.h" />
     <ClInclude Include="texture_class.h" />

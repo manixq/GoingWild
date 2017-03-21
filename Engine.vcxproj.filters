@@ -171,6 +171,9 @@
     <ClCompile Include="water_shader_class.cpp">
       <Filter>Source Files\shader class</Filter>
     </ClCompile>
+    <ClCompile Include="terrain_cell_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system_class.h">
@@ -298,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="water_shader_class.h">
       <Filter>Header Files\shader class</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_cell_class.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@
 #include <DirectXMath.h>
 #include <fstream>
 #include <stdio.h>
+#include "terrain_cell_class.h"
 
 using namespace DirectX;
 using namespace std;
@@ -61,9 +62,13 @@ public:
 
     bool Initialize(ID3D11Device*, char*);
     void Shutdown();
-    bool Render(ID3D11DeviceContext*);
 
-    int Get_index_count();
+    bool Render_cell(ID3D11DeviceContext*, int);
+    void Render_cell_lines(ID3D11DeviceContext*, int);
+
+    int Get_cell_index_count(int);
+    int Get_cell_lines_index_count(int);
+    int Get_cell_count();
 
 private:
     bool Load_setup_file(char*);
@@ -76,13 +81,12 @@ private:
     bool Build_terrain_model();
     void Shutdown_terrain_model();
 
+    bool Load_terrain_cells(ID3D11Device*);
+    void Shutdown_terrain_cells();
+
     void Calculate_terrain_vectors();
     void Calculate_tangent_binormal(TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, VECTOR_TYPE&, VECTOR_TYPE&);
-
-    bool Initialize_buffer(ID3D11Device*);
-    void Shutdown_buffers();
-    void Render_buffers(ID3D11DeviceContext*);
-
+       
     ID3D11Buffer *vertex_buffer_, *index_buffer_;
     int vertex_count_, index_count_;
 
@@ -91,5 +95,7 @@ private:
     char *terrain_filename_, *color_map_filename_;
     HEIGHT_MAP_TYPE* height_map_;
     MODEL_TYPE* terrain_model_;
+    TerrainCellClass* terrain_cells_;
+    int cell_count_;
 };
 #endif
