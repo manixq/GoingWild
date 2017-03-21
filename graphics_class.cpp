@@ -1106,7 +1106,7 @@ bool GraphicsClass::Render_scene_to_texture()
     d3d_->Turn_zbuffer_on();
 
     //ground
-    D3DXMatrixTranslation(&world_matrix, -128.0f, 1.0f, -128.0f);
+    D3DXMatrixTranslation(&world_matrix, -512.0f, -12.0f, -312.0f);
     terrain_->Render(d3d_->GetDeviceContext());
     result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_index_count(), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
     if (!result)

@@ -28,7 +28,7 @@ bool TerrainClass::Initialize(ID3D11Device* device, char* setup_filename)
     if (!result)
         return false;
 
-    result = Load_bitmap_height_map();
+    result = Load_raw_height_map();
     if (!result)
         return false;
 
@@ -192,6 +192,52 @@ k++;
     return true;
 }
 
+bool TerrainClass::Load_raw_height_map()
+{
+    int error, i, j, index;
+    FILE* file_ptr;
+    unsigned long long image_size, count;
+    unsigned short* raw_image;
+
+    height_map_ = new HEIGHT_MAP_TYPE[terrain_width_ * terrain_height_];
+    if (!height_map_)
+        return false;
+
+    error = fopen_s(&file_ptr, terrain_filename_, "rb");
+    if (error != 0)
+        return false;
+
+    image_size = terrain_height_ * terrain_width_;
+
+    raw_image = new unsigned short[image_size];
+    if (!raw_image)
+        return false;
+
+    count = fread(raw_image, sizeof(unsigned short), image_size, file_ptr);
+    if (count != image_size)
+        return false;
+
+    error = fclose(file_ptr);
+    if (error != 0)
+        return false;
+
+    for (j = 0; j < terrain_height_; j++)
+    {
+        for (i = 0; i < terrain_width_; i++)
+        {
+            index = (terrain_width_ * j) + i;
+            height_map_[index].y = (float)raw_image[index];
+        }
+    }
+    delete[] raw_image;
+    raw_image = nullptr;
+
+    delete[] terrain_filename_;
+    terrain_filename_ = nullptr;
+
+    return true;
+}
+
 void TerrainClass::Shutdown_height_map()
 {
     if (height_map_)
@@ -272,7 +318,7 @@ bool TerrainClass::Calculate_normals()
         }
     }
 
-    for (j = 0; j < terrain_width_; j++)
+    for (j = 0; j < terrain_height_; j++)
     {
         for (i = 0; i < terrain_width_; i++)
         {
@@ -613,15 +659,12 @@ bool TerrainClass::Initialize_buffer(ID3D11Device* device)
     D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
     D3D11_SUBRESOURCE_DATA vertex_data, index_data;
     HRESULT result;
-    int i, j, terrain_width, terrain_height, index;
+    int i, j, index;
     XMFLOAT4 color;
     float position_x, position_z;
 
-    terrain_height = 256;
-    terrain_width = 256;
-
     color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    vertex_count_ = (terrain_width - 1) * (terrain_height - 1) * 6;
+    vertex_count_ = (terrain_width_ - 1) * (terrain_height_ - 1) * 6;
 
     index_count_ = vertex_count_;
 

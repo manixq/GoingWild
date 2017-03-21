@@ -68,6 +68,7 @@ public:
 private:
     bool Load_setup_file(char*);
     bool Load_bitmap_height_map();
+    bool Load_raw_height_map();
     void Shutdown_height_map();
     void Set_terrain_coordinates();
     bool Calculate_normals();
