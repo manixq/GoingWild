@@ -8,6 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "terrain_cell_class.h"
+#include "frustum_class.h"
 
 using namespace DirectX;
 using namespace std;
@@ -63,12 +64,18 @@ public:
     bool Initialize(ID3D11Device*, char*);
     void Shutdown();
 
-    bool Render_cell(ID3D11DeviceContext*, int);
+    void Frame();
+
+    bool Render_cell(ID3D11DeviceContext*, int, FrustumClass*);
     void Render_cell_lines(ID3D11DeviceContext*, int);
 
     int Get_cell_index_count(int);
     int Get_cell_lines_index_count(int);
     int Get_cell_count();
+
+    int Get_render_count();
+    int Get_cells_drawn();
+    int Get_cells_culled();
 
 private:
     bool Load_setup_file(char*);
@@ -96,6 +103,6 @@ private:
     HEIGHT_MAP_TYPE* height_map_;
     MODEL_TYPE* terrain_model_;
     TerrainCellClass* terrain_cells_;
-    int cell_count_;
+    int cell_count_, render_count_, cells_drawn_, cells_culled_;
 };
 #endif

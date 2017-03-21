@@ -10,18 +10,22 @@
 class FrustumClass
 {
 public:
- FrustumClass();
- FrustumClass(const FrustumClass&);
- ~FrustumClass();
+    FrustumClass();
+    FrustumClass(const FrustumClass&);
+    ~FrustumClass();
 
- void ConstructFrustrum(float, D3DXMATRIX, D3DXMATRIX);
+    void Initialize(float);
 
- bool Check_point(float, float, float);
- bool Check_cube(float, float, float, float);
- bool Check_sphere(float, float, float, float);
- bool Check_rectangle(float, float, float, float, float, float);
+    void ConstructFrustrum(float, D3DXMATRIX, D3DXMATRIX);
+
+    bool Check_point(float, float, float);
+    bool Check_cube(float, float, float, float);
+    bool Check_sphere(float, float, float, float);
+    bool Check_rectangle(float, float, float, float, float, float);
+    bool Check_rectangle2(float, float, float, float, float, float);
+
 
 private:
- D3DXPLANE planes_[6];
+    D3DXPLANE planes_[6];
 };
 #endif

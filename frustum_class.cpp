@@ -15,6 +15,11 @@ FrustumClass::~FrustumClass()
  
 }
 
+void FrustumClass::Initialize(float x)
+{
+     
+}
+
 void FrustumClass::ConstructFrustrum(float screen_depth, D3DXMATRIX projection_matrix, D3DXMATRIX view_matrix)
 {
  float z_min, r;
@@ -33,10 +38,10 @@ void FrustumClass::ConstructFrustrum(float screen_depth, D3DXMATRIX projection_m
  planes_[0].d = matrix._44 + matrix._43;
  D3DXPlaneNormalize(&planes_[0], &planes_[0]);
 
- planes_[1].a = matrix._14 + matrix._13;
- planes_[1].b = matrix._24 + matrix._23;
- planes_[1].c = matrix._34 + matrix._33;
- planes_[1].d = matrix._44 + matrix._43;
+ planes_[1].a = matrix._14 - matrix._13;
+ planes_[1].b = matrix._24 - matrix._23;
+ planes_[1].c = matrix._34 - matrix._33;
+ planes_[1].d = matrix._44 - matrix._43;
  D3DXPlaneNormalize(&planes_[1], &planes_[1]);
 
  // Calculate left plane of frustum.
@@ -146,4 +151,40 @@ bool FrustumClass::Check_rectangle(float x_center, float y_center, float z_cente
   return false;
  }
  return true;
+}
+
+bool FrustumClass::Check_rectangle2(float max_width, float max_height, float max_depth, float min_width, float min_height, float min_depth)
+{
+    int i;
+    float dot_product;
+
+    for (i = 0; i < 6; i++)
+    {
+        dot_product = ((planes_[i].a * min_width) + (planes_[i].b * min_height) + (planes_[i].c * min_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * max_width) + (planes_[i].b * min_height) + (planes_[i].c * min_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * min_width) + (planes_[i].b * max_height) + (planes_[i].c * min_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * max_width) + (planes_[i].b * max_height) + (planes_[i].c * min_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * min_width) + (planes_[i].b * min_height) + (planes_[i].c * max_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * max_width) + (planes_[i].b * min_height) + (planes_[i].c * max_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * min_width) + (planes_[i].b * max_height) + (planes_[i].c * max_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        dot_product = ((planes_[i].a * max_width) + (planes_[i].b * max_height) + (planes_[i].c * max_depth) + (planes_[i].d * 1.0f));
+        if (dot_product >= 0.0f)
+            continue;
+        return false;
+    }
+    return true;
 }

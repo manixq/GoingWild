@@ -5,6 +5,7 @@
 //includes
 #include "d3d_class.h"
 #include "camera_class.h"
+#include "frustum_class.h"
 #include "model_class.h"
 #include "light_class.h"
 #include "model_list_class.h"
@@ -65,6 +66,7 @@ private:
     CameraClass* camera_;
     DebugWindowClass* debug_window_;
     OrthoWindowClass *small_window_, *full_sceen_window_;
+    FrustumClass* frustum_;
     LightClass* light_;
 
     ParticleSystemClass* particle_system_;

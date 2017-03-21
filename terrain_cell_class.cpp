@@ -101,7 +101,7 @@ bool TerrainCellClass::Initialize_buffers(ID3D11Device* device, int node_index_x
     model_index = ((node_index_x * (cell_width - 1)) + (node_index_y * (cell_height - 1) * (terrain_width - 1))) * 6;
     index = 0;
 
-    for (j = 0; j < cell_height - 1; j++)
+    for (j = 0; j < (cell_height - 1); j++)
     {
         for (i = 0; i < ((cell_width - 1) * 6); i++)
         {
@@ -226,10 +226,12 @@ void TerrainCellClass::Calculate_cell_dimensions()
             max_width_ = width;
         if (width < min_width_)
             min_width_ = width;
+
         if (height > max_height_)
             max_height_ = height;
         if (height < min_height_)
             min_height_ = height;
+
         if (depth > max_depth_)
             max_depth_ = depth;
         if (depth < min_depth_)

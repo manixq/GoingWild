@@ -67,6 +67,13 @@ void TerrainClass::Shutdown()
     Shutdown_height_map();
 }
 
+void TerrainClass::Frame()
+{
+    render_count_ = 0;
+    cells_drawn_ = 0;
+    cells_culled_ = 0;
+}
+
 bool TerrainClass::Load_setup_file(char* filename)
 {
     int string_len;
@@ -682,9 +689,23 @@ void TerrainClass::Shutdown_terrain_cells()
     }
 }
 
-bool TerrainClass::Render_cell(ID3D11DeviceContext* device_context, int cell_id)
+bool TerrainClass::Render_cell(ID3D11DeviceContext* device_context, int cell_id, FrustumClass* frustum)
 {
+    float max_width, max_height, max_depth, min_width, min_height, min_depth;
+    bool result;
+
+    terrain_cells_[cell_id].Get_cell_dimensions(max_width, max_height, max_depth, min_width, min_height, min_depth);
+    result = frustum->Check_rectangle2(max_width, max_height, max_depth, min_width, min_height, min_depth);
+    if(!result)
+    {
+        cells_culled_++;
+        return false;
+    }
+
     terrain_cells_[cell_id].Render(device_context);
+    render_count_ += (terrain_cells_[cell_id].Get_vertex_count() / 3);
+    cells_drawn_++;
+
     return true;
 }
 
@@ -708,7 +729,19 @@ int TerrainClass::Get_cell_count()
     return cell_count_;
 }
 
+int TerrainClass::Get_render_count()
+{
+    return render_count_;
+}
 
+int TerrainClass::Get_cells_drawn()
+{
+    return cells_drawn_;
+}
 
+int TerrainClass::Get_cells_culled()
+{
+    return cells_culled_;
+}
 
 

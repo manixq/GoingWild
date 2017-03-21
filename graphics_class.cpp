@@ -5,6 +5,7 @@ GraphicsClass::GraphicsClass()
 {
     d3d_ = nullptr;
     camera_ = nullptr;
+    frustum_ = nullptr;
     light_ = nullptr;
     model_list_ = nullptr;
     debug_window_ = nullptr;
@@ -82,6 +83,9 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         return false;
     }
 
+    frustum_ = new FrustumClass;
+    if (!frustum_)
+        return false;
 
     shader_manager_ = new ShaderManagerClass;
     if (!shader_manager_)
@@ -589,12 +593,14 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
     rotation_y_ = rotation_y;
     
     camera_->Set_position(x_pos, 6.0f, z_pos);
-    camera_->Set_rotation(rotation_x, rotation_y, 0.0f);
+    camera_->Set_rotation(rotation_x, rotation_y, 0.0f);   
 
     frame_time_ += frame_time / 1000.0f;    
     if (frame_time_ >= 1000.0f)
         frame_time_ = 0.0f;      
     
+    terrain_->Frame();
+
     particle_system_->Frame(frame_time, d3d_->GetDeviceContext());
     return true;
 }
@@ -602,6 +608,7 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 bool GraphicsClass::Render()
 {
     bool result;
+   
 
     result = Render_refraction_to_texture();
     if (!result)
@@ -932,6 +939,7 @@ bool GraphicsClass::Render2d_texture_scene()
     d3d_->GetWorldMatrix(world_matrix);
     d3d_->GetOrthoMatrix(ortho_matrix);
     d3d_->Turn_zbuffer_off();
+
     full_sceen_window_->Render(d3d_->GetDeviceContext());
     //result = light_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), deferred_buffers_->Get_shader_resource_view(1), light_->Get_direction());
     result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0));
@@ -956,7 +964,6 @@ bool GraphicsClass::Render_refraction_to_texture()
     refraction_texture_->Clear_render_target(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     camera_->Render();
-
 
     d3d_->GetWorldMatrix(world_matrix);
     camera_->Get_view_matrix(view_matrix);
@@ -1085,7 +1092,7 @@ bool GraphicsClass::Render_scene_to_texture()
     deferred_buffers_->Clear_render_targets(d3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
     //d3d_->Begin_scene(0.0f, 0.0f, 0.0f, 1.0f);
 
-    camera_->Render();
+
 
     light_->Generate_view_matrix();
     camera_->Get_view_matrix(view_matrix);
@@ -1097,22 +1104,31 @@ bool GraphicsClass::Render_scene_to_texture()
     light_->Get_ortho_matrix(light_ortho_matrix);
 
     camera_position = camera_->Get_position();
+
+    camera_->Render();
     d3d_->Turn_culling_off();
     d3d_->Turn_zbuffer_off();
     D3DXMatrixTranslation(&world_matrix, camera_position.x, camera_position.y, camera_position.z);
     skybox_->Render(d3d_->GetDeviceContext());
+
     result = shader_manager_->Render_skybox_shader(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, skybox_->Get_apex_color(), skybox_->Get_center_color());
     d3d_->Turn_zbuffer_on();
-    d3d_->Turn_zbuffer_on();
+    d3d_->Turn_culling_on();
+
 
     //ground
     D3DXMatrixTranslation(&world_matrix, -512.0f, -12.0f, -312.0f);
+
+    frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
     for (int i = 0; i < terrain_->Get_cell_count(); i++)
     {
-        terrain_->Render_cell(d3d_->GetDeviceContext(), i);
-        result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_cell_index_count(i), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
-        if (!result)
-            return false;
+        result =  terrain_->Render_cell(d3d_->GetDeviceContext(), i, frustum_);
+        if (result)
+        {
+            result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_cell_index_count(i), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
+            if(!result)
+                return false;
+        }
     }
     d3d_->GetWorldMatrix(world_matrix);
 

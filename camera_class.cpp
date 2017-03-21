@@ -120,7 +120,7 @@ void CameraClass::Render_static()
 
 void CameraClass::Get_view_matrix(D3DXMATRIX& view_matrix)
 {
- view_matrix = view_matrix_;
+     view_matrix = view_matrix_;
 }
 
 void CameraClass::Get_static_view_matrix(D3DXMATRIX& static_view_matrix)
