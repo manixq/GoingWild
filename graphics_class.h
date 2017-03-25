@@ -25,7 +25,7 @@
 //globals
 static bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
+const float SCREEN_DEPTH = 500.0f;
 const float SCREEN_NEAR = 0.1f;
 const float SHADOWMAP_DEPTH = 50.0f;
 const float SHADOWMAP_NEAR = 1.0f; 

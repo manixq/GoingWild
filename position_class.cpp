@@ -125,13 +125,13 @@ void PositionClass::Go_up(bool keydown)
 {
  if (keydown)
  {
-  up_speed_ += 0.01f;
-  if (up_speed_ >(0.05f))
-   up_speed_ = 0.05f;
+  up_speed_ += 0.15f;
+  if (up_speed_ >(0.45f))
+   up_speed_ = 0.15f;
  }
  else
  {
-  slow_down(up_speed_, 0.01f);
+  slow_down(up_speed_, 0.05f);
  }
 
  pos_x_ += up_speed_ * sin(rotation_y_ * D3DX_PI / 180);

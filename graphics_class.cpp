@@ -1117,8 +1117,7 @@ bool GraphicsClass::Render_scene_to_texture()
 
 
     //ground
-    D3DXMatrixTranslation(&world_matrix, -512.0f, -12.0f, -312.0f);
-
+    d3d_->GetWorldMatrix(world_matrix);
     frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
     for (int i = 0; i < terrain_->Get_cell_count(); i++)
     {

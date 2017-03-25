@@ -1,5 +1,4 @@
 #include "terrain_class.h"
-
 TerrainClass::TerrainClass()
 {
     vertex_buffer_ = nullptr;
@@ -255,10 +254,11 @@ void TerrainClass::Set_terrain_coordinates()
         {
             index = (terrain_width_ * j) + i;
 
-            height_map_[index].x = (float)i;
+            height_map_[index].x = (float)i - 512;
             height_map_[index].z = -(float)j;
-            height_map_[index].z += (float)(terrain_height_ - 1);
+            height_map_[index].z += (float)(terrain_height_ - 312);
             height_map_[index].y /= height_scale_;
+            height_map_[index].y -= 12;
 
         }
     }
