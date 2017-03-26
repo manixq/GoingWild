@@ -649,6 +649,115 @@ void TerrainClass::Calculate_tangent_binormal(TEMP_VERTEX_TYPE vertex1, TEMP_VER
     binormal.z = binormal.z / length;
 }
 
+bool TerrainClass::Check_height_of_triangle(float x, float z, float& height, float v0[3], float v1[3], float v2[3])
+{
+    float start_vector[3], direction_vector[3], edge1[3], edge2[3], normal[3];
+    float Q[3], e1[3], e2[3], e3[3], edge_normal[3], temp[3];
+    float magnitude, D, denominator, numerator, t, determinant;
+
+    start_vector[0] = x;
+    start_vector[1] = 0.0f;
+    start_vector[2] = z;
+
+    direction_vector[0] = 0.0f;
+    direction_vector[1] = -1.0f;
+    direction_vector[2] = 0.0f;
+
+    edge1[0] = v1[0] - v0[0];
+    edge1[1] = v1[1] - v0[1];
+    edge1[2] = v1[2] - v0[2];
+
+    edge2[0] = v2[0] - v0[0];
+    edge2[1] = v2[1] - v0[1];
+    edge2[2] = v2[2] - v0[2];
+
+    //normal of triangle from two edges
+    normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
+    normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
+    normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
+
+    magnitude = (float)sqrt((normal[0] * normal[0]) + (normal[1] * normal[1]) + (normal[2] * normal[2]));
+    normal[0] /= magnitude;
+    normal[1] /= magnitude;
+    normal[2] /= magnitude;
+
+    //distance from origin to plane
+    D = ((-normal[0] * v0[0]) + (-normal[1] * v0[1]) + (-normal[2] * v0[2]));
+    denominator = ((normal[0] * direction_vector[0]) + (normal[1] * direction_vector[1]) + (normal[2] * direction_vector[2]));
+    if (fabs(denominator) < 0.0001f)
+        return false;
+
+    numerator = -1.0f * (((normal[0] * start_vector[0]) + (normal[1] * start_vector[1]) + (normal[2] * start_vector[2])) + D);
+    t = numerator / denominator;
+
+    //find intersection
+    Q[0] = start_vector[0] + (direction_vector[0] * t);
+    Q[1] = start_vector[1] + (direction_vector[1] * t);
+    Q[2] = start_vector[2] + (direction_vector[2] * t);
+
+    e1[0] = v1[0] - v0[0];
+    e1[1] = v1[1] - v0[1];
+    e1[2] = v1[2] - v0[2];
+
+    e2[0] = v2[0] - v1[0];
+    e2[1] = v2[1] - v1[1];
+    e2[2] = v2[2] - v1[2];
+
+    e3[0] = v0[0] - v2[0];
+    e3[1] = v0[1] - v2[1];
+    e3[2] = v0[2] - v2[2];
+
+    //normal of first edge
+    edge_normal[0] = (e1[1] * normal[2]) - (e1[2] * normal[1]);
+    edge_normal[1] = (e1[2] * normal[0]) - (e1[0] * normal[2]);
+    edge_normal[2] = (e1[0] * normal[1]) - (e1[1] * normal[0]);
+
+    //determinant to see if it is inside/outside or directly on edge
+    temp[0] = Q[0] - v0[0];
+    temp[1] = Q[1] - v0[1];
+    temp[2] = Q[2] - v0[2];
+    determinant = ((edge_normal[0] * temp[0]) + (edge_normal[1] * temp[1]) + (edge_normal[2] * temp[2]));
+   
+    //if its outside
+    if (determinant > 0.001f)
+        return false;
+
+    //normal of second edge
+    edge_normal[0] = (e2[1] * normal[2]) - (e2[2] * normal[1]);
+    edge_normal[1] = (e2[2] * normal[0]) - (e2[0] * normal[2]);
+    edge_normal[2] = (e2[0] * normal[1]) - (e2[1] * normal[0]);
+
+    //determinant to see if it is inside/outside or directly on edge
+    temp[0] = Q[0] - v1[0];
+    temp[1] = Q[1] - v1[1];
+    temp[2] = Q[2] - v1[2];
+    determinant = ((edge_normal[0] * temp[0]) + (edge_normal[1] * temp[1]) + (edge_normal[2] * temp[2]));
+
+    //if its outside
+    if (determinant > 0.001f)
+        return false;
+
+    //normal of third edge
+    edge_normal[0] = (e3[1] * normal[2]) - (e3[2] * normal[1]);
+    edge_normal[1] = (e3[2] * normal[0]) - (e3[0] * normal[2]);
+    edge_normal[2] = (e3[0] * normal[1]) - (e3[1] * normal[0]);
+
+    //determinant to see if it is inside/outside or directly on edge
+    temp[0] = Q[0] - v2[0];
+    temp[1] = Q[1] - v2[1];
+    temp[2] = Q[2] - v2[2];
+    determinant = ((edge_normal[0] * temp[0]) + (edge_normal[1] * temp[1]) + (edge_normal[2] * temp[2]));
+
+    //if its outside
+    if (determinant > 0.001f)
+        return false;
+
+    //lol
+    height = Q[1];
+    
+    return true;
+}
+
 bool TerrainClass::Load_terrain_cells(ID3D11Device* device)
 {
     int cell_height, cell_width, cell_row_count, i, j, index;
@@ -742,6 +851,47 @@ int TerrainClass::Get_cells_drawn()
 int TerrainClass::Get_cells_culled()
 {
     return cells_culled_;
+}
+
+bool TerrainClass::Get_height_at_position(float input_x, float input_z, float& height)
+{
+    int i, cell_id, index;
+    float vertex1[3], vertex2[3], vertex3[3];
+    bool found_height;
+    float max_width, max_height, max_depth, min_width, min_height, min_depth;
+
+    cell_id = -1;
+    for (i = 0; i < cell_count_; i++)
+    {
+        terrain_cells_[i].Get_cell_dimensions(max_width, max_height, max_depth, min_width, min_height, min_depth);
+        if((input_x < max_width) && (input_x > min_width) && (input_z < max_depth) && (input_z > min_depth))
+        {
+            cell_id = i;
+            i = cell_count_;
+        }
+    }
+
+    for (i = 0; i < (terrain_cells_[cell_id].Get_vertex_count() / 3); i++)
+    {
+        index = i * 3;
+        vertex1[0] = terrain_cells_[cell_id].vertex_list[index].x;
+        vertex1[1] = terrain_cells_[cell_id].vertex_list[index].y;
+        vertex1[2] = terrain_cells_[cell_id].vertex_list[index].z;
+        index++;
+
+        vertex2[0] = terrain_cells_[cell_id].vertex_list[index].x;
+        vertex2[1] = terrain_cells_[cell_id].vertex_list[index].y;
+        vertex2[2] = terrain_cells_[cell_id].vertex_list[index].z;
+        index++;
+
+        vertex3[0] = terrain_cells_[cell_id].vertex_list[index].x;
+        vertex3[1] = terrain_cells_[cell_id].vertex_list[index].y;
+        vertex3[2] = terrain_cells_[cell_id].vertex_list[index].z;
+        found_height = Check_height_of_triangle(input_x, input_z, height, vertex1, vertex2, vertex3);
+        if (found_height)
+            return true;
+    }
+    return false;
 }
 
 

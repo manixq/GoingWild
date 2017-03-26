@@ -77,6 +77,8 @@ public:
     int Get_cells_drawn();
     int Get_cells_culled();
 
+    bool Get_height_at_position(float, float, float&);
+
 private:
     bool Load_setup_file(char*);
     bool Load_bitmap_height_map();
@@ -93,7 +95,9 @@ private:
 
     void Calculate_terrain_vectors();
     void Calculate_tangent_binormal(TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, TEMP_VERTEX_TYPE, VECTOR_TYPE&, VECTOR_TYPE&);
-       
+    
+    bool Check_height_of_triangle(float, float, float&, float[3], float[3], float[3]);
+
     ID3D11Buffer *vertex_buffer_, *index_buffer_;
     int vertex_count_, index_count_;
 

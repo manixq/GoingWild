@@ -563,6 +563,9 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
     static float frame_count = 0;
     static float frame_acum = 0;
 
+    bool found_height;
+    float height;
+
     frame_acum += frame_time;
     frame_count++;
     if (frame_acum >= 1000.0f)
@@ -592,7 +595,12 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
     rotation_x_ = rotation_x;
     rotation_y_ = rotation_y;
     
-    camera_->Set_position(x_pos, 6.0f, z_pos);
+    found_height = terrain_->Get_height_at_position(x_pos, z_pos, height);
+    if(found_height)
+        camera_->Set_position(x_pos, height + 5.0f, z_pos);
+    else
+        camera_->Set_position(x_pos, 100.0f, z_pos);
+
     camera_->Set_rotation(rotation_x, rotation_y, 0.0f);   
 
     frame_time_ += frame_time / 1000.0f;    
