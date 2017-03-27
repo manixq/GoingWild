@@ -30,6 +30,14 @@ class SkyboxShaderClass
         XMFLOAT4 center_color;
     };
 
+    struct SKY_BUFFER_TYPE
+    {
+        float translate;
+        float brightness;
+        float padding1;
+        float padding2;
+    };
+
 public:
     SkyboxShaderClass();
     SkyboxShaderClass(const SkyboxShaderClass&);
@@ -37,13 +45,13 @@ public:
 
     bool Initialize(ID3D11Device*, HWND);
     void Shutdown();
-    bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, XMFLOAT4, XMFLOAT4);
+    bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, float, float, float, XMFLOAT4, XMFLOAT4);
 
 private:
     bool Initialize_shader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
     void Shutdown_shader();
     void Output_shader_error_message(ID3D10Blob*, HWND, WCHAR*);
-    bool Set_shader_parameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, XMFLOAT4, XMFLOAT4);
+    bool Set_shader_parameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, float, float, float, XMFLOAT4, XMFLOAT4);
     void Render_shader(ID3D11DeviceContext*, int);
 
     ID3D11VertexShader* vertex_shader_;
@@ -51,5 +59,7 @@ private:
     ID3D11InputLayout* input_layout_;
     ID3D11Buffer* matrix_buffer_;
     ID3D11Buffer* color_buffer_;
+    ID3D11Buffer* sky_buffer_;
+    ID3D11SamplerState* sample_state_;
 };
 #endif

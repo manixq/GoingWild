@@ -442,10 +442,10 @@ bool ShaderManagerClass::Render_shadow_shader(ID3D11DeviceContext* device, int i
 }
 
 bool ShaderManagerClass::Render_skybox_shader(ID3D11DeviceContext* device, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection,
-    XMFLOAT4 apex_color, XMFLOAT4 center_color)
+    ID3D11ShaderResourceView* perturb, ID3D11ShaderResourceView* clouds, float translation, float scale, float brightness, XMFLOAT4 apex_color, XMFLOAT4 center_color)
 {
     bool result;
-    result = skybox_shader_->Render(device, index_count, world, view, projection, apex_color, center_color);
+    result = skybox_shader_->Render(device, index_count, world, view, projection, perturb, clouds, translation, scale, brightness, apex_color, center_color);
     if (!result)
         return false;
     return true;

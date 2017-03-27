@@ -25,6 +25,7 @@ class SkyBoxClass
     struct VERTEX_TYPE
     {
         XMFLOAT3 position;
+        XMFLOAT2 texture;
     };
 
 public:
@@ -39,6 +40,10 @@ public:
     int Get_index_count();
     XMFLOAT4 Get_apex_color();
     XMFLOAT4 Get_center_color();
+    float Get_scale();
+    float Get_translation();
+    float Get_brightness();
+
 
 private:
     bool Load_skybox_model(char*);
@@ -52,6 +57,7 @@ private:
     int vertex_count_, index_count_;
     ID3D11Buffer *vertex_buffer_, *index_buffer_;
     XMFLOAT4 apex_color_, center_color_;
+    float scale_, brightness_, translation_;
 };
 #endif
 

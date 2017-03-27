@@ -29,6 +29,9 @@ bool SkyBoxClass::Initialize(ID3D11Device* device)
 
     apex_color_ = XMFLOAT4(0.0f, 0.05f, 0.6f, 1.0f);
     center_color_ = XMFLOAT4(0.0f, 0.5f, 0.8f, 1.0f);
+    scale_ = 0.3f;
+    brightness_ = 0.5f;
+    translation_ = 0.0f;
 
     return true;
 }
@@ -57,6 +60,21 @@ XMFLOAT4 SkyBoxClass::Get_apex_color()
 XMFLOAT4 SkyBoxClass::Get_center_color()
 {
     return center_color_;
+}
+
+float SkyBoxClass::Get_scale()
+{
+    return scale_;
+}
+
+float SkyBoxClass::Get_translation()
+{
+    return translation_;
+}
+
+float SkyBoxClass::Get_brightness()
+{
+    return brightness_;
 }
 
 bool SkyBoxClass::Load_skybox_model(char* filename)
@@ -126,6 +144,7 @@ bool SkyBoxClass::Initialize_buffers(ID3D11Device* device)
     for (i = 0; i < vertex_count_; i++)
     {
         vertices[i].position = XMFLOAT3(model_[i].x, model_[i].y, model_[i].z);
+        vertices[i].texture = XMFLOAT2(model_[i].tu, model_[i].tv);
         indices[i] = i;
     }
 

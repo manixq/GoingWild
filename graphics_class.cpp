@@ -97,12 +97,14 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     texture_manager_ = new TextureManagerClass;
     if (!texture_manager_)
         return false;
-    result = texture_manager_->Initialize(3);
+    result = texture_manager_->Initialize(5);
     if (!result)
         return false;
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01d.dds", 0);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01n.dds", 1);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/distance01n.dds", 2);
+    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/perturb001.dds", 3);
+    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/cloud001.dds", 4);
     
     skybox_ = new SkyBoxClass;
     if (!skybox_)
@@ -576,8 +578,8 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
         frame_acum = 0;
     }
 
-    light_pos_x -= 0.003f * frame_time;
-    light_angle -= 0.03f * frame_time;
+    light_pos_x -= 0.003f * frame_time / 10;
+    light_angle -= 0.03f * frame_time / 10;
     if (light_angle <= 90.0f)
     {
         light_angle = 270.0f;
@@ -1078,7 +1080,7 @@ bool GraphicsClass::Render_scene_to_texture()
     D3DXVECTOR3 camera_position, model_position;
     double angle;
     float rotation;
-
+    D3DXVECTOR3 light_dir;
     float frame_time = frame_time_;
 
     D3DXVECTOR3 scroll_speed, scale;
@@ -1120,7 +1122,12 @@ bool GraphicsClass::Render_scene_to_texture()
     D3DXMatrixTranslation(&world_matrix, camera_position.x, camera_position.y, camera_position.z);
     skybox_->Render(d3d_->GetDeviceContext());
 
-    result = shader_manager_->Render_skybox_shader(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, skybox_->Get_apex_color(), skybox_->Get_center_color());
+    //skybox
+    light_dir = light_->Get_direction();
+    
+    result = shader_manager_->Render_skybox_shader(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, texture_manager_->Get_texture(3), texture_manager_->Get_texture(4), frame_time_, skybox_->Get_scale(), -light_dir.y, skybox_->Get_apex_color(), skybox_->Get_center_color());
+    if (!result)
+        return false;
     d3d_->Turn_zbuffer_on();
     d3d_->Turn_culling_on();
 
