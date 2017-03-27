@@ -436,12 +436,22 @@ bool TerrainClass::Load_color_map()
 bool TerrainClass::Build_terrain_model()
 {
     int i, j, index, index1, index2, index3, index4;
+    float quads_covered, increment_size, tu2left, tu2right, tv2bottom, tv2top;
 
     vertex_count_ = (terrain_height_ - 1) * (terrain_width_ - 1) * 6;
 
     terrain_model_ = new MODEL_TYPE[vertex_count_];
     if (!terrain_model_)
         return false;
+
+    //fixed 33x33 vertex array
+    quads_covered = 32.0f;
+    increment_size = 1.0f / quads_covered;
+
+    tu2left = 0.0f;
+    tu2right = increment_size;
+    tv2top = 0.0f;
+    tv2bottom = increment_size;
 
     //triangle strip
     index = 0;
@@ -465,6 +475,8 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index1].r;
             terrain_model_[index].g = height_map_[index1].g;
             terrain_model_[index].b = height_map_[index1].b;
+            terrain_model_[index].tu2 = tu2left;
+            terrain_model_[index].tv2 = tv2top;
             index++;
 
             terrain_model_[index].x = height_map_[index2].x;
@@ -478,6 +490,8 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index2].r;
             terrain_model_[index].g = height_map_[index2].g;
             terrain_model_[index].b = height_map_[index2].b;
+            terrain_model_[index].tu2 = tu2right;
+            terrain_model_[index].tv2 = tv2top;
             index++;
 
             terrain_model_[index].x = height_map_[index3].x;
@@ -491,6 +505,8 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index3].r;
             terrain_model_[index].g = height_map_[index3].g;
             terrain_model_[index].b = height_map_[index3].b;
+            terrain_model_[index].tu2 = tu2left;
+            terrain_model_[index].tv2 = tv2bottom;
             index++;
 
             terrain_model_[index].x = height_map_[index3].x;
@@ -504,6 +520,8 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index3].r;
             terrain_model_[index].g = height_map_[index3].g;
             terrain_model_[index].b = height_map_[index3].b;
+            terrain_model_[index].tu2 = tu2left;
+            terrain_model_[index].tv2 = tv2bottom;
             index++;
 
             terrain_model_[index].x = height_map_[index2].x;
@@ -517,6 +535,8 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index2].r;
             terrain_model_[index].g = height_map_[index2].g;
             terrain_model_[index].b = height_map_[index2].b;
+            terrain_model_[index].tu2 = tu2right;
+            terrain_model_[index].tv2 = tv2top;
             index++;
 
             terrain_model_[index].x = height_map_[index4].x;
@@ -530,9 +550,29 @@ bool TerrainClass::Build_terrain_model()
             terrain_model_[index].r = height_map_[index4].r;
             terrain_model_[index].g = height_map_[index4].g;
             terrain_model_[index].b = height_map_[index4].b;
+            terrain_model_[index].tu2 = tu2right;
+            terrain_model_[index].tv2 = tv2bottom;
             index++;
+
+            tu2left += increment_size;
+            tu2right += increment_size;
+
+            if(tu2right > 1.0f)
+            {
+                tu2left = 0.0f;
+                tu2right = increment_size;
+            }
+        }
+
+        tv2top += increment_size;
+        tv2bottom += increment_size;
+        if(tv2bottom > 1.0f)
+        {
+            tv2top = 0.0f;
+            tv2bottom = increment_size;
         }
     }
+
     return true;
 }
 

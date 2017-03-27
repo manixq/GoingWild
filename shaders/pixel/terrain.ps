@@ -3,6 +3,7 @@
 Texture2D shader_texture : register(t0);
 Texture2D depth_map_texture : register(t1);
 Texture2D normal_map_texture : register(t2);
+Texture2D normal_map_texture2 : register(t3);
 
 SamplerState sample_type_clamp : register(s0);
 SamplerState sample_type_wrap : register(s1);
@@ -26,6 +27,8 @@ struct PIXEL_INPUT_TYPE
     float3 binormal : BINORMAL;
     float4 light_view_position : TEXCOORD1;
     float4 color : COLOR;
+    float2 tex2 : TEXCOORD2;
+    float4 depth_position : TEXCOORD3;
 };
 
 //===========
@@ -43,19 +46,23 @@ float4 Terrain_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
     float light_intensity;
     float4 bump_map;
     float3 bump_normal;
-    float slope;
+    float slope;    
+    float depth_value2;
 
+    depth_value2 = input.depth_position.z;
     slope = 1.0f - input.normal.y;
     snow = float4(1.0f, 1.0f, 1.0f, 1.0f);
     bias = 0.001f;
     color = ambient_color;
     light_dir = -light_direction;
-
+    
     //get projected tex coords and check if coords are in view of light
     project_tex_coord.x = input.light_view_position.x / input.light_view_position.w / 2.0f + 0.5f;
     project_tex_coord.y = -input.light_view_position.y / input.light_view_position.w / 2.0f + 0.5f;
-
-    bump_map = normal_map_texture.Sample(sample_type_wrap, input.tex);
+    if(depth_value2 > 0.998f)
+        bump_map = normal_map_texture2.Sample(sample_type_wrap, input.tex2);
+    else
+        bump_map = normal_map_texture.Sample(sample_type_wrap, input.tex);
     bump_map = (bump_map * 2.0f) - 1.0f;
     bump_normal = (bump_map.x * input.tangent) + (bump_map.y * input.binormal) + (bump_map.z * input.normal);
     bump_normal = normalize(bump_normal);

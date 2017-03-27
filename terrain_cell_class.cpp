@@ -111,6 +111,7 @@ bool TerrainCellClass::Initialize_buffers(ID3D11Device* device, int node_index_x
             vertices[index].tangent = XMFLOAT3(terrain_model[model_index].tx, terrain_model[model_index].ty, terrain_model[model_index].tz);
             vertices[index].binormal = XMFLOAT3(terrain_model[model_index].bx, terrain_model[model_index].by, terrain_model[model_index].bz);
             vertices[index].color = XMFLOAT3(terrain_model[model_index].r, terrain_model[model_index].g, terrain_model[model_index].b);
+            vertices[index].texture2 = XMFLOAT2(terrain_model[model_index].tu2, terrain_model[model_index].tv2);
             indices[index] = index;
             model_index++;
             index++;

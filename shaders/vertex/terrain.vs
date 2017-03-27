@@ -19,6 +19,7 @@ struct VERTEX_INPUT_TYPE
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float3 color : COLOR;
+    float2 tex2 : TEXCOORD1;
 };
 
 struct PIXEL_INPUT_TYPE
@@ -30,6 +31,8 @@ struct PIXEL_INPUT_TYPE
     float3 binormal : BINORMAL;
     float4 light_view_position : TEXCOORD1;
     float4 color : COLOR;
+    float2 tex2 : TEXCOORD2;
+    float4 depth_position : TEXCOORD3;
 };
 
 //============
@@ -50,6 +53,7 @@ PIXEL_INPUT_TYPE Terrain_vertex_shader(VERTEX_INPUT_TYPE input)
     output.light_view_position = mul(output.light_view_position, light_projection_matrix);
     
     output.tex = input.tex;
+    output.tex2 = input.tex2;
 
     //calc the normal vec against world
     output.normal = mul(input.normal, (float3x3) world_matrix);
@@ -64,6 +68,8 @@ PIXEL_INPUT_TYPE Terrain_vertex_shader(VERTEX_INPUT_TYPE input)
     output.binormal = normalize(output.binormal);
 
     output.color = float4(input.color, 1.0f);
+
+    output.depth_position = output.position;
 
     return output;
 }

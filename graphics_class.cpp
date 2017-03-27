@@ -97,11 +97,12 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     texture_manager_ = new TextureManagerClass;
     if (!texture_manager_)
         return false;
-    result = texture_manager_->Initialize(10);
+    result = texture_manager_->Initialize(3);
     if (!result)
         return false;
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01d.dds", 0);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/dirt01n.dds", 1);
+    texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/distance01n.dds", 2);
     
     skybox_ = new SkyBoxClass;
     if (!skybox_)
@@ -1132,7 +1133,7 @@ bool GraphicsClass::Render_scene_to_texture()
         result =  terrain_->Render_cell(d3d_->GetDeviceContext(), i, frustum_);
         if (result)
         {
-            result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_cell_index_count(i), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
+            result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_cell_index_count(i), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), texture_manager_->Get_texture(2), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
             if(!result)
                 return false;
         }

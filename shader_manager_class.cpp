@@ -452,11 +452,11 @@ bool ShaderManagerClass::Render_skybox_shader(ID3D11DeviceContext* device, int i
 }
 
 bool ShaderManagerClass::Render_terrain_shader(ID3D11DeviceContext* device, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection,
-    D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture,
-    ID3D11ShaderResourceView* normal_map, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
+    D3DXMATRIX light_view, D3DXMATRIX light_projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depth_map_texture, ID3D11ShaderResourceView* normal_map,
+    ID3D11ShaderResourceView* normal_map2, D3DXVECTOR3 light_direction, D3DXVECTOR4 ambient_color, D3DXVECTOR4 diffuse_color)
 {
     bool result;
-    result = terrain_shader_->Render(device, index_count, world, view, projection, light_view, light_projection, texture, depth_map_texture, normal_map, light_direction,
+    result = terrain_shader_->Render(device, index_count, world, view, projection, light_view, light_projection, texture, depth_map_texture, normal_map, normal_map2, light_direction,
         ambient_color, diffuse_color);
     if (!result)
         return false;
