@@ -860,7 +860,7 @@ bool TerrainClass::Get_height_at_position(float input_x, float input_z, float& h
     bool found_height;
     float max_width, max_height, max_depth, min_width, min_height, min_depth;
 
-    cell_id = -1;
+    cell_id = 0;
     for (i = 0; i < cell_count_; i++)
     {
         terrain_cells_[i].Get_cell_dimensions(max_width, max_height, max_depth, min_width, min_height, min_depth);
