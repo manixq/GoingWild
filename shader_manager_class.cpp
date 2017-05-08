@@ -464,10 +464,10 @@ bool ShaderManagerClass::Render_terrain_shader(ID3D11DeviceContext* device, int 
 }
 
 bool ShaderManagerClass::Render_texture_shader(ID3D11DeviceContext* device, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, 
-    ID3D11ShaderResourceView* texture)
+    ID3D11ShaderResourceView* texture, float mouse_x, float mouse_y)
 {
     bool result;
-    result = texture_shader_->Render(device, index_count, world, view, projection, texture);
+    result = texture_shader_->Render(device, index_count, world, view, projection, texture, mouse_x, mouse_y);
     if (!result)
         return false;
     return true;

@@ -34,6 +34,8 @@ GraphicsClass::GraphicsClass()
     full_sceen_window_ = nullptr;
 
     mouse_ = nullptr;
+    mouse_delta_x_ = 0;
+    mouse_delta_y_ = 0;
 
     text_ = nullptr;
     texture_manager_ = nullptr;
@@ -42,12 +44,12 @@ GraphicsClass::GraphicsClass()
 
 GraphicsClass::GraphicsClass(const GraphicsClass&)
 {
- 
+
 }
 
 GraphicsClass::~GraphicsClass()
 {
- 
+
 }
 
 bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
@@ -105,7 +107,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/distance01n.dds", 2);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/perturb001.dds", 3);
     texture_manager_->Load_texture(d3d_->GetDevice(), L"../Engine/data/cloud001.dds", 4);
-    
+
     skybox_ = new SkyBoxClass;
     if (!skybox_)
         return false;
@@ -115,7 +117,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the skybox object", L"Error", MB_OK);
         return false;
     }
-    
+
     terrain_ = new TerrainClass;
     if (!terrain_)
         return false;
@@ -210,7 +212,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
         MessageBox(hwnd, L"Could not initialize the model object.", L"error", MB_OK);
         return false;
     }
-    
+
     model_list_ = new ModelListClass;
     if (!model_list_)
     {
@@ -298,8 +300,8 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 
     result = reflection_texture_->Initialize(d3d_->GetDevice(), screen_width, screen_height);
     if (!result)
-        return false;        
-    
+        return false;
+
     small_window_ = new OrthoWindowClass;
     if (!small_window_)
         return false;
@@ -324,7 +326,7 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
     if (!mouse_)
         return false;
     result = mouse_->Initialize(d3d_->GetDevice(), screen_width, screen_height, L"../Engine/data/mouse.dds", 32, 32);
-    if(!result)
+    if (!result)
     {
         MessageBox(hwnd, L"could not initialize mouse.", L"Error", MB_OK);
         return false;
@@ -370,14 +372,14 @@ bool GraphicsClass::Initialize(int screen_width, int screen_height, HWND hwnd)
 //kill all graphics objects
 void GraphicsClass::Shutdown()
 {
-    if(shader_manager_)
+    if (shader_manager_)
     {
         shader_manager_->Shutdown();
         delete shader_manager_;
         shader_manager_ = nullptr;
     }
 
-    if(skybox_)
+    if (skybox_)
     {
         skybox_->Shutdown();
         delete skybox_;
@@ -385,21 +387,21 @@ void GraphicsClass::Shutdown()
     }
 
 
-    if(text_)
+    if (text_)
     {
         text_->Shutdown();
         delete text_;
         text_ = nullptr;
     }
 
-    if(mouse_)
+    if (mouse_)
     {
         mouse_->Shutdown();
         delete mouse_;
         mouse_ = nullptr;
     }
 
-    if(deferred_buffers_)
+    if (deferred_buffers_)
     {
         deferred_buffers_->Shutdown();
         delete deferred_buffers_;
@@ -460,7 +462,7 @@ void GraphicsClass::Shutdown()
         delete render_texture_;
         render_texture_ = nullptr;
     }
-    
+
     if (refraction_texture_)
     {
         refraction_texture_->Shutdown();
@@ -523,7 +525,7 @@ void GraphicsClass::Shutdown()
         delete ground_model_;
         ground_model_ = nullptr;
     }
-    
+
     if (model_list_)
     {
         model_list_->Shutdown();
@@ -536,7 +538,7 @@ void GraphicsClass::Shutdown()
         delete light_;
         light_ = nullptr;
     }
-    
+
     if (model_)
     {
         model_->Shutdown();
@@ -558,7 +560,7 @@ void GraphicsClass::Shutdown()
     }
 }
 
-bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, float x_pos, float z_pos)
+bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, float x_pos, float z_pos, float mouse_x, float mouse_y)
 {
     static float light_angle = 270.0f;
     float radians;
@@ -568,6 +570,20 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 
     bool found_height;
     float height;
+
+    mouse_x = -mouse_x / screen_width_;
+    mouse_y = -mouse_y / screen_height_;
+    if ((abs(mouse_x) + abs(mouse_y)) > (abs(mouse_delta_x_) + abs(mouse_delta_y_)) / 1.68033f)
+    {
+        mouse_delta_x_ = mouse_x;
+        mouse_delta_y_ = mouse_y;
+    }
+    else
+    {
+        mouse_delta_x_ -= mouse_delta_x_ * 0.168033f;
+        mouse_delta_y_ -= mouse_delta_y_ * 0.168033f;
+    }
+
 
     frame_acum += frame_time;
     frame_count++;
@@ -585,7 +601,7 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
         light_angle = 270.0f;
         light_pos_x = 9.0f;
     }
-    
+
     radians = light_angle * 0.0174532925f;
     light_->Set_direction(sinf(radians), cosf(radians), 0.0f);
     light_->Set_position(light_pos_x, 15.0f, -0.1f);
@@ -597,19 +613,19 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 
     rotation_x_ = rotation_x;
     rotation_y_ = rotation_y;
-    
+
     found_height = terrain_->Get_height_at_position(x_pos, z_pos, height);
-    if(found_height)
+    if (found_height)
         camera_->Set_position(x_pos, height + 5.0f, z_pos);
     else
         camera_->Set_position(x_pos, 100.0f, z_pos);
 
-    camera_->Set_rotation(rotation_x, rotation_y, 0.0f);   
+    camera_->Set_rotation(rotation_x, rotation_y, 0.0f);
 
-    frame_time_ += frame_time / 1000.0f;    
+    frame_time_ += frame_time / 1000.0f;
     if (frame_time_ >= 1000.0f)
-        frame_time_ = 0.0f;      
-    
+        frame_time_ = 0.0f;
+
     terrain_->Frame();
 
     particle_system_->Frame(frame_time, d3d_->GetDeviceContext());
@@ -619,7 +635,7 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 bool GraphicsClass::Render()
 {
     bool result;
-   
+
 
     result = Render_refraction_to_texture();
     if (!result)
@@ -699,7 +715,7 @@ void GraphicsClass::Test_intersection()
 
     camera_->Get_view_matrix(view);
     D3DXMatrixInverse(&inverse_view, nullptr, &view);
-    
+
     direction.x = (point_x * inverse_view._11) + (point_y * inverse_view._21) + inverse_view._31;
     direction.y = (point_x * inverse_view._12) + (point_y * inverse_view._22) + inverse_view._32;
     direction.z = (point_x * inverse_view._13) + (point_y * inverse_view._23) + inverse_view._33;
@@ -724,7 +740,7 @@ void GraphicsClass::Test_intersection()
 bool GraphicsClass::Ray_sphere_intersect(D3DXVECTOR3 ray_origin, D3DXVECTOR3 ray_direction, float radius)
 {
     float a, b, c, discriminant;
-    
+
     a = (ray_direction.x * ray_direction.x) + (ray_direction.y * ray_direction.y) + (ray_direction.z * ray_direction.z);
     b = (ray_direction.x * ray_origin.x) + (ray_direction.y * ray_origin.y) + (ray_direction.z * ray_origin.z) * 2.0f;
     c = (ray_origin.x * ray_origin.x) + (ray_origin.y * ray_origin.y) + (ray_origin.z * ray_origin.z) - (radius * radius);
@@ -861,8 +877,8 @@ bool GraphicsClass::Render_light_scene_to_texture()
     result = shader_manager_->Render_depth_shader(d3d_->GetDeviceContext(), wall_model_->Get_index_count(), world_matrix, light_view_matrix, light_ortho_matrix);
     if (!result)
         return false;
-    d3d_->GetWorldMatrix(world_matrix);     
-    
+    d3d_->GetWorldMatrix(world_matrix);
+
     //bath
     D3DXMatrixTranslation(&world_matrix, 0.0f, 2.0f, 0.0f);
     bath_model_->Render(d3d_->GetDeviceContext());
@@ -902,9 +918,9 @@ bool GraphicsClass::Up_sample_texture()
 
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     full_sceen_window_->Render(d3d_->GetDeviceContext());
-    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
-    if (!result)
-        return false;
+    //result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, vertical_blur_texture_->Get_shader_resource_view());
+    // if (!result)
+    //    return false;
 
     d3d_->Turn_zbuffer_on();
     d3d_->Set_back_buffer_render_target();
@@ -929,36 +945,13 @@ bool GraphicsClass::Down_sample_texture()
     d3d_->Turn_zbuffer_off();
     D3DXMatrixRotationYawPitchRoll(&world_matrix, rotation_y_* 0.0174532925f, rotation_x_ * 0.0174532925f, 0.0f);
     small_window_->Render(d3d_->GetDeviceContext());
-    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
-    if (!result)
-        return false;
+//    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), small_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, render_texture_->Get_shader_resource_view());
+//    if (!result)
+//        return false;
 
     d3d_->Turn_zbuffer_on();
     d3d_->Set_back_buffer_render_target();
     d3d_->Reset_viewport();
-    return true;
-}
-
-bool GraphicsClass::Render2d_texture_scene()
-{
-    D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
-    bool result;
-
-    d3d_->Begin_scene(1.0f, 0.0f, 0.0f, 0.0f);
-    camera_->Render();
-    camera_->Get_static_view_matrix(view_matrix);
-    d3d_->GetWorldMatrix(world_matrix);
-    d3d_->GetOrthoMatrix(ortho_matrix);
-    d3d_->Turn_zbuffer_off();
-
-    full_sceen_window_->Render(d3d_->GetDeviceContext());
-    //result = light_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), deferred_buffers_->Get_shader_resource_view(1), light_->Get_direction());
-    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0));
-    if (!result)
-        return false;
-
-    d3d_->Turn_zbuffer_on();
-    d3d_->End_scene();
     return true;
 }
 
@@ -1061,7 +1054,7 @@ bool GraphicsClass::Render_reflection_to_texture()
     result = shader_manager_->Render_particle_shader(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, reflection_view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
-    d3d_->GetWorldMatrix(world_matrix);    
+    d3d_->GetWorldMatrix(world_matrix);
     d3d_->TurnOffAlphaBlending();
 
     d3d_->Set_back_buffer_render_target();
@@ -1124,7 +1117,7 @@ bool GraphicsClass::Render_scene_to_texture()
 
     //skybox
     light_dir = light_->Get_direction();
-    
+
     result = shader_manager_->Render_skybox_shader(d3d_->GetDeviceContext(), skybox_->Get_index_count(), world_matrix, view_matrix, projection_matrix, texture_manager_->Get_texture(3), texture_manager_->Get_texture(4), frame_time_, skybox_->Get_scale(), -light_dir.y, skybox_->Get_apex_color(), skybox_->Get_center_color());
     if (!result)
         return false;
@@ -1137,11 +1130,11 @@ bool GraphicsClass::Render_scene_to_texture()
     frustum_->ConstructFrustrum(SCREEN_DEPTH, projection_matrix, view_matrix);
     for (int i = 0; i < terrain_->Get_cell_count(); i++)
     {
-        result =  terrain_->Render_cell(d3d_->GetDeviceContext(), i, frustum_);
+        result = terrain_->Render_cell(d3d_->GetDeviceContext(), i, frustum_);
         if (result)
         {
             result = shader_manager_->Render_terrain_shader(d3d_->GetDeviceContext(), terrain_->Get_cell_index_count(i), world_matrix, view_matrix, projection_matrix, light_view_matrix, light_ortho_matrix, texture_manager_->Get_texture(0), shadow_texture_->Get_shader_resource_view(), texture_manager_->Get_texture(1), texture_manager_->Get_texture(2), light_->Get_direction(), light_->Get_ambient_color(), light_->Get_diffuse_color());
-            if(!result)
+            if (!result)
                 return false;
         }
     }
@@ -1221,24 +1214,24 @@ bool GraphicsClass::Render_scene_to_texture()
     result = shader_manager_->Render_particle_shader(d3d_->GetDeviceContext(), particle_system_->Get_index_count(), world_matrix, view_matrix, projection_matrix, particle_system_->Get_texture());
     if (!result)
         return false;
-    d3d_->GetWorldMatrix(world_matrix);   
-    
+    d3d_->GetWorldMatrix(world_matrix);
+
     result = text_->Render(d3d_->GetDeviceContext(), world_matrix, ortho_matrix);
     if (!result)
         return false;
 
     //mouse
-    result = mouse_->Render(d3d_->GetDeviceContext(), mouse_x_, mouse_y_);
+    result = mouse_->Render(d3d_->GetDeviceContext(), screen_width_/2, screen_height_/2);
     if (!result)
         return false;
 
-    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, static_view_matrix, ortho_matrix, mouse_->Get_texture());
+   // result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), mouse_->Get_index_count(), world_matrix, static_view_matrix, ortho_matrix, mouse_->Get_texture());
     if (!result)
         return false;
 
     d3d_->TurnOffAlphaBlending();
     d3d_->GetWorldMatrix(world_matrix);
-    
+
     //d3d_->End_scene();
     d3d_->Set_back_buffer_render_target();
 
@@ -1307,3 +1300,25 @@ bool GraphicsClass::Render_vertical_bloor_to_texture()
     return true;
 }
 
+bool GraphicsClass::Render2d_texture_scene()
+{
+    D3DXMATRIX world_matrix, view_matrix, ortho_matrix;
+    bool result;
+
+    d3d_->Begin_scene(1.0f, 0.0f, 0.0f, 0.0f);
+    camera_->Render();
+    camera_->Get_static_view_matrix(view_matrix);
+    d3d_->GetWorldMatrix(world_matrix);
+    d3d_->GetOrthoMatrix(ortho_matrix);
+    d3d_->Turn_zbuffer_off();
+
+    full_sceen_window_->Render(d3d_->GetDeviceContext());
+    //result = light_shader_->Render(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), deferred_buffers_->Get_shader_resource_view(1), light_->Get_direction());
+    result = shader_manager_->Render_texture_shader(d3d_->GetDeviceContext(), full_sceen_window_->Get_index_count(), world_matrix, view_matrix, ortho_matrix, deferred_buffers_->Get_shader_resource_view(0), mouse_delta_x_, mouse_delta_y_);
+    if (!result)
+        return false;
+
+    d3d_->Turn_zbuffer_on();
+    d3d_->End_scene();
+    return true;
+}

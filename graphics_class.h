@@ -43,7 +43,7 @@ public:
 
     bool Initialize(int, int, HWND);
     void Shutdown();
-    bool Frame(float, float, float, float, float);
+    bool Frame(float, float, float, float, float, float, float);
     bool Render();
     bool Handle_input(bool, int, int);
 
@@ -98,6 +98,7 @@ private:
     float rotation_x_ = 0.0f;
     float rotation_y_ = 0.0f;
     float frame_time_ = 0.0f;
+    float mouse_delta_x_, mouse_delta_y_;
 
     float screen_width_;
     float screen_height_;

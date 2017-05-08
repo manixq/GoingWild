@@ -6,6 +6,7 @@ TextureShaderClass::TextureShaderClass()
  pixel_shader_ = nullptr;
  layout_ = nullptr;
  matrix_buffer_ = nullptr;
+ motion_buffer_ = nullptr;
  sample_state_ = nullptr;
 }
 
@@ -33,10 +34,10 @@ void TextureShaderClass::Shutdown()
  Shutdown_shader();
 }
 
-bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture)
+bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, float mouse_x, float mouse_y)
 {
  bool result;
- result = Set_shader_parameters(device_context, world, view, projection, texture);
+ result = Set_shader_parameters(device_context, world, view, projection, texture, mouse_x, mouse_y);
  if (!result)
   return false;
 
@@ -53,6 +54,7 @@ bool TextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
  D3D11_INPUT_ELEMENT_DESC polygon_layout[2];
  unsigned int num_elements;
  D3D11_BUFFER_DESC matrix_buffer_desc;
+ D3D11_BUFFER_DESC motion_buffer_desc;
  D3D11_SAMPLER_DESC sampler_desc;
 
  error_message = nullptr;
@@ -127,10 +129,21 @@ bool TextureShaderClass::Initialize_shader(ID3D11Device* device, HWND hwnd, WCHA
  if (FAILED(result))
   return false;
 
+ motion_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+ motion_buffer_desc.ByteWidth = sizeof(MOTION_BLUR);
+ motion_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+ motion_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+ motion_buffer_desc.MiscFlags = 0;
+ motion_buffer_desc.StructureByteStride = 0;
+
+ result = device->CreateBuffer(&motion_buffer_desc, nullptr, &motion_buffer_);
+ if (FAILED(result))
+     return false;
+
  sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
- sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
- sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
- sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+ sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+ sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+ sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
  sampler_desc.MipLODBias = 0.0f;
  sampler_desc.MaxAnisotropy = 1;
  sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -160,6 +173,13 @@ void TextureShaderClass::Shutdown_shader()
  {
   matrix_buffer_->Release();
   matrix_buffer_ = nullptr;
+ }
+
+
+ if (motion_buffer_)
+ {
+     motion_buffer_->Release();
+     motion_buffer_ = nullptr;
  }
 
  if(layout_)
@@ -200,11 +220,12 @@ void TextureShaderClass::Output_shader_error_message(ID3D10Blob* error_message, 
  MessageBox(hwnd, L"Error compiling shader. check txt file.", shader_filename, MB_OK);
 }
 
-bool TextureShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture)
+bool TextureShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_context, D3DXMATRIX world, D3DXMATRIX view, D3DXMATRIX projection, ID3D11ShaderResourceView* texture, float mouse_x, float mouse_y)
 {
  HRESULT result;
  D3D11_MAPPED_SUBRESOURCE mapped_resource;
  MATRIX_BUFFER_TYPE* data_ptr;
+ MOTION_BLUR* data_ptr2;
  unsigned int buffer_number;
 
  D3DXMatrixTranspose(&world, &world);
@@ -230,6 +251,22 @@ bool TextureShaderClass::Set_shader_parameters(ID3D11DeviceContext* device_conte
 
  //set constatnt buffer in vertex shader with updated valuse
  device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+
+ result = device_context->Map(motion_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+ if (FAILED(result))
+     return false;
+
+ data_ptr2 = (MOTION_BLUR*)mapped_resource.pData;
+ data_ptr2->mouse_x = mouse_x;
+ data_ptr2->mouse_y = mouse_y;
+ data_ptr2->padding = D3DXVECTOR2(0.0f, 0.0f);
+
+ device_context->Unmap(motion_buffer_, 0);
+
+ buffer_number = 0;
+
+ device_context->PSSetConstantBuffers(buffer_number, 1, &motion_buffer_);
+
  //set shader texture resource in the pixel shader
  device_context->PSSetShaderResources(0, 1, &texture);
 

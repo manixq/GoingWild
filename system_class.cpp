@@ -2,12 +2,12 @@
 
 SystemClass::SystemClass()
 {
- input_ = nullptr;
- graphics_ = nullptr;
- fps_ = nullptr;
- cpu_ = nullptr;
- timer_ = nullptr;
- position_ = nullptr;
+    input_ = nullptr;
+    graphics_ = nullptr;
+    fps_ = nullptr;
+    cpu_ = nullptr;
+    timer_ = nullptr;
+    position_ = nullptr;
 }
 
 SystemClass::SystemClass(const SystemClass& other_class)
@@ -162,6 +162,9 @@ bool SystemClass::Frame()
     bool lmb;
     int mouse_x, mouse_y;
 
+    int old_mouse_x;
+    int old_mouse_y;
+
     //escape? no.
     result = input_->Frame();
     if (!result)
@@ -172,7 +175,8 @@ bool SystemClass::Frame()
 
     input_->Get_mouse_location(mouse_x, mouse_y);
     lmb = input_->Is_left_mouse_button_down();
-
+    input_->Set_default_mouse_location();
+    input_->Get_mouse_location(old_mouse_x, old_mouse_y);
     timer_->Frame();
 
     position_->Set_frame_time(timer_->Get_time());
@@ -180,6 +184,8 @@ bool SystemClass::Frame()
     position_->Turn_down(input_->Is_key_down(VK_DOWN));
     position_->Turn_left(input_->Is_key_down(VK_LEFT));
     position_->Turn_right(input_->Is_key_down(VK_RIGHT));
+    position_->Turn_y(old_mouse_x - mouse_x);
+    position_->Turn_x(old_mouse_y - mouse_y);
     position_->Go_up(input_->Is_key_down('W'));
     position_->Go_down(input_->Is_key_down('S'));
     position_->Go_left(input_->Is_key_down('A'));
@@ -188,17 +194,14 @@ bool SystemClass::Frame()
     position_->Get_xpos(x_pos);
     position_->Get_zpos(z_pos);
 
-    result = graphics_->Frame(timer_->Get_time(), rotation_x, rotation_y, x_pos, z_pos);
-    if (!result)
-        return false;
-
-    result = graphics_->Handle_input(lmb, mouse_x, mouse_y);
+    result = graphics_->Frame(timer_->Get_time(), rotation_x, rotation_y, x_pos, z_pos, old_mouse_x - mouse_x, old_mouse_y - mouse_y);
     if (!result)
         return false;
 
     result = graphics_->Render();
     if (!result)
         return false;
+
     return true;
 }
 
@@ -238,7 +241,7 @@ void SystemClass::Initialize_windows(int& screen_width, int& screen_height)
     hinstance = GetModuleHandle(nullptr);
 
     //app name
-    application_name = L"Engine";
+    application_name = L"Scanner";
 
     //window class
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
