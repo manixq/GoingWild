@@ -573,7 +573,7 @@ bool GraphicsClass::Frame(float frame_time, float rotation_x, float rotation_y, 
 
     mouse_x = -mouse_x / screen_width_;
     mouse_y = -mouse_y / screen_height_;
-    if ((abs(mouse_x) + abs(mouse_y)) > (abs(mouse_delta_x_) + abs(mouse_delta_y_)) / 1.68033f)
+    if ((abs(mouse_x) + abs(mouse_y)) > abs(mouse_delta_x_) + abs(mouse_delta_y_))
     {
         mouse_delta_x_ = mouse_x;
         mouse_delta_y_ = mouse_y;

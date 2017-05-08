@@ -22,23 +22,28 @@ struct PIXEL_INPUT_TYPE
 //PixelShader
 float4 Texture_pixel_shader(PIXEL_INPUT_TYPE input) : SV_TARGET
 {
-    float4 texture_color;
-    float4 texture_color_temp;
     float2 motion_coord = float2(input.tex.x + mouse_x, input.tex.y + mouse_y);
-    float2 motion_coord_temp;
-    float delta_x = -mouse_x / 20.0f;
-    float delta_y = -mouse_y / 20.0f;    
+    float2 motion_coord_temp;    
 
-    for (int i = -20; i < 20; i++)
+    float4 texture_color;
+    float4 texture_color_temp = shader_texture.Sample(sample_type, motion_coord);    
+    float4 texture_color_max = texture_color_temp;
+
+    float delta_x = -mouse_x / 10.0f;
+    float delta_y = -mouse_y / 10.0f;    
+
+    for (int i = -10; i < 0; i++)
     {
         motion_coord_temp.x = motion_coord.x + i * delta_x;
         motion_coord_temp.y = motion_coord.y + i * delta_y;
-        texture_color_temp += shader_texture.Sample(sample_type, motion_coord_temp);
+        texture_color = shader_texture.Sample(sample_type, motion_coord_temp);
+        if (dot(texture_color.xyz, float3(1.0f, 1.0f, 1.0f)) > dot(float3(0.8,0.8,0.8), float3(1.0f, 1.0f, 1.0f)))
+            texture_color_max = texture_color;
+        texture_color_temp += texture_color;
     }
-
-    texture_color_temp /= 40;
-    texture_color = (1 - 0.68033f) * shader_texture.Sample(sample_type, input.tex) + 0.68033f * texture_color_temp;
-
+ 
+    //texture_color = lerp(texture_color_max, texture_color_temp / 10, texture_color_temp / texture_color_max); //cool
+    texture_color = lerp(texture_color_max, texture_color_temp / 10, 0.68033f);
     return texture_color;
 };
 
